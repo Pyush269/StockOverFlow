@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: stockflow-local
+  namespace: argocd
+spec:
+  project: stockflow
+  source:
+    repoURL: https://github.com/Pyush269/StockOverFlow.git
+    targetRevision: main
+    path: helm/stockflow
+    helm:
+      releaseName: stockflow
+      valueFiles:
+        - values-local.yaml
+        - values-release.yaml
+      valuesObject:
+        postgresql:
+          existingSecret: stockflow-gitops-db
+        monitoring:
+          serviceMonitor:
+            enabled: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: stockflow-gitops-smoke
+  syncPolicy:
+    syncOptions:
+      - RespectIgnoreDifferences=true
+      - FailOnSharedResource=true
+      - PruneLast=true
+    retry:
+      limit: 3
+      backoff: {duration: 5s, factor: 2, maxDuration: 1m}
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: stockflow-stockflow-backend
+      jsonPointers: [/spec/replicas]

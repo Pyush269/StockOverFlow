@@ -2,10 +2,10 @@ name: Helm validation
 
 on:
   pull_request:
-    paths: ['helm/**', 'k8s/**', 'scripts/*helm*', 'scripts/create-k8s-secret.py', 'scripts/check-k8s-capacity.py', 'scripts/bootstrap-cluster.ps1', '.github/workflows/helm.yml']
+    paths: ['helm/**', 'k8s/**', 'argocd/**', 'scripts/*helm*', 'scripts/*gitops*', 'scripts/create-k8s-secret.py', 'scripts/check-k8s-capacity.py', 'scripts/bootstrap-cluster.ps1', '.github/workflows/helm.yml', '.github/workflows/ci.yml']
   push:
     branches: [main]
-    paths: ['helm/**', 'k8s/**', 'scripts/*helm*', 'scripts/create-k8s-secret.py', 'scripts/check-k8s-capacity.py', 'scripts/bootstrap-cluster.ps1', '.github/workflows/helm.yml']
+    paths: ['helm/**', 'k8s/**', 'argocd/**', 'scripts/*helm*', 'scripts/*gitops*', 'scripts/create-k8s-secret.py', 'scripts/check-k8s-capacity.py', 'scripts/bootstrap-cluster.ps1', '.github/workflows/helm.yml', '.github/workflows/ci.yml']
   workflow_dispatch:
 
 permissions:
@@ -51,6 +51,7 @@ jobs:
           helm lint helm/stockflow --strict
           helm lint helm/stockflow --strict --values helm/stockflow/values-prod.yaml
           python scripts/test-helm.py 2>&1 | tee .logs/helm-tests.txt
+          python scripts/test-gitops.py 2>&1 | tee .logs/gitops-tests.txt
       - name: Create isolated Kubernetes 1.36 cluster with a 29-pod worker
         run: >-
           kind create cluster --name stockflow-smoke --config k8s/local-kind.yaml
@@ -83,6 +84,7 @@ jobs:
           name: helm-validation-${{ github.sha }}
           path: |
             .logs/helm-tests.txt
+            .logs/gitops-tests.txt
             .logs/helm-runtime.txt
             .logs/helm-runtime.json
             .logs/helm-list.txt

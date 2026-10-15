@@ -1,0 +1,8 @@
+# Promotion changes only this file after the source SHA's CI publishes both images.
+# Changing these tags does not run an AWS deploy or undo database migrations.
+backend:
+  image:
+    tag: "71a365476ca83f9cf3a1307fb1f94c1b3605a9be"
+frontend:
+  image:
+    tag: "71a365476ca83f9cf3a1307fb1f94c1b3605a9be"

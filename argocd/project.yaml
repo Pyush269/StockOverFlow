@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: stockflow
+  namespace: argocd
+spec:
+  description: StockFlow application resources only
+  sourceRepos:
+    - https://github.com/Pyush269/StockOverFlow.git
+  destinations:
+    - namespace: stockflow
+      server: https://kubernetes.default.svc
+    - namespace: stockflow-gitops-smoke
+      server: https://kubernetes.default.svc
+  # Namespace and cluster infrastructure are provisioned separately.
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - {group: '', kind: ServiceAccount}
+    - {group: '', kind: ConfigMap}
+    - {group: '', kind: Service}
+    - {group: apps, kind: Deployment}
+    - {group: apps, kind: StatefulSet}
+    - {group: batch, kind: Job}
+    - {group: autoscaling, kind: HorizontalPodAutoscaler}
+    - {group: networking.k8s.io, kind: Ingress}
+    - {group: monitoring.coreos.com, kind: ServiceMonitor}
