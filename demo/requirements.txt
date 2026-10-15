@@ -1,0 +1,4 @@
+# Documentation-only tools. Keep separate from backend runtime requirements.
+reportlab==5.0.1
+pypdf==6.20.1
+pymupdf==1.28.2

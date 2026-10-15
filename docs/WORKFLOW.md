@@ -33,12 +33,14 @@ Suppliers, barcode scanning, purchase orders, notifications, and multiple wareho
 | StockFlow backend, migrations, and PostgreSQL tests | Implemented; 49 tests passed after frontend filter support |
 | StockFlow React frontend | Implemented; see FRONTEND_VERIFICATION.md |
 | GitHub repository and CI/GHCR publisher | Configured; see CI_SECURITY.md |
-| AWS account configuration | To configure and verify |
+| AWS project/profile configuration | Fresh Deploy / stockflow / ap-southeast-2 verified; AWS resources kept off |
 | StockFlow containers and persistent Compose application stack | Implemented; see CONTAINERS.md |
 | StockFlow CI/security/GHCR workflow | Implemented; see CI_SECURITY.md |
-| StockFlow infrastructure, GitOps, monitoring | To implement |
+| StockFlow Terraform plan | Real one-worker plan prepared; apply pending |
+| Helm, GitOps, and monitoring | Implemented and verified locally; repeat cloud checks after approval |
+| Submission | PDF slides and recording checklist prepared; mandatory video pending |
 
-StockFlow runs in a verified, persistent Docker Compose stack with CI/security/GHCR delivery. Cloud deployment remains to implement. See the [README](../README.md), [container verification](CONTAINERS.md), and [CI/security evidence](CI_SECURITY.md).
+StockFlow runs in a verified, persistent Docker Compose stack with CI/security/GHCR delivery and a separate local Kubernetes GitOps demo. The real AWS infrastructure remains undeployed. See the [README](../README.md) and [deployment/evaluation checklist](DEPLOYMENT_CHECKLIST.md).
 
 This file is an execution plan. Commands involving `stockflow`, manifests, workflows, or charts require the corresponding files to be created in the indicated phase first. Creating this guide does not create cloud resources.
 
@@ -499,7 +501,7 @@ Save screenshots. Remove the disposable smoke release before deploying the real 
 
 ## 14. Phase 9: configure GitOps with ArgoCD
 
-Create `argocd/application.yaml` pointing to your repository, main branch, `helm/stockflow` path, `values-prod.yaml`, destination cluster, and `stockflow` namespace. Create database/pull Secrets in that namespace before the first application sync.
+Create `argocd/application.yaml` pointing to your repository, main branch, `helm/stockflow` path, `values-prod.yaml` followed by the shared `values-release.yaml`, destination cluster, and `stockflow` namespace. Create database/pull Secrets in that namespace before the first application sync. The separate `application-local.yaml` uses a disposable local namespace and local storage overlay.
 
 Start with manual sync so you can inspect the first deployment. Enable automated reconciliation after the initial release is healthy. ArgoCD uses Helm to render templates and owns the lifecycle; it does not create an ordinary Helm release entry. Keep the separate smoke-release evidence for the rubric's `helm list` requirement. [ArgoCD Helm integration](https://argo-cd.readthedocs.io/en/latest/user-guide/helm/)
 
@@ -513,7 +515,7 @@ kubectl get pods,svc,ingress,pvc,hpa -n stockflow
 First release:
 
 1. Take the source SHA from a successful CI run that published both images.
-2. Put that exact SHA into both image tags in `values-prod.yaml` and commit it.
+2. Put that exact SHA into both image tags in `values-release.yaml` and commit it.
 3. Sync the ArgoCD Application and inspect rollout events and logs.
 4. Verify the app through the ALB hostname, including stock movement and persistence.
 
@@ -630,21 +632,21 @@ Send one phase at a time and require its completion check before moving on. Each
 
 ## 19. Final acceptance checklist
 
-- [ ] Own inventory application with a working stock ledger and no negative inventory.
-- [ ] Product GET/POST/PUT/DELETE, validation, search, dashboard, and responsive UI.
-- [ ] PostgreSQL migrations work from an empty database and persistence is verified.
-- [ ] At least 5 tests cover at least 3 endpoints; PostgreSQL-specific behavior is checked.
-- [ ] Docker Compose starts the complete local application with one command.
-- [ ] Frontend/backend images are non-root; frontend uses a multi-stage build.
-- [ ] Main CI passes tests/builds/scans and publishes the same SHA-tagged images to GHCR.
-- [ ] No HIGH/CRITICAL scan exception silently bypasses the chosen gate.
+- [x] Own inventory application with a working stock ledger and no negative inventory.
+- [x] Product GET/POST/PUT/DELETE, validation, search, dashboard, and responsive UI.
+- [x] PostgreSQL migrations work from an empty database and persistence is verified.
+- [x] At least 5 tests cover at least 3 endpoints; PostgreSQL-specific behavior is checked.
+- [x] Docker Compose starts the complete local application with one command.
+- [x] Frontend/backend images are non-root; frontend uses a multi-stage build.
+- [x] Main source CI passes tests/builds/scans and publishes the same SHA-tagged images to GHCR.
+- [x] No HIGH/CRITICAL image scan exception silently bypasses the chosen gate.
 - [ ] Terraform provisions VPC/EKS and has usable state for later destroy.
 - [ ] Storage, ingress, metrics, monitoring, and ArgoCD dependencies are Ready.
 - [ ] Two backend and two frontend replicas are running; Ingress serves the real app/API.
 - [ ] Helm evidence and ArgoCD Synced/Healthy evidence are saved.
-- [ ] A release, rollback, persistence check, and recovery demonstration are recorded.
-- [ ] Prometheus target is UP and Grafana shows live metrics.
+- [x] A release, rollback, persistence check, and recovery demonstration are recorded locally; repeat on EKS.
+- [x] Prometheus target is UP and Grafana shows live metrics locally; repeat on EKS.
 - [ ] At least 10 meaningful commits, complete README, minimum 8-slide deck, mandatory video.
 - [ ] Submission repository is accessible; final cleanup is scheduled after evaluation.
 
-Prompts 1–4 are implemented. Prompt 5 has a real one-worker Sydney plan: 59 additions, about $0.29/hour infrastructure or $0.33/hour full demo before variable usage and credits. See [INFRASTRUCTURE.md](INFRASTRUCTURE.md), including the three configuration scan findings. Prompt 6 chart/bootstrap code and the real local Helm install, upgrade, persistence, HPA metrics, and Prometheus scrape checks are complete; see [HELM.md](HELM.md) and the [bootstrap runbook](../k8s/bootstrap/README.md). **The user chose to keep AWS off on 15 October 2026.** After later deployment authorization, refresh/apply the reviewed plan and finish EKS/ALB/EBS checks. Prompt 7's ArgoCD Application remains pending. Application/CI evidence remains in VERIFICATION.md, FRONTEND_VERIFICATION.md, CONTAINERS.md, and CI_SECURITY.md.
+Prompts 1–4 are implemented. Prompt 5 has a real one-worker Sydney plan: 59 additions, about $0.29/hour infrastructure or $0.33/hour full demo before variable usage and credits. See [INFRASTRUCTURE.md](INFRASTRUCTURE.md), including the three configuration scan findings. Prompts 6–8 now have local Helm, GitOps release/rollback/recovery, live dashboard, bounded load, and observed HPA 2 -> 3 -> 2 evidence. See [HELM.md](HELM.md), [GitOps evidence](GITOPS_VERIFICATION.json), [observability](OBSERVABILITY.md), and the [PDF slides](../demo/slides.pdf). The longer monitoring check corrected Grafana sidecar OOMs. **The user chose to keep AWS off on 15 October 2026.** Real EKS/EBS/ALB deployment, cloud retesting, final cloud slide updates, the mandatory video, and post-evaluation destroy remain pending. Follow the [deployment/evaluation checklist](DEPLOYMENT_CHECKLIST.md).

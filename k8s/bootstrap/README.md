@@ -13,7 +13,7 @@ The AWS deployment is currently **off by user choice**. Prompt 6 was exercised o
 | monitoring | kube-prometheus-stack 92.8.0 | Prometheus operator/CRDs, Prometheus, Grafana, node and workload metrics |
 | argocd | argo-cd 10.10.5 | GitOps controller/UI; Application configuration follows in Prompt 7 |
 
-The one-worker profile uses single-replica controllers, disables unused Dex/notifications/Alertmanager, and sets resource requests and limits. Prometheus retains six hours of data in ephemeral storage. Grafana dashboards/history are ephemeral unless provisioned from Git. This profile is for a short demo, with no worker redundancy. The PostgreSQL PVC is persistent.
+The one-worker profile uses single-replica controllers, disables unused Dex/notifications/Alertmanager, and sets resource requests and limits. The canonical monitoring chart values are in [monitoring/values.yaml](../../monitoring/values.yaml). Prometheus retains six hours of data in ephemeral storage. The StockFlow dashboard is provisioned from Git by `kubectl apply -k monitoring`; UI-only edits/history are ephemeral. This profile is for a short demo, with no worker redundancy. The PostgreSQL PVC is persistent.
 
 ## Local verification without AWS
 

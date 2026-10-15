@@ -2,10 +2,10 @@ name: Helm validation
 
 on:
   pull_request:
-    paths: ['helm/**', 'k8s/**', 'argocd/**', 'scripts/*helm*', 'scripts/*gitops*', 'scripts/create-k8s-secret.py', 'scripts/check-k8s-capacity.py', 'scripts/bootstrap-cluster.ps1', '.github/workflows/helm.yml', '.github/workflows/ci.yml']
+    paths: ['helm/**', 'k8s/**', 'argocd/**', 'monitoring/**', 'scripts/*monitoring*', 'scripts/load-test*', 'scripts/*helm*', 'scripts/*gitops*', 'scripts/create-k8s-secret.py', 'scripts/check-k8s-capacity.py', 'scripts/bootstrap-cluster.ps1', '.github/workflows/helm.yml', '.github/workflows/ci.yml']
   push:
     branches: [main]
-    paths: ['helm/**', 'k8s/**', 'argocd/**', 'scripts/*helm*', 'scripts/*gitops*', 'scripts/create-k8s-secret.py', 'scripts/check-k8s-capacity.py', 'scripts/bootstrap-cluster.ps1', '.github/workflows/helm.yml', '.github/workflows/ci.yml']
+    paths: ['helm/**', 'k8s/**', 'argocd/**', 'monitoring/**', 'scripts/*monitoring*', 'scripts/load-test*', 'scripts/*helm*', 'scripts/*gitops*', 'scripts/create-k8s-secret.py', 'scripts/check-k8s-capacity.py', 'scripts/bootstrap-cluster.ps1', '.github/workflows/helm.yml', '.github/workflows/ci.yml']
   workflow_dispatch:
 
 permissions:
@@ -52,6 +52,11 @@ jobs:
           helm lint helm/stockflow --strict --values helm/stockflow/values-prod.yaml
           python scripts/test-helm.py 2>&1 | tee .logs/helm-tests.txt
           python scripts/test-gitops.py 2>&1 | tee .logs/gitops-tests.txt
+          kubectl kustomize monitoring > .logs/stockflow-dashboard.yaml
+          python -m json.tool monitoring/stockflow.json > /dev/null
+          python -m py_compile scripts/load-test.py scripts/verify-monitoring.py
+          node --check scripts/capture-monitoring.mjs
+          node --check scripts/capture-gitops.mjs
       - name: Create isolated Kubernetes 1.36 cluster with a 29-pod worker
         run: >-
           kind create cluster --name stockflow-smoke --config k8s/local-kind.yaml

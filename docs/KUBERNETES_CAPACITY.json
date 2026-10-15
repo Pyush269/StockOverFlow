@@ -1,0 +1,21 @@
+{
+  "context": "kind-stockflow-smoke",
+  "node": "stockflow-smoke-worker",
+  "active_pods": 18,
+  "reserved_missing_system_pods": 6,
+  "baseline_cpu_requests_millicores": "1480",
+  "baseline_memory_requests_mib": "3138",
+  "projected_cpu_requests_millicores": "1755",
+  "projected_memory_requests_mib": "3418",
+  "projected_pods_with_hpa_rollout_migration": 28,
+  "budgets": {
+    "cpu_millicores": 1900,
+    "memory_mib": 6800,
+    "pods": 29
+  },
+  "containers_missing_request_fields": [
+    "kube-system/kube-proxy-hnptz:kube-proxy"
+  ],
+  "fits_requests_and_pod_budget": true,
+  "limitation": "Requests/pod-count projection; not proof of peak usage or EKS scheduling/storage behavior. Verify actual allocatable values after deployment."
+}

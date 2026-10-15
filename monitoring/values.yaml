@@ -12,8 +12,8 @@ grafana:
     limits: {cpu: 300m, memory: 384Mi}
   sidecar:
     resources:
-      requests: {cpu: 5m, memory: 32Mi}
-      limits: {cpu: 100m, memory: 64Mi}
+      requests: {cpu: 5m, memory: 96Mi}
+      limits: {cpu: 100m, memory: 256Mi}
 prometheusOperator:
   resources:
     requests: {cpu: 50m, memory: 128Mi}

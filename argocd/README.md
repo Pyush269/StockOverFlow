@@ -66,6 +66,24 @@ HPA owns backend replicas: the chart omits `spec.replicas` when HPA is enabled,
 and the Application ignores only that field on its named backend Deployment
 with `RespectIgnoreDifferences=true`. Other drift remains visible.
 
+## Local demonstration recorded
+
+The [runtime report](../docs/GITOPS_VERIFICATION.json) records baseline,
+promotion, actual Git revert, and backend Pod recovery. The promotion commit is
+`88b3cd0`; its revert is `1bbfa84`. Both frontend/backend image tags changed from
+the published `71a3654` source SHA to published `537fa26` and back. The migration
+hook succeeded, both Deployments retained at least two Ready replicas, and
+quantity 7 remained on the same PVC. The two application/schema source trees
+are unchanged between these releases. This demonstrates compatible image
+rollback, not database downgrade or recovery from a worker failure.
+
+The [ArgoCD screenshot](../docs/screenshots/stockflow-argocd-local.png) shows the
+real local Application Healthy/Synced with auto sync enabled. During development,
+the helper's apply-only strategy skipped migration hooks; it was corrected to
+hook strategy. Manual sync also carries the configured retry policy so first
+HPA metric samples can arrive. HPA is in wave 2 after workload readiness. These
+fixes were retested; real EKS verification remains pending.
+
 Official references: [Helm integration](https://argo-cd.readthedocs.io/en/stable/user-guide/helm/),
 [sync options](https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/),
 [projects](https://argo-cd.readthedocs.io/en/stable/user-guide/projects/).

@@ -1,0 +1,471 @@
+{
+  "verified_on": "2026-10-15",
+  "environment": "Local kind, not EKS",
+  "aws_deployed": false,
+  "namespace": "stockflow-gitops-smoke",
+  "load": {
+    "base_url": "http://127.0.0.1:3001",
+    "duration_seconds": 120.02,
+    "concurrency": 12,
+    "target_max_rps": 80,
+    "requests": 8780,
+    "statuses": {
+      "200": 8780
+    },
+    "failed": 0,
+    "achieved_rps": 73.16,
+    "latency_ms": {
+      "median": 31.0,
+      "p95": 203.0
+    },
+    "endpoints": [
+      "/api/products?limit=20",
+      "/api/dashboard"
+    ]
+  },
+  "prometheus_backend_targets_up": 3,
+  "dashboard_uid": "stockflow-overview",
+  "dashboard_live_queries": [
+    {
+      "panel": "API request rate",
+      "query": "sum(rate(http_requests_total{namespace=\"stockflow-gitops-smoke\",handler=~\"/api/.*\"}[2m]))",
+      "series": 1,
+      "values": [
+        "72.2100682473344"
+      ]
+    },
+    {
+      "panel": "API p95 latency",
+      "query": "histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket{namespace=\"stockflow-gitops-smoke\",handler=~\"/api/.*\"}[2m])))",
+      "series": 1,
+      "values": [
+        "0.3401633731311139"
+      ]
+    },
+    {
+      "panel": "API 5xx rate",
+      "query": "sum(rate(http_requests_total{namespace=\"stockflow-gitops-smoke\",handler=~\"/api/.*\",status=~\"5..\"}[2m])) or (0 * sum(rate(http_requests_total{namespace=\"stockflow-gitops-smoke\",handler=~\"/api/.*\"}[2m])))",
+      "series": 1,
+      "values": [
+        "0"
+      ]
+    },
+    {
+      "panel": "Backend CPU",
+      "query": "sum by(pod) (rate(container_cpu_usage_seconds_total{namespace=\"stockflow-gitops-smoke\",container=\"backend\",image!=\"\"}[2m]))",
+      "series": 3,
+      "values": [
+        "0.23276546937726864",
+        "0.26949424240519054",
+        "0.1191335177083333"
+      ]
+    },
+    {
+      "panel": "Backend memory",
+      "query": "sum by(pod) (container_memory_working_set_bytes{namespace=\"stockflow-gitops-smoke\",container=\"backend\",image!=\"\"})",
+      "series": 3,
+      "values": [
+        "73211904",
+        "75014144",
+        "74006528"
+      ]
+    },
+    {
+      "panel": "Backend ready replicas",
+      "query": "kube_deployment_status_replicas_available{namespace=\"stockflow-gitops-smoke\",deployment=~\".*-backend\"}",
+      "series": 1,
+      "values": [
+        "3"
+      ]
+    }
+  ],
+  "hpa_samples": [
+    {
+      "elapsed_seconds": 0.2,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 0.4,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 5.6,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 10.9,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 16.2,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 21.5,
+      "current_replicas": 2,
+      "desired_replicas": 3,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 145
+    },
+    {
+      "elapsed_seconds": 26.7,
+      "current_replicas": 2,
+      "desired_replicas": 3,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 145
+    },
+    {
+      "elapsed_seconds": 32.0,
+      "current_replicas": 2,
+      "desired_replicas": 3,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 145
+    },
+    {
+      "elapsed_seconds": 37.3,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 334
+    },
+    {
+      "elapsed_seconds": 42.6,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 334
+    },
+    {
+      "elapsed_seconds": 47.8,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 334
+    },
+    {
+      "elapsed_seconds": 53.1,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 375
+    },
+    {
+      "elapsed_seconds": 58.3,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 375
+    },
+    {
+      "elapsed_seconds": 63.5,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 375
+    },
+    {
+      "elapsed_seconds": 68.7,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 317
+    },
+    {
+      "elapsed_seconds": 73.9,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 317
+    },
+    {
+      "elapsed_seconds": 79.2,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 317
+    },
+    {
+      "elapsed_seconds": 84.5,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 215
+    },
+    {
+      "elapsed_seconds": 89.7,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 215
+    },
+    {
+      "elapsed_seconds": 95.0,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 215
+    },
+    {
+      "elapsed_seconds": 100.3,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 219
+    },
+    {
+      "elapsed_seconds": 105.7,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 219
+    },
+    {
+      "elapsed_seconds": 111.0,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 219
+    },
+    {
+      "elapsed_seconds": 116.3,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 214
+    },
+    {
+      "elapsed_seconds": 140.0,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 208
+    },
+    {
+      "elapsed_seconds": 145.1,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 88
+    },
+    {
+      "elapsed_seconds": 150.3,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 88
+    },
+    {
+      "elapsed_seconds": 155.5,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 88
+    },
+    {
+      "elapsed_seconds": 160.7,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 17
+    },
+    {
+      "elapsed_seconds": 165.8,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 17
+    },
+    {
+      "elapsed_seconds": 171.1,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 17
+    },
+    {
+      "elapsed_seconds": 176.3,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 181.5,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 186.7,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 191.9,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 197.0,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 202.2,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 207.4,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 212.5,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 217.7,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 222.8,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 228.0,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 233.2,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 238.4,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 243.6,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 248.8,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 254.0,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 259.2,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 264.3,
+      "current_replicas": 3,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 269.5,
+      "current_replicas": 3,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 274.7,
+      "current_replicas": 3,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 279.9,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 4
+    }
+  ],
+  "hpa_max_ready_replicas": 3,
+  "hpa_scaled_above_two": true,
+  "grafana_containers_stable": {
+    "pod": "monitoring-grafana-58bfdbb5c5-ngzgg",
+    "containers": [
+      {
+        "name": "grafana",
+        "ready": true,
+        "restarts": 0
+      },
+      {
+        "name": "grafana-sc-dashboard",
+        "ready": true,
+        "restarts": 0
+      },
+      {
+        "name": "grafana-sc-datasources",
+        "ready": true,
+        "restarts": 0
+      }
+    ]
+  },
+  "screenshot": "docs/screenshots/stockflow-grafana-local.png"
+}

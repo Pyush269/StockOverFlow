@@ -8,9 +8,11 @@ Source repository: [Pyush269/StockOverFlow](https://github.com/Pyush269/StockOve
 
 Inventory management with a product catalog, stock receipts/issues, an append-only API ledger, and low-stock reporting. Built for the DevSecOps capstone using React/FastAPI/PostgreSQL and the planned EKS/Helm/ArgoCD delivery architecture.
 
+Stack: Python 3.12, FastAPI, SQLAlchemy/Alembic, PostgreSQL 16, React 19, Vite 8, Nginx, Docker Compose, GitHub Actions/GHCR, Trivy, Terraform, Kubernetes/EKS, Helm, ArgoCD, Prometheus, and Grafana.
+
 ## Current stage
 
-**Prompts 1–4 implemented; Prompt 5 is planned; Prompt 6 Helm/bootstrap code is verified locally. AWS stays off at the user's request.** GitHub Actions tests PostgreSQL behavior, builds the frontend, scans both release images, and publishes those exact images only on successful main pushes. The revised one-worker Sydney plan has **59 additions, no changes or destroys**, estimated at **$0.29/hour for infrastructure**, or **$0.33/hour for the full demo**, before variable usage and credits. Review [costs and three configuration scan findings](docs/INFRASTRUCTURE.md). A real local Helm release passed migration, API, upgrade, and PVC recovery checks, with two frontend/backend replicas and working monitoring. [Prompt 6 evidence and limitations](docs/HELM.md) distinguish local results from pending EKS/ALB/EBS checks.
+**Application/CI and the local Helm, GitOps, and monitoring demonstrations are implemented. AWS stays off at the user's request.** The revised one-worker Sydney plan has **59 additions, no changes or destroys**, estimated at **$0.29/hour for infrastructure**, or **$0.33/hour for the full demo**, before variable usage and credits. Review [costs and three configuration scan findings](docs/INFRASTRUCTURE.md). Local checks cover Helm upgrade/PVC recovery, ArgoCD release/rollback, retained inventory, backend Pod recovery, live Grafana panels, and HPA scaling from two to three replicas and back. Real EKS/ALB/EBS checks and the mandatory cloud walkthrough video remain pending. Use the [deployment/evaluation checklist](docs/DEPLOYMENT_CHECKLIST.md).
 
 - Product CRUD with normalized unique SKUs, search/category filters, and pagination.
 - Transactional stock-in/stock-out with PostgreSQL row locks.
@@ -29,7 +31,8 @@ Inventory management with a product catalog, stock receipts/issues, an append-on
 Current: React/Nginx container -> /api proxy -> FastAPI container -> PostgreSQL 16
 Dev:     React/Vite -> /api proxy -> FastAPI -> development PostgreSQL
 CI:      GitHub Actions -> tests/build -> strict Trivy gates -> SHA-tagged GHCR images
-Later:   Git release values -> ArgoCD/Helm -> AWS EKS
+Local:   Git release values -> ArgoCD/Helm -> isolated Kubernetes demo
+Pending: Same GitOps deployment -> AWS EKS -> public ALB
 ```
 
 The backend never creates tables on startup. Apply Alembic migrations before starting it. Stock changes and ledger inserts share a single transaction. All movement, metadata update, and product delete operations acquire the same product row lock, preventing competing issues from overselling. The database also enforces nonnegative inventory and restricts deletion of referenced products.
@@ -152,7 +155,7 @@ This starts the same images in an isolated Compose project on 3001/8002/5434, ve
 
 ## CI, security, and release images
 
-The active workflow is [.github/workflows/ci.yml](.github/workflows/ci.yml). Pull requests run tests/builds/scans without registry credentials. A separate publish job runs only for successful pushes to `main`, using the job's `GITHUB_TOKEN` with `packages: write`; no personal token is committed or required for CI publishing. Manual dispatch validates without publishing.
+The image workflow is [.github/workflows/ci.yml](.github/workflows/ci.yml). Application changes trigger tests/builds/scans; pull requests have no publication credentials. A separate publish job runs only for successful source pushes to `main`, using the job's `GITHUB_TOKEN` with `packages: write`; no personal token is committed or required for CI publishing. Manual dispatch validates without publishing. Helm/GitOps/monitoring-only changes use the separate chart workflow and do not build another image release. Both Applications use `helm/stockflow/values-release.yaml` to promote an already successful source SHA; a values commit and the source commit are different commits.
 
 Both images must pass `trivy image --severity HIGH,CRITICAL --exit-code 1`. Unfixed findings are included and there are no CVE suppressions. Test results, JSON scan reports, and publication receipts are saved as workflow artifacts. The publish job verifies a saved archive checksum and scanned image IDs before tagging/pushing; it never rebuilds or runs the downloaded images.
 
@@ -171,6 +174,14 @@ Repeat the backend tests on Linux without host Python or development data access
 docker compose -f compose.ci.yml up --build --abort-on-container-exit --exit-code-from backend-tests
 docker compose -f compose.ci.yml down
 ```
+
+## GitOps and monitoring
+
+The [ArgoCD runbook](argocd/README.md) describes the restricted AppProject, manual first sync, automated reconciliation, SHA promotion, and compatible rollback. ArgoCD owns its application resources; Actions publishes images. Secrets and namespaces are prepared separately. The production Application is prepared but has not been applied to AWS.
+
+The [monitoring runbook](monitoring/README.md) contains canonical chart values, the provisioned six-panel Grafana dashboard, and bounded read traffic commands. [Local monitoring evidence](docs/OBSERVABILITY.md) records 8,780 requests without failures, populated queries, and HPA scaling 2 -> 3 -> 2. The longer check found and corrected Grafana sidecar OOMs; the replacement pod stayed healthy throughout the successful experiment. Local performance is not a cloud benchmark.
+
+The [PDF slides](demo/slides.pdf) cover the implemented architecture and explicitly mark AWS deployment pending. [Recording guidance](demo/RECORDING.md) lists the actual cloud evidence still needed. The video has not been recorded.
 
 ## API contract
 
@@ -251,12 +262,17 @@ compose.ci.yml              Isolated Linux backend test image and PostgreSQL
 terraform/                  VPC, EKS managed nodes/add-ons, IAM, logs, locked providers
 helm/stockflow/              App chart, migrations, storage, HPA, Ingress, ServiceMonitor
 k8s/bootstrap/              Pinned controllers, monitoring, ArgoCD, and bootstrap runbook
+argocd/                     Restricted project and local/production Applications
+monitoring/                 Canonical chart values and provisioned dashboard JSON
+demo/                       PDF slides, editable content, recording checklist
 docs/WORKFLOW.md            Full staged implementation plan
 docs/VERIFICATION.md        Completed checks and remaining work
 docs/CONTAINERS.md          Prompt 3 checks, local operation, troubleshooting
 docs/CI_SECURITY.md         Prompt 4 workflow, reports, digests, access requirements
 docs/INFRASTRUCTURE.md      Prompt 5 real plan review, Sydney prices, findings, cleanup
 docs/HELM.md                Prompt 6 local evidence and remaining cloud checks
+docs/GITOPS_VERIFICATION.json  Actual local release, rollback, and recovery results
+docs/OBSERVABILITY.md       Load, live metrics, scaling, and Grafana memory correction
 ```
 
-Next cloud step, when deployment is authorized: refresh the plan/operator IP, apply the reviewed infrastructure, bootstrap controllers, and complete the EKS Helm/ALB/storage checks. Prompt 7 adds the ArgoCD Application; later stages add monitoring demonstrations and submission artifacts according to [the workflow](docs/WORKFLOW.md). Preserve real evidence and meaningful incremental commits as each stage passes.
+Next cloud step, when deployment is authorized: refresh the plan/operator IP, apply the reviewed infrastructure, bootstrap controllers, and repeat the Helm, GitOps, ALB/storage, and monitoring checks on EKS. Update the slides with real cloud evidence, record the mandatory walkthrough, and clean up after evaluation. Follow [the checklist](docs/DEPLOYMENT_CHECKLIST.md) and preserve actual evidence as each stage passes.

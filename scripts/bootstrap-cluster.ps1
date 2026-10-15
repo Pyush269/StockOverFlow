@@ -84,7 +84,8 @@ if (-not $Local) {
 $stockflowMetricsValues = @((Join-Path $stockflowBootstrap 'metrics-server-values.yaml'))
 if ($Local) { $stockflowMetricsValues += (Join-Path $stockflowBootstrap 'metrics-server-local.yaml') }
 Install-StockFlowDependency 'metrics-server' 'metrics-server/metrics-server' $stockflowVersions.charts.metricsServer.version 'kube-system' $stockflowMetricsValues
-Install-StockFlowDependency 'monitoring' 'prometheus-community/kube-prometheus-stack' $stockflowVersions.charts.monitoring.version 'monitoring' @((Join-Path $stockflowBootstrap 'monitoring-values.yaml'))
+Install-StockFlowDependency 'monitoring' 'prometheus-community/kube-prometheus-stack' $stockflowVersions.charts.monitoring.version 'monitoring' @((Join-Path $stockflowRoot 'monitoring\values.yaml'))
+Invoke-StockFlowTool 'kubectl' @('--context', $Context, 'apply', '-k', (Join-Path $stockflowRoot 'monitoring'))
 Install-StockFlowDependency 'argocd' 'argo/argo-cd' $stockflowVersions.charts.argocd.version 'argocd' @((Join-Path $stockflowBootstrap 'argocd-values.yaml'))
 Invoke-StockFlowTool 'kubectl' @('--context', $Context, 'top', 'nodes')
 Write-Output 'Bootstrap releases are ready. Verify storage, scrape targets, pod capacity, and application health next.'
