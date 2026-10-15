@@ -1,0 +1,7 @@
+import { Activity as ActivityIcon, ArrowDownLeft, Package } from 'lucide-react';
+import { Button, EmptyState, ErrorNotice, LoadingState } from '../components/UI.jsx';
+import { ActivityList } from './Overview.jsx';
+
+export default function Activity({ dashboard, onRetry, onRecord, onNavigate, onHistory, openingProductId }) {
+  return <section className="panel activity-panel"><header className="panel-header"><div><h2>Movement ledger</h2><p>Your 10 most recent stock movements, newest first. Open a product’s history for its full ledger.</p></div><span className="read-only-label">Read-only history</span></header><ErrorNotice error={dashboard.error} onRetry={onRetry} title="We couldn’t refresh your activity" />{dashboard.loading && !dashboard.data ? <LoadingState text="Loading stock activity…" /> : dashboard.data?.recent_movements.length ? <ActivityList movements={dashboard.data.recent_movements} onHistory={onHistory} openingProductId={openingProductId} /> : !dashboard.error && <EmptyState icon={ActivityIcon} title="Your inventory story starts here" description="Receive or issue stock and every movement will appear in this ledger."><Button variant="primary" icon={ArrowDownLeft} onClick={onRecord}>Record a movement</Button></EmptyState>}<footer className="activity-explainer"><Package size={19} /><div><strong>Looking for an older movement?</strong><p>Find the product in your catalog and open its stock history.</p></div><Button onClick={() => onNavigate('products')}>Browse products</Button></footer></section>;
+}
