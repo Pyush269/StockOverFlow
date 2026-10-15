@@ -2,7 +2,7 @@
 
 Verified on 15 October 2026 (IST), Windows/Python 3.12.10, using PostgreSQL 16 containers.
 
-This records Prompt 1. Prompt 2 adds the React frontend and two backend filter tests; see [current frontend verification](FRONTEND_VERIFICATION.md) and [README](../README.md) for the latest state.
+This records Prompt 1. Prompt 2 adds React and two backend filter tests; Prompt 3 adds the complete persistent Docker stack. See [frontend verification](FRONTEND_VERIFICATION.md), [container verification](CONTAINERS.md), and [README](../README.md) for the latest state.
 
 ## Completed
 

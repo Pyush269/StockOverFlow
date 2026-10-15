@@ -4,7 +4,7 @@ Inventory management with a product catalog, stock receipts/issues, an append-on
 
 ## Current stage
 
-**Foundation, backend, and React frontend implemented (Prompts 1 and 2).** Application Docker images, CI/CD, Terraform, Helm, GitOps, and monitoring deployment are subsequent stages. The current `docker-compose.yml` starts the development database only; the API and frontend currently run as local development processes.
+**Prompts 1–3 implemented: backend, React frontend, and the full Docker Compose stack.** PostgreSQL health gates a one-shot Alembic migration, then backend readiness gates the production Nginx frontend. CI/security, Terraform, Helm, GitOps, and monitoring deployment are subsequent stages.
 
 - Product CRUD with normalized unique SKUs, search/category filters, and pagination.
 - Transactional stock-in/stock-out with PostgreSQL row locks.
@@ -20,14 +20,36 @@ Inventory management with a product catalog, stock receipts/issues, an append-on
 ## Architecture
 
 ```text
-Current: React/Vite -> /api proxy -> FastAPI -> PostgreSQL 16
-Next:    React/Nginx container -> FastAPI container -> PostgreSQL
+Current: React/Nginx container -> /api proxy -> FastAPI container -> PostgreSQL 16
+Dev:     React/Vite -> /api proxy -> FastAPI -> development PostgreSQL
 Later:   GitHub Actions -> Trivy -> GHCR -> Git release values -> ArgoCD/Helm -> AWS EKS
 ```
 
 The backend never creates tables on startup. Apply Alembic migrations before starting it. Stock changes and ledger inserts share a single transaction. All movement, metadata update, and product delete operations acquire the same product row lock, preventing competing issues from overselling. The database also enforces nonnegative inventory and restricts deletion of referenced products.
 
-## Local development on this computer
+## Run the complete application
+
+Docker Desktop must be running with Linux containers. From `stockflow/`, the existing ignored `.env` is already configured on this computer. For a fresh checkout, copy `.env.example` to `.env` and choose a long alphanumeric password; update both password occurrences for host development. Preserve existing database credentials when reusing a volume.
+
+```powershell
+docker compose config --quiet
+docker compose up --build -d --wait
+```
+
+Open [StockFlow](http://127.0.0.1:3000) and [Swagger UI](http://127.0.0.1:8000/docs). The frontend is the production bundle served by non-root Nginx on container port 8080. Host ports 3000, 8000, and 5432 bind only to loopback. Stop a host development API using port 8000 before starting the container API; these are alternative modes.
+
+```powershell
+docker compose ps --all
+docker compose logs migrate backend frontend
+Invoke-RestMethod http://127.0.0.1:8000/ready
+docker compose down
+# Starts the same database with inventory and ledger preserved:
+docker compose up -d --wait
+```
+
+The migration container should show **Exited (0)**; it is a successful one-shot job. The other three services should be healthy. `down` preserves `stockflow_postgres-data`; **`down --volumes` deletes inventory**. Application containers use non-root users, read-only root filesystems, dropped Linux capabilities, and temporary writable `/tmp` storage. No Python or Node installation is needed to run the Compose application. See [container operation and verification](docs/CONTAINERS.md).
+
+## Host development on this computer
 
 Prerequisites: Python 3.12, Docker Desktop with Linux containers, and Docker Compose. Tool installation details live in the parent Capstone folder.
 
@@ -42,12 +64,14 @@ python -m venv backend/.venv
 & .\backend\.venv\Scripts\python.exe -m pip install -r backend/requirements-dev.lock.txt
 ```
 
-StockFlow has its own environment at `backend/.venv`; it does not use the reference application's installed dependencies. `requirements.txt` pins direct runtime dependencies; `requirements.lock.txt` locks the installed runtime dependency set. The corresponding development files include pytest/TestClient dependencies. The generated locks were verified on Windows/Python 3.12; validate platform-specific wheels and refresh a suitable lock during the Linux container stage.
+StockFlow has its own environment at `backend/.venv`; it does not use the reference application's installed dependencies. `requirements.txt` pins direct runtime dependencies; `requirements.lock.txt` locks the runtime dependency set. The corresponding development files include pytest/TestClient dependencies. The runtime lock has also been installed and checked successfully on Linux/Python 3.12 in the backend image.
 
 For a fresh checkout, copy `.env.example` to `.env` and replace the password in **both** `POSTGRES_PASSWORD` and `DATABASE_URL`. Use the same value. This checkout already has an ignored `.env` with a generated local password. URL-encode special password characters when constructing database URLs; a long alphanumeric value avoids that issue.
 
 ```powershell
 # From stockflow/; Docker Desktop must be running.
+# If switching from the full stack, stop these before using host port 8000:
+docker compose stop frontend backend
 docker compose up -d --wait postgres
 Set-Location backend
 & .\.venv\Scripts\python.exe -m alembic upgrade head
@@ -64,7 +88,7 @@ Stop the API with Ctrl+C. Stop the development DB with `docker compose down` fro
 
 ## React frontend
 
-The frontend is available at [http://127.0.0.1:5173](http://127.0.0.1:5173). Both that frontend and the API must be running for inventory operations. The current implementation session leaves both local servers running.
+For hot-reload development, Vite uses [http://127.0.0.1:5173](http://127.0.0.1:5173). It can connect to either a host API or the container API at port 8000. The complete container application uses [http://127.0.0.1:3000](http://127.0.0.1:3000).
 
 For a fresh checkout, use Node 22 and install the locked dependencies:
 
@@ -83,7 +107,7 @@ Start the API with `scripts/start-backend.ps1` in one PowerShell terminal. In an
 
 The backend helper runs without automatic reload by default. Use `& .\scripts\start-backend.ps1 -Reload` for interactive backend development; restart it after source changes otherwise. Both helpers stay in the foreground when you run them yourself; Ctrl+C stops the corresponding server. A busy port means an existing server must be stopped or reused.
 
-The Vite server binds to loopback port 5173 and proxies relative `/api` requests to `http://127.0.0.1:8000`. `STOCKFLOW_API_TARGET` can select a different API for an isolated local test server; it is a development-server setting, not a client-side secret or production configuration. Production routing is part of Prompt 3.
+The Vite server binds to loopback port 5173 and proxies relative `/api` requests to `http://127.0.0.1:8000`. `STOCKFLOW_API_TARGET` selects a different API for isolated development tests. Production Nginx takes `API_UPSTREAM` and `NGINX_RESOLVER` at container startup; these are not embedded into JavaScript.
 
 Workspace navigation: Overview, Products, and Stock activity. A product's name/history action opens its full paginated ledger. Activity shows the 10 latest movements across the workspace, with links to full product history. Low-stock navigation uses server-side filtering across all catalog pages. Stock dialogs fetch the latest quantity, preview the result, prevent obvious overselling, and preserve entered values if a concurrent change causes an API conflict.
 
@@ -109,6 +133,15 @@ For the complete browser workflow checks, from `stockflow/`:
 This helper checks the unit tests/build, starts a disposable test database on 5433, API on 8001, and Vite on 5174, then runs Playwright in an isolated Chromium profile. It stops only its own QA servers and removes the disposable DB afterward. Development inventory on port 5432 is unaffected. Run it separately from the backend test helper because they share the disposable test DB/port.
 
 The frontend includes repeatable browser checks for create/edit, receive/issue and insufficient stock, deletion/cancellation, duplicate SKUs and failed-save retry, cross-page filters/pagination, stale-stock conflicts, picker/activity/history, and mobile navigation. Read [frontend verification](docs/FRONTEND_VERIFICATION.md) for results and screenshots. Generated browser caches, traces, and reports are ignored by Git.
+
+## Container checks
+
+```powershell
+# From stockflow/, with Node 22, frontend dependencies, and Chromium installed:
+& .\scripts\test-containers.ps1
+```
+
+This starts the same images in an isolated Compose project on 3001/8002/5434, verifies non-root execution, migrations, API behavior, all 8 browser workflows, backend replacement, and persistence after `down`/`up`, then removes only its disposable QA volume. See [verification details](docs/CONTAINERS.md).
 
 ## API contract
 
@@ -180,10 +213,11 @@ backend/alembic/            Versioned schema migrations
 backend/tests/              API and PostgreSQL integration coverage
 scripts/                    Local startup and test helpers
 frontend/                   React/Vite workspace, self-hosted assets, frontend/browser tests
-docker-compose.yml          Persistent development PostgreSQL
+docker-compose.yml          Complete application, migration job, persistent PostgreSQL
 compose.test.yml            Separate disposable PostgreSQL test service
 docs/WORKFLOW.md            Full staged implementation plan
 docs/VERIFICATION.md        Completed checks and remaining work
+docs/CONTAINERS.md          Prompt 3 checks, local operation, troubleshooting
 ```
 
-Next complete **Prompt 3: the non-root Docker Compose application stack**, followed by CI/security/GHCR, Terraform/EKS, Helm/ArgoCD, monitoring, and submission artifacts according to [the workflow](docs/WORKFLOW.md). Take real evidence and make meaningful incremental commits as each stage passes.
+Next: **Prompt 4: CI/security/GHCR**, followed by Terraform/EKS, Helm/ArgoCD, monitoring, and submission artifacts according to [the workflow](docs/WORKFLOW.md). Take real evidence and make meaningful incremental commits as each stage passes.

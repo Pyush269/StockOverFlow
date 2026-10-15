@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const unique = (prefix = 'QA') => `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`.toUpperCase();
+const evidencePrefix = process.env.STOCKFLOW_EVIDENCE_PREFIX || 'frontend';
 const rowFor = (page, sku) => page.locator('tbody tr').filter({ hasText: sku });
 
 async function createProduct(request, changes = {}) {
@@ -77,7 +78,7 @@ test('create, edit, receive, issue, prevent overselling, and inspect the ledger'
   await page.getByRole('link', { name: 'Overview', exact: true }).click();
   const expected = await (await request.get('/api/dashboard')).json();
   await expect(page.locator('.stat-card').filter({ hasText: 'Total products' }).locator('.stat-value')).toHaveText(String(expected.total_products));
-  await page.screenshot({ path: '../docs/screenshots/frontend-overview-qa.png', fullPage: true });
+  await page.screenshot({ path: `../docs/screenshots/${evidencePrefix}-overview-qa.png`, fullPage: true });
   expect(errors).toEqual([]);
 });
 
@@ -190,7 +191,7 @@ test('mobile navigation, catalog cards and forms fit a narrow screen', async ({ 
   await page.goto('/#/overview');
   await expect(page.getByRole('heading', { name: 'Inventory overview', exact: true })).toBeVisible();
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.screenshot({ path: '../docs/screenshots/frontend-mobile-qa.png', fullPage: true });
+  await page.screenshot({ path: `../docs/screenshots/${evidencePrefix}-mobile-qa.png`, fullPage: true });
   await page.getByRole('button', { name: 'Open navigation', exact: true }).click();
   await page.getByRole('link', { name: /Products/ }).click();
   await expect(page.getByRole('heading', { name: 'Your products', exact: true })).toBeVisible();

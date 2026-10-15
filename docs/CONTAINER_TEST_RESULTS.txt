@@ -1,0 +1,367 @@
+Capstone environment ready. Node 22 and the project Python environment are on PATH.
+ Image stockflow-frontend:local Building
+ Image stockflow-backend:local Building
+ Image stockflow-backend:local Building
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.67kB done
+#1 DONE 0.0s
+
+#2 [migrate internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.19kB done
+#2 DONE 0.0s
+
+#3 [frontend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 1.10kB done
+#3 DONE 0.0s
+
+#4 [frontend] resolve image config for docker-image://docker.io/docker/dockerfile:1
+#4 DONE 0.9s
+
+#5 [backend] docker-image://docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+#5 resolve docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e 0.0s done
+#5 CACHED
+
+#6 [backend internal] load metadata for docker.io/library/python:3.12-slim-bookworm@sha256:34386ef0cb081344d7ec1c103ba398e6e9f64e9ab3a1509accc92a4e24a07258
+#6 DONE 0.1s
+
+#7 [frontend internal] load metadata for docker.io/library/node:22-bookworm-slim@sha256:c3de60bf2f9dd0ac6370e6117950ff62d6e339527e7472301c9c78a017978392
+#7 DONE 0.1s
+
+#8 [frontend internal] load metadata for docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:782bb89768cc87b7f95c18b95baa1af250e5d451f26794f59363540161147c01
+#8 DONE 0.1s
+
+#9 [frontend internal] load .dockerignore
+#9 transferring context: 194B done
+#9 DONE 0.0s
+
+#10 [backend internal] load .dockerignore
+#10 transferring context: 143B done
+#10 DONE 0.0s
+
+#11 [backend internal] load build context
+#11 transferring context: 836B done
+#11 DONE 0.0s
+
+#12 [frontend internal] load build context
+#12 transferring context: 3.06kB done
+#12 DONE 0.0s
+
+#13 [backend dependencies 1/4] FROM docker.io/library/python:3.12-slim-bookworm@sha256:34386ef0cb081344d7ec1c103ba398e6e9f64e9ab3a1509accc92a4e24a07258
+#13 resolve docker.io/library/python:3.12-slim-bookworm@sha256:34386ef0cb081344d7ec1c103ba398e6e9f64e9ab3a1509accc92a4e24a07258 0.1s done
+#13 CACHED
+
+#14 [backend dependencies 2/4] WORKDIR /build
+#14 CACHED
+
+#15 [backend dependencies 3/4] COPY requirements.lock.txt ./
+#15 CACHED
+
+#16 [backend dependencies 4/4] RUN python -m venv /opt/venv     && /opt/venv/bin/pip install -r requirements.lock.txt     && /opt/venv/bin/pip check
+#16 CACHED
+
+#17 [frontend build 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:c3de60bf2f9dd0ac6370e6117950ff62d6e339527e7472301c9c78a017978392
+#17 resolve docker.io/library/node:22-bookworm-slim@sha256:c3de60bf2f9dd0ac6370e6117950ff62d6e339527e7472301c9c78a017978392 0.1s done
+#17 DONE 0.1s
+
+#18 [frontend runtime 1/5] FROM docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:782bb89768cc87b7f95c18b95baa1af250e5d451f26794f59363540161147c01
+#18 resolve docker.io/nginxinc/nginx-unprivileged:stable-alpine@sha256:782bb89768cc87b7f95c18b95baa1af250e5d451f26794f59363540161147c01 0.1s done
+#18 DONE 0.1s
+
+#19 [frontend build 8/8] RUN npm run build
+#19 CACHED
+
+#20 [frontend build 7/8] COPY src ./src
+#20 CACHED
+
+#21 [frontend build 5/8] COPY index.html vite.config.js ./
+#21 CACHED
+
+#22 [frontend build 4/8] RUN npm ci --no-audit --no-fund
+#22 CACHED
+
+#23 [frontend build 2/8] WORKDIR /build
+#23 CACHED
+
+#24 [frontend build 6/8] COPY public ./public
+#24 CACHED
+
+#25 [frontend runtime 2/5] COPY --from=build --chown=101:101 /build/dist /usr/share/nginx/html
+#25 CACHED
+
+#26 [frontend build 3/8] COPY package.json package-lock.json ./
+#26 CACHED
+
+#27 [frontend runtime 3/5] COPY nginx.conf /etc/nginx/nginx.conf
+#27 CACHED
+
+#28 [frontend runtime 4/5] COPY nginx.conf.template /etc/nginx/templates/stockflow.conf.template
+#28 DONE 0.0s
+
+#29 [backend runtime 2/7] RUN groupadd --gid 10001 stockflow     && useradd --uid 10001 --gid stockflow --no-create-home --shell /usr/sbin/nologin stockflow
+#29 ...
+
+#30 [frontend runtime 5/5] COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/stockflow-entrypoint
+#30 DONE 0.1s
+
+#31 [frontend] exporting to image
+#31 exporting layers 0.1s done
+#31 exporting manifest sha256:80596f586e824d5e6c6e76efcbc2badcc7e01ca39a93c5a95b3ac73d1b8bbe05 0.0s done
+#31 exporting config sha256:dc1c56640236438b50c64d23d5834385d6aa88843f58bef680e47446c40f1e60 0.0s done
+#31 exporting attestation manifest sha256:f90f7f39dd9522f41bdaca96f8ca1edc0ba55881b2c0efdeef5e6663b900ed02 0.0s done
+#31 exporting manifest list sha256:0f8faf038dddd5cfd11af9285a56cc24f1d558425e90df7fbee129c69f02c254 0.0s done
+#31 naming to docker.io/library/stockflow-frontend:local
+#31 naming to docker.io/library/stockflow-frontend:local done
+#31 unpacking to docker.io/library/stockflow-frontend:local 0.1s done
+#31 DONE 0.4s
+
+#29 [migrate runtime 2/7] RUN groupadd --gid 10001 stockflow     && useradd --uid 10001 --gid stockflow --no-create-home --shell /usr/sbin/nologin stockflow
+#29 DONE 0.4s
+
+#32 [migrate runtime 3/7] WORKDIR /app
+#32 DONE 0.1s
+
+#33 [frontend] resolving provenance for metadata file
+#33 DONE 0.0s
+
+#34 [migrate runtime 4/7] COPY --from=dependencies /opt/venv /opt/venv
+#34 DONE 1.2s
+
+#34 [migrate runtime 4/7] COPY --from=dependencies /opt/venv /opt/venv
+#34 DONE 1.2s
+
+#35 [backend runtime 5/7] COPY --chown=10001:10001 app ./app
+#35 DONE 0.7s
+
+#35 [migrate runtime 5/7] COPY --chown=10001:10001 app ./app
+#35 DONE 0.7s
+
+#36 [backend runtime 6/7] COPY --chown=10001:10001 alembic ./alembic
+#36 DONE 0.4s
+
+#36 [migrate runtime 6/7] COPY --chown=10001:10001 alembic ./alembic
+#36 DONE 0.4s
+
+#37 [migrate runtime 7/7] COPY --chown=10001:10001 alembic.ini ./
+#37 DONE 0.5s
+
+#37 [backend runtime 7/7] COPY --chown=10001:10001 alembic.ini ./
+#37 DONE 0.5s
+
+#38 [migrate] exporting to image
+#38 exporting layers 4.4s done
+#38 exporting manifest sha256:6386ebe3821f037a3d272886ddeefee4e340f9b15fb843be1ccbf7eb51a8ea34 0.0s done
+#38 exporting config sha256:fe26d7bac91d97e71e4a81a1d10aad4f809b325ba56b287441683a975d350165 0.0s done
+#38 exporting attestation manifest sha256:9934561481a2c91333be383dd9c2022821c8cad67ccc702c628a7e42e807e34e
+#38 exporting attestation manifest sha256:9934561481a2c91333be383dd9c2022821c8cad67ccc702c628a7e42e807e34e 0.0s done
+#38 exporting manifest list sha256:b73fd0d3018ca0c4b13636d25aeecb78c40be100344f9255760405d8c8f4fb67 0.0s done
+#38 naming to docker.io/library/stockflow-backend:local done
+#38 unpacking to docker.io/library/stockflow-backend:local
+#38 unpacking to docker.io/library/stockflow-backend:local 0.9s done
+#38 DONE 5.5s
+
+#39 [backend] exporting to image
+#39 exporting layers 4.4s done
+#39 exporting manifest sha256:16c0d42698de6110c6120cfa691007b126a95d5d9829b2da51708cf9138a46bb 0.0s done
+#39 exporting config sha256:2b3dc71bbae6614f504c2235a990849eefd0318b741465428696bd3a27a2aa76 0.0s done
+#39 exporting attestation manifest sha256:dbf804bd2c37e6efa273477ce84811a6a6b94ff986787a3bc27c15642ac680b7 0.0s done
+#39 exporting manifest list sha256:db35e4987e60a6c7488745f6566e2cc54bd9b959c3b0e3706f547e2d3bdfd61c 0.0s done
+#39 naming to docker.io/library/stockflow-backend:local done
+#39 unpacking to docker.io/library/stockflow-backend:local 0.9s done
+#39 DONE 5.5s
+
+#40 [backend] resolving provenance for metadata file
+#40 DONE 0.1s
+
+#41 [migrate] resolving provenance for metadata file
+#41 DONE 0.0s
+ Image stockflow-backend:local Built
+ Image stockflow-backend:local Built
+ Image stockflow-frontend:local Built
+ Network stockflow-container-qa_default Creating
+ Network stockflow-container-qa_default Creating
+ Volume stockflow-container-qa_postgres-data Creating
+ Volume stockflow-container-qa_postgres-data Creating
+ Volume stockflow-container-qa_postgres-data Created
+ Volume stockflow-container-qa_postgres-data Created
+ Network stockflow-container-qa_default Created
+ Network stockflow-container-qa_default Created
+ Container stockflow-container-qa-postgres-1 Creating
+ Container stockflow-container-qa-postgres-1 Created
+ Container stockflow-container-qa-migrate-1 Creating
+ Container stockflow-container-qa-migrate-1 Created
+ Container stockflow-container-qa-backend-1 Creating
+ Container stockflow-container-qa-backend-1 Created
+ Container stockflow-container-qa-frontend-1 Creating
+ Container stockflow-container-qa-frontend-1 Created
+ Container stockflow-container-qa-postgres-1 Starting
+ Container stockflow-container-qa-postgres-1 Started
+ Container stockflow-container-qa-postgres-1 Waiting
+ Container stockflow-container-qa-postgres-1 Healthy
+ Container stockflow-container-qa-migrate-1 Starting
+ Container stockflow-container-qa-migrate-1 Started
+ Container stockflow-container-qa-postgres-1 Waiting
+ Container stockflow-container-qa-migrate-1 Waiting
+ Container stockflow-container-qa-postgres-1 Healthy
+ Container stockflow-container-qa-migrate-1 Exited
+ Container stockflow-container-qa-backend-1 Starting
+ Container stockflow-container-qa-backend-1 Started
+ Container stockflow-container-qa-backend-1 Waiting
+ Container stockflow-container-qa-backend-1 Healthy
+ Container stockflow-container-qa-frontend-1 Starting
+ Container stockflow-container-qa-frontend-1 Started
+ Container stockflow-container-qa-frontend-1 Waiting
+ Container stockflow-container-qa-postgres-1 Waiting
+ Container stockflow-container-qa-migrate-1 Waiting
+ Container stockflow-container-qa-backend-1 Waiting
+ Container stockflow-container-qa-backend-1 Healthy
+ Container stockflow-container-qa-postgres-1 Healthy
+ Container stockflow-container-qa-migrate-1 Exited
+ Container stockflow-container-qa-frontend-1 Healthy
+NAME                                IMAGE                                                                                        COMMAND                  SERVICE    CREATED          STATUS                      PORTS
+stockflow-container-qa-backend-1    stockflow-backend:local                                                                      "python -m uvicorn aâ€¦"   backend    16 seconds ago   Up 10 seconds (healthy)     127.0.0.1:8002->8000/tcp
+stockflow-container-qa-frontend-1   stockflow-frontend:local                                                                     "/usr/local/bin/stocâ€¦"   frontend   16 seconds ago   Up 5 seconds (healthy)      127.0.0.1:3001->8080/tcp
+stockflow-container-qa-migrate-1    stockflow-backend:local                                                                      "python -m alembic uâ€¦"   migrate    16 seconds ago   Exited (0) 11 seconds ago
+stockflow-container-qa-postgres-1   postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea   "docker-entrypoint.sâ€¦"   postgres   16 seconds ago   Up 16 seconds (healthy)     127.0.0.1:5434->5432/tcp
+migrate-1  | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+migrate-1  | INFO  [alembic.runtime.migration] Will assume transactional DDL.
+migrate-1  | INFO  [alembic.runtime.migration] Running upgrade  -> 0001_inventory, Create the product catalog and immutable stock movement ledger.
+PASS: backend healthy; user 10001:10001; read-only root filesystem.
+uid=10001(stockflow) gid=10001(stockflow) groups=10001(stockflow)
+PASS: frontend healthy; user 101:101; read-only root filesystem.
+uid=101(nginx) gid=101(nginx) groups=101(nginx)
+No broken requirements found.
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.schemas
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.tables
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.types
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.constraints
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.defaults
+INFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.comments
+INFO  [alembic.ddl.postgresql] Detected sequence named 'products_id_seq' as owned by integer column 'products(id)', assuming SERIAL and omitting
+INFO  [alembic.ddl.postgresql] Detected sequence named 'stock_movements_id_seq' as owned by integer column 'stock_movements(id)', assuming SERIAL and omitting
+No new upgrade operations detected.
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+PASS: Nginx-proxied CRUD, SKU conflict, stock 10 - 3 = 7, reject 8, validation, atomic history, and protected deletion.
+PASS: SPA fallback, real missing-asset 404, and JSON API errors preserved through Nginx.
+ Container stockflow-container-qa-backend-1 Recreate
+ Container stockflow-container-qa-backend-1 Recreated
+ Container stockflow-container-qa-backend-1 Starting
+ Container stockflow-container-qa-backend-1 Started
+ Container stockflow-container-qa-backend-1 Waiting
+ Container stockflow-container-qa-backend-1 Healthy
+PASS: Nginx API proxy recovered after backend replacement; frontend container unchanged.
+
+> stockflow-frontend@0.2.0 test:e2e
+> playwright test
+
+
+Running 8 tests using 1 worker
+
+(node:23476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 e2e\inventory.spec.js:28:1 â€º create, edit, receive, issue, prevent overselling, and inspect the ledger (1.9s)
+  ok 2 e2e\inventory.spec.js:85:1 â€º duplicate SKU and temporary save failure preserve form values (924ms)
+  ok 3 e2e\inventory.spec.js:109:1 â€º delete confirmation can cancel, deletes unused fixtures, and protects ledger history (1.2s)
+  ok 4 e2e\inventory.spec.js:130:1 â€º category, status, search and pagination work across catalog pages (1.5s)
+  ok 5 e2e\inventory.spec.js:149:1 â€º stale stock conflicts retain the quantity and note and refresh availability (954ms)
+  ok 6 e2e\inventory.spec.js:167:1 â€º product picker, activity and paginated product history remain connected (1.3s)
+  ok 7 e2e\inventory.spec.js:188:1 â€º mobile navigation, catalog cards and forms fit a narrow screen (1.0s)
+  ok 8 e2e\inventory.spec.js:206:1 â€º history loading can retry and the skip link preserves the current page (705ms)
+
+  8 passed (11.4s)
+ Container stockflow-container-qa-frontend-1 Stopping
+ Container stockflow-container-qa-frontend-1 Stopped
+ Container stockflow-container-qa-frontend-1 Removing
+ Container stockflow-container-qa-frontend-1 Removed
+ Container stockflow-container-qa-backend-1 Stopping
+ Container stockflow-container-qa-backend-1 Stopped
+ Container stockflow-container-qa-backend-1 Removing
+ Container stockflow-container-qa-backend-1 Removed
+ Container stockflow-container-qa-migrate-1 Stopping
+ Container stockflow-container-qa-migrate-1 Stopped
+ Container stockflow-container-qa-migrate-1 Removing
+ Container stockflow-container-qa-migrate-1 Removed
+ Container stockflow-container-qa-postgres-1 Stopping
+ Container stockflow-container-qa-postgres-1 Stopped
+ Container stockflow-container-qa-postgres-1 Removing
+ Container stockflow-container-qa-postgres-1 Removed
+ Network stockflow-container-qa_default Removing
+ Network stockflow-container-qa_default Removed
+ Network stockflow-container-qa_default Creating
+ Network stockflow-container-qa_default Creating
+ Network stockflow-container-qa_default Created
+ Network stockflow-container-qa_default Created
+ Container stockflow-container-qa-postgres-1 Creating
+ Container stockflow-container-qa-postgres-1 Created
+ Container stockflow-container-qa-migrate-1 Creating
+ Container stockflow-container-qa-migrate-1 Created
+ Container stockflow-container-qa-backend-1 Creating
+ Container stockflow-container-qa-backend-1 Created
+ Container stockflow-container-qa-frontend-1 Creating
+ Container stockflow-container-qa-frontend-1 Created
+ Container stockflow-container-qa-postgres-1 Starting
+ Container stockflow-container-qa-postgres-1 Started
+ Container stockflow-container-qa-postgres-1 Waiting
+ Container stockflow-container-qa-postgres-1 Healthy
+ Container stockflow-container-qa-migrate-1 Starting
+ Container stockflow-container-qa-migrate-1 Started
+ Container stockflow-container-qa-postgres-1 Waiting
+ Container stockflow-container-qa-migrate-1 Waiting
+ Container stockflow-container-qa-postgres-1 Healthy
+ Container stockflow-container-qa-migrate-1 Exited
+ Container stockflow-container-qa-backend-1 Starting
+ Container stockflow-container-qa-backend-1 Started
+ Container stockflow-container-qa-backend-1 Waiting
+ Container stockflow-container-qa-backend-1 Healthy
+ Container stockflow-container-qa-frontend-1 Starting
+ Container stockflow-container-qa-frontend-1 Started
+ Container stockflow-container-qa-backend-1 Waiting
+ Container stockflow-container-qa-frontend-1 Waiting
+ Container stockflow-container-qa-postgres-1 Waiting
+ Container stockflow-container-qa-migrate-1 Waiting
+ Container stockflow-container-qa-migrate-1 Exited
+ Container stockflow-container-qa-postgres-1 Healthy
+ Container stockflow-container-qa-backend-1 Healthy
+ Container stockflow-container-qa-frontend-1 Healthy
+PASS: exact product fields, quantity 7, and both ledger entries survived Compose down/up.
+PASS: SPA fallback, real missing-asset 404, and JSON API errors preserved through Nginx.
+backend-1  | INFO:     Started server process [7]
+backend-1  | INFO:     Waiting for application startup.
+backend-1  | INFO:     Application startup complete.
+migrate-1  | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+backend-1  | INFO:     127.0.0.1:54152 - "GET /ready HTTP/1.1" 200 OK
+backend-1  | INFO:     127.0.0.1:60714 - "GET /ready HTTP/1.1" 200 OK
+migrate-1  | INFO  [alembic.runtime.migration] Will assume transactional DDL.
+backend-1  | INFO:     172.18.0.4:36256 - "GET /api/products/1 HTTP/1.1" 200 OK
+backend-1  | INFO:     172.18.0.4:36272 - "GET /api/products/1/movements HTTP/1.1" 200 OK
+backend-1  | INFO:     172.18.0.4:36272 - "GET /api/does-not-exist HTTP/1.1" 404 Not Found
+frontend-1  | 172.18.0.1 - - [15/Oct/2026:09:57:48 +0000] "GET /api/products/1 HTTP/1.1" 200 288 "-" "node"
+frontend-1  | 172.18.0.1 - - [15/Oct/2026:09:57:48 +0000] "GET /api/products/1/movements HTTP/1.1" 200 267 "-" "node"
+frontend-1  | 172.18.0.1 - - [15/Oct/2026:09:57:48 +0000] "GET / HTTP/1.1" 200 668 "-" "node"
+frontend-1  | 172.18.0.1 - - [15/Oct/2026:09:57:48 +0000] "GET /products/deep-link HTTP/1.1" 200 668 "-" "node"
+frontend-1  | 172.18.0.1 - - [15/Oct/2026:09:57:48 +0000] "GET /assets/does-not-exist.js HTTP/1.1" 404 146 "-" "node"
+frontend-1  | 172.18.0.1 - - [15/Oct/2026:09:57:48 +0000] "GET /api/does-not-exist HTTP/1.1" 404 53 "-" "node"
+All container verification checks passed.
+ Container stockflow-container-qa-frontend-1 Stopping
+ Container stockflow-container-qa-frontend-1 Stopped
+ Container stockflow-container-qa-frontend-1 Removing
+ Container stockflow-container-qa-frontend-1 Removed
+ Container stockflow-container-qa-backend-1 Stopping
+ Container stockflow-container-qa-backend-1 Stopped
+ Container stockflow-container-qa-backend-1 Removing
+ Container stockflow-container-qa-backend-1 Removed
+ Container stockflow-container-qa-migrate-1 Stopping
+ Container stockflow-container-qa-migrate-1 Stopped
+ Container stockflow-container-qa-migrate-1 Removing
+ Container stockflow-container-qa-migrate-1 Removed
+ Container stockflow-container-qa-postgres-1 Stopping
+ Container stockflow-container-qa-postgres-1 Stopped
+ Container stockflow-container-qa-postgres-1 Removing
+ Container stockflow-container-qa-postgres-1 Removed
+ Network stockflow-container-qa_default Removing
+ Volume stockflow-container-qa_postgres-data Removing
+ Volume stockflow-container-qa_postgres-data Removed
+ Network stockflow-container-qa_default Removed

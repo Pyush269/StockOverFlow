@@ -1,0 +1,67 @@
+{
+    "product_count":  1,
+    "verified_at_utc":  "2026-10-15T10:01:33.4183559Z",
+    "services":  [
+                     {
+                         "exit_code":  0,
+                         "service":  "backend",
+                         "health":  "healthy",
+                         "read_only":  true,
+                         "user":  "10001:10001",
+                         "state":  "running"
+                     },
+                     {
+                         "exit_code":  0,
+                         "service":  "frontend",
+                         "health":  "healthy",
+                         "read_only":  true,
+                         "user":  "101:101",
+                         "state":  "running"
+                     },
+                     {
+                         "exit_code":  0,
+                         "service":  "migrate",
+                         "health":  null,
+                         "read_only":  true,
+                         "user":  "10001:10001",
+                         "state":  "exited"
+                     },
+                     {
+                         "exit_code":  0,
+                         "service":  "postgres",
+                         "health":  "healthy",
+                         "read_only":  false,
+                         "user":  "",
+                         "state":  "running"
+                     }
+                 ],
+    "development_inventory_preserved":  true,
+    "total_units":  7,
+    "endpoints":  [
+                      {
+                          "url":  "http://127.0.0.1:3000/",
+                          "status":  200
+                      },
+                      {
+                          "url":  "http://127.0.0.1:3000/api/dashboard",
+                          "status":  200
+                      },
+                      {
+                          "url":  "http://127.0.0.1:8000/health",
+                          "status":  200
+                      },
+                      {
+                          "url":  "http://127.0.0.1:8000/ready",
+                          "status":  200
+                      },
+                      {
+                          "url":  "http://127.0.0.1:8000/docs",
+                          "status":  200
+                      },
+                      {
+                          "url":  "http://127.0.0.1:8000/metrics",
+                          "status":  200
+                      }
+                  ],
+    "inventory_value":  "139.93"
+}

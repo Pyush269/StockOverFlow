@@ -2,6 +2,8 @@
 
 Verified on 15 October 2026 (IST).
 
+This records Prompt 2 through Vite. Prompt 3 subsequently verified the production Nginx bundle and all eight browser workflows; see [current container operation and results](CONTAINERS.md). The main application now runs at http://127.0.0.1:3000.
+
 ## Completed experience
 
 - React/Vite inventory workspace with Overview, Products, and Stock activity views.
@@ -58,7 +60,7 @@ Files ending in `-qa.png` show isolated test fixtures rather than the user's dev
 
 ## Run it
 
-The current implementation session leaves the local API and frontend running. Open [StockFlow](http://127.0.0.1:5173).
+The full application now runs in containers at [StockFlow](http://127.0.0.1:3000). The following commands describe the optional host development mode; stop the container API/frontend first as explained in the README.
 
 To restart manually, from `stockflow/`, use separate PowerShell terminals:
 
@@ -74,8 +76,8 @@ Repeat all frontend checks with `& .\scripts\test-frontend.ps1`. Add `-InstallBr
 
 ## Limits and next stage
 
-Desktop Chromium and one narrow-screen Chromium viewport were exercised; Safari/Firefox, assistive technology, and a full accessibility audit were not verified. The current frontend runs through Vite, not a production Nginx container. A production build does not establish container security or cloud deployment readiness.
+Desktop Chromium and one narrow-screen Chromium viewport were exercised; Safari/Firefox, assistive technology, and a full accessibility audit were not verified. This report originally tested Vite; [Prompt 3](CONTAINERS.md) subsequently verified the production Nginx container too. Neither establishes cloud deployment readiness or a passing vulnerability scan.
 
-Next: **Prompt 3**, implementing non-root application images, multi-stage frontend build, correct Nginx routing, migration/startup ordering, and the complete persistent Docker Compose application stack.
+Prompt 3 is now complete. Next: **Prompt 4**, CI/security/GHCR, as described in the current README and workflow.
 
 References: [React effects](https://react.dev/reference/react/useEffect), [Vite proxy](https://vite.dev/config/server-options.html), [Playwright configuration](https://playwright.dev/docs/test-configuration), [Fontsource variable fonts](https://fontsource.org/docs/getting-started/variable).

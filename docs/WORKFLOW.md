@@ -33,9 +33,10 @@ Suppliers, barcode scanning, purchase orders, notifications, and multiple wareho
 | StockFlow backend, migrations, and PostgreSQL tests | Implemented; 49 tests passed after frontend filter support |
 | StockFlow React frontend | Implemented; see FRONTEND_VERIFICATION.md |
 | GitHub/GHCR and AWS account configuration | To configure and verify |
-| StockFlow containers, CI, infrastructure, GitOps, monitoring | To implement |
+| StockFlow containers and persistent Compose application stack | Implemented; see CONTAINERS.md |
+| StockFlow CI, infrastructure, GitOps, monitoring | To implement |
 
-StockFlow's own frontend now builds and is connected to its tested backend. Containerization and cloud deployment remain to implement. Current startup instructions are in the [README](../README.md).
+StockFlow now runs in a verified, persistent Docker Compose stack. CI/security and cloud deployment remain to implement. Current startup instructions are in the [README](../README.md), with evidence in [container verification](CONTAINERS.md).
 
 This file is an execution plan. Commands involving `stockflow`, manifests, workflows, or charts require the corresponding files to be created in the indicated phase first. Creating this guide does not create cloud resources.
 
@@ -645,4 +646,4 @@ Send one phase at a time and require its completion check before moving on. Each
 - [ ] At least 10 meaningful commits, complete README, minimum 8-slide deck, mandatory video.
 - [ ] Submission repository is accessible; final cleanup is scheduled after evaluation.
 
-Prompts 1 and 2 are implemented; review docs/VERIFICATION.md and docs/FRONTEND_VERIFICATION.md. Continue with Prompt 3 for the complete application container stack. Finish the local stock workflow before starting AWS deployment.
+Prompts 1–3 are implemented; review docs/VERIFICATION.md, docs/FRONTEND_VERIFICATION.md, and docs/CONTAINERS.md. Continue with Prompt 4 for CI/security/GHCR. Finish release verification before starting AWS deployment.
