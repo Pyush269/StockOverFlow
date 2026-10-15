@@ -2,7 +2,7 @@
 # Changing these tags does not run an AWS deploy or undo database migrations.
 backend:
   image:
-    tag: "537fa2661bbf575155f19e264ba5638dedd3b6ba"
+    tag: "71a365476ca83f9cf3a1307fb1f94c1b3605a9be"
 frontend:
   image:
-    tag: "537fa2661bbf575155f19e264ba5638dedd3b6ba"
+    tag: "71a365476ca83f9cf3a1307fb1f94c1b3605a9be"
