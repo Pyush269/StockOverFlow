@@ -75,6 +75,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: test-results-${{ github.sha }}
+          overwrite: true
           path: reports/
           if-no-files-found: warn
           retention-days: 14
@@ -109,6 +110,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: trivy-reports-${{ github.sha }}
+          overwrite: true
           path: reports/trivy/
           if-no-files-found: warn
           retention-days: 30
@@ -119,6 +121,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-images-${{ github.sha }}
+          overwrite: true
           path: release/
           compression-level: 0
           if-no-files-found: error
@@ -161,7 +164,12 @@ jobs:
           for component in backend frontend; do
             image="ghcr.io/${owner}/stockflow-${component}:${GITHUB_SHA}"
             docker tag "stockflow-${component}:${GITHUB_SHA}" "$image"
-            docker push "$image"
+            # Retry transient registry/blob failures with the same image bytes.
+            for attempt in 1 2 3; do
+              if docker push "$image"; then break; fi
+              if [[ "$attempt" -eq 3 ]]; then exit 1; fi
+              sleep "$((attempt * 5))"
+            done
             digest="$(docker image inspect --format '{{index .RepoDigests 0}}' "$image")"
             printf '%s\n' "$digest" | tee -a release/published-digests.txt
             printf -- '- `%s`\n' "$digest" >> "$GITHUB_STEP_SUMMARY"
@@ -171,6 +179,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: publication-${{ github.sha }}
+          overwrite: true
           path: |
             release/manifest.txt
             release/published-digests.txt
