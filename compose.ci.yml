@@ -1,0 +1,31 @@
+# Disposable Linux test environment; no host ports or development data volume.
+name: stockflow-ci-check
+services:
+  postgres-test:
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+    environment:
+      POSTGRES_DB: stockflow_test
+      POSTGRES_USER: stockflow_test
+      POSTGRES_PASSWORD: stockflow_test_only
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U stockflow_test -d stockflow_test']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  backend-tests:
+    build:
+      context: ./backend
+      target: tests
+    environment:
+      DATABASE_URL: postgresql+psycopg://stockflow_test:stockflow_test_only@postgres-test:5432/stockflow_test
+      TEST_DATABASE_URL: postgresql+psycopg://stockflow_test:stockflow_test_only@postgres-test:5432/stockflow_test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:uid=10001,gid=10001,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]

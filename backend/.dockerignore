@@ -5,5 +5,9 @@
 !alembic/**
 !alembic.ini
 !requirements.lock.txt
+!requirements-dev.lock.txt
+!pytest.ini
+!tests/
+!tests/**
 **/__pycache__/
 **/*.py[cod]
