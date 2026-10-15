@@ -17,6 +17,8 @@ test-results/
 playwright-report/
 node_modules/
 dist/
+reports/
+release/
 .terraform/
 *.tfstate
 *.tfstate.*
