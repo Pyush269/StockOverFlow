@@ -12,6 +12,9 @@ coverage.xml
 *.db
 *.log
 .logs/
+.playwright-browsers/
+test-results/
+playwright-report/
 node_modules/
 dist/
 .terraform/

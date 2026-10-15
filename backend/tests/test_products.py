@@ -111,3 +111,27 @@ def test_missing_product_is_404(client, method, path, payload):
 @pytest.mark.parametrize("params", [{"limit": 0}, {"limit": 101}, {"offset": -1}])
 def test_pagination_bounds(client, params):
     assert client.get("/api/products", params=params).status_code == 422
+
+
+def test_categories_cover_catalog_and_group_case_insensitively(client, product_factory):
+    assert client.get("/api/products/categories").json() == []
+    product_factory(category="Electronics")
+    product_factory(category="electronics")
+    product_factory(category="Office")
+    response = client.get("/api/products/categories")
+    assert response.status_code == 200
+    assert [category.lower() for category in response.json()] == ["electronics", "office"]
+
+
+def test_stock_status_filters_have_correct_totals_across_pages(client, product_factory):
+    out = product_factory(sku="EMPTY", reorder_level=3)
+    low = product_factory(sku="LOW", reorder_level=3)
+    healthy = product_factory(sku="HEALTHY", reorder_level=3)
+    for product, quantity in [(low, 3), (healthy, 10)]:
+        assert client.post(f'/api/products/{product["id"]}/movements', json={"movement_type": "IN", "quantity": quantity}).status_code == 201
+    response = client.get("/api/products", params={"stock_status": "low", "limit": 1, "offset": 1}).json()
+    assert response["total"] == 2
+    assert response["items"][0]["id"] == low["id"]
+    assert client.get("/api/products", params={"stock_status": "out"}).json()["items"][0]["id"] == out["id"]
+    assert client.get("/api/products", params={"stock_status": "healthy"}).json()["items"][0]["id"] == healthy["id"]
+    assert client.get("/api/products", params={"stock_status": "unknown"}).status_code == 422

@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, Path, Query, Response, status
 from sqlalchemy import func, or_, select
@@ -19,6 +19,7 @@ def list_products(
     db: Database,
     q: Annotated[str | None, Query(min_length=1, max_length=100)] = None,
     category: Annotated[str | None, Query(min_length=1, max_length=80)] = None,
+    stock_status: Annotated[Literal["healthy", "low", "out"] | None, Query()] = None,
     limit: Annotated[int, Query(ge=1, le=100)] = 25,
     offset: Annotated[int, Query(ge=0)] = 0,
 ):
@@ -31,6 +32,12 @@ def list_products(
         ))
     if category:
         filters.append(func.lower(Product.category) == category.strip().lower())
+    if stock_status == "healthy":
+        filters.append(Product.quantity > Product.reorder_level)
+    elif stock_status == "low":
+        filters.append(Product.quantity <= Product.reorder_level)
+    elif stock_status == "out":
+        filters.append(Product.quantity == 0)
     total = db.scalar(select(func.count()).select_from(Product).where(*filters))
     items = db.scalars(select(Product).where(*filters).order_by(Product.id).limit(limit).offset(offset)).all()
     return {"items": items, "total": total, "limit": limit, "offset": offset}
@@ -39,6 +46,16 @@ def list_products(
 @router.post("", response_model=ProductOut, status_code=status.HTTP_201_CREATED)
 def create_product(payload: ProductWrite, db: Database):
     return inventory.create_product(db, payload)
+
+
+@router.get("/categories", response_model=list[str])
+def list_categories(db: Database):
+    # The filter itself is case-insensitive; return one label per category,
+    # including categories beyond the current catalog page.
+    return db.scalars(
+        select(func.min(Product.category))
+        .group_by(func.lower(Product.category)).order_by(func.lower(Product.category))
+    ).all()
 
 
 @router.get("/{product_id}", response_model=ProductOut)
