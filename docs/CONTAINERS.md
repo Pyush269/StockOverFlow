@@ -8,7 +8,7 @@ Verified on 15 October 2026 with Docker Desktop's Linux/amd64 engine and Compose
 |---|---|---|---|
 | postgres | PostgreSQL 16 Alpine, named volume | PostgreSQL health check | 127.0.0.1:5432 |
 | migrate | Backend image; Alembic upgrade | PostgreSQL healthy | None; exits 0 |
-| backend | Python 3.12 slim, UID/GID 10001 | PostgreSQL healthy; migration succeeded | 127.0.0.1:8000 |
+| backend | Python 3.12 Alpine, UID/GID 10001 | PostgreSQL healthy; migration succeeded | 127.0.0.1:8000 |
 | frontend | React / unprivileged Nginx, UID/GID 101 | Backend `/ready` healthy | 127.0.0.1:3000 -> 8080 |
 
 The backend installs the runtime lock into a virtual environment in a build stage, then copies the environment, API, and Alembic files to the runtime. The frontend uses Node 22 and `npm ci` to build, then copies only the bundle into Nginx; Node/npm/Playwright are absent from that runtime. All base images, including PostgreSQL, are digest-pinned. Maintain these pins; reproducibility does not establish vulnerability status.
@@ -96,6 +96,6 @@ Evidence: [terminal output](CONTAINER_TEST_RESULTS.txt), [running main-stack che
 
 This verifies local Linux/amd64, not multi-platform images, Kubernetes, cloud deployment, or production security. Earlier phase reports record 49 backend tests and 11 frontend unit tests; this helper runs 8 browser workflows and focused container checks. Safari/Firefox and a full accessibility audit remain unverified.
 
-Next is **Prompt 4**: GitHub Actions, Linux PostgreSQL integration checks, strict Trivy HIGH/CRITICAL gates, and publication of the exact scanned images to GHCR. This phase does not claim a passing vulnerability scan or registry publication.
+This report originally recorded Prompt 3. [Prompt 4](CI_SECURITY.md) subsequently changed the backend to Alpine to remediate base-image findings and reverified all 49 backend tests, the 8 browser workflows, and persistence. It adds strict Trivy gates and GHCR publishing. Next is Prompt 5, Terraform/EKS.
 
 References: [Compose startup ordering](https://docs.docker.com/compose/how-tos/startup-order/), [unprivileged Nginx image](https://github.com/nginx/docker-nginx-unprivileged), [Nginx upstream resolution](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#resolve).

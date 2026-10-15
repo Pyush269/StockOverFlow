@@ -1,0 +1,80 @@
+
+> stockflow-frontend@0.2.0 test
+> node --test tests/*.test.js
+
+TAP version 13
+# Subtest: writes use the relative API and JSON contract
+ok 1 - writes use the relative API and JSON contract
+  ---
+  duration_ms: 13.486018
+  type: 'test'
+  ...
+# Subtest: an empty successful DELETE does not attempt JSON parsing
+ok 2 - an empty successful DELETE does not attempt JSON parsing
+  ---
+  duration_ms: 0.159841
+  type: 'test'
+  ...
+# Subtest: business conflicts retain their actionable error code
+ok 3 - business conflicts retain their actionable error code
+  ---
+  duration_ms: 0.514937
+  type: 'test'
+  ...
+# Subtest: server validation preserves field errors used by forms
+ok 4 - server validation preserves field errors used by forms
+  ---
+  duration_ms: 0.347945
+  type: 'test'
+  ...
+# Subtest: proxy HTML errors are sanitized instead of rendered
+ok 5 - proxy HTML errors are sanitized instead of rendered
+  ---
+  duration_ms: 0.438562
+  type: 'test'
+  ...
+# Subtest: network failure and intentional cancellation remain distinguishable
+ok 6 - network failure and intentional cancellation remain distinguishable
+  ---
+  duration_ms: 0.235786
+  type: 'test'
+  ...
+# Subtest: search parameters escape text and preserve pagination offset zero
+ok 7 - search parameters escape text and preserve pagination offset zero
+  ---
+  duration_ms: 0.208244
+  type: 'test'
+  ...
+# Subtest: stock status includes the reorder boundary and distinguishes zero stock
+ok 8 - stock status includes the reorder boundary and distinguishes zero stock
+  ---
+  duration_ms: 0.115534
+  type: 'test'
+  ...
+# Subtest: quantity inputs reject decimals, negative values, and overflow
+ok 9 - quantity inputs reject decimals, negative values, and overflow
+  ---
+  duration_ms: 0.212291
+  type: 'test'
+  ...
+# Subtest: product validation checks precision and permits normalized SKUs
+ok 10 - product validation checks precision and permits normalized SKUs
+  ---
+  duration_ms: 0.258119
+  type: 'test'
+  ...
+# Subtest: large exact currency strings are not rounded through JavaScript Number
+ok 11 - large exact currency strings are not rounded through JavaScript Number
+  ---
+  duration_ms: 0.444441
+  type: 'test'
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 11
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 66.637477

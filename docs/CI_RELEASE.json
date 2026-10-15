@@ -1,0 +1,34 @@
+{
+  "repository": "https://github.com/Pyush269/StockOverFlow",
+  "run_url": "https://github.com/Pyush269/StockOverFlow/actions/runs/38720078293",
+  "run_id": 38720078293,
+  "source_sha": "7847e8e14592e3d6ff1bbfc5945e55f7ff8d8be5",
+  "conclusion": "success",
+  "jobs": {"tests": "success", "images": "success", "publish": "success"},
+  "archive_sha256": "0ebd6dd8b059b6e7d820b3a4dc47e306e9fcccd39d7c9ac77bfbe5ec9e6efe1c",
+  "images": [
+    {
+      "component": "backend",
+      "tag": "ghcr.io/pyush269/stockflow-backend:7847e8e14592e3d6ff1bbfc5945e55f7ff8d8be5",
+      "digest": "sha256:b861d3f256115ef2ba543c446c98363d8d5d8bd1b80861fbeacefbaaefb145fa",
+      "scanned_image_id": "sha256:d2f666612707c9d73c0e40c18dd3ef91e3e08dfdc41d8068390ad9e01e338b61",
+      "high_critical_findings": 0,
+      "anonymous_manifest_access": true
+    },
+    {
+      "component": "frontend",
+      "tag": "ghcr.io/pyush269/stockflow-frontend:7847e8e14592e3d6ff1bbfc5945e55f7ff8d8be5",
+      "digest": "sha256:eb3386e6d10cdb658ac857133c68191381e8712e6722d0aad92c4ea98186ea5e",
+      "scanned_image_id": "sha256:9f4cb9c7241258c8b0d3b4cb4c078f2349e9be818bdaa79cc96ef732450a4f7c",
+      "high_critical_findings": 0,
+      "anonymous_manifest_access": true
+    }
+  ],
+  "tests": {"backend": 49, "frontend_unit": 11, "container_browser": 8},
+  "negative_gate": {"backend_exit": 1, "frontend_exit": 0, "combined_exit": 1, "real_vulnerability_report": "security/rejected-backend.json"},
+  "artifacts": {
+    "trivy": "https://github.com/Pyush269/StockOverFlow/actions/runs/38720078293/artifacts/11963614746",
+    "tests": "https://github.com/Pyush269/StockOverFlow/actions/runs/38720078293/artifacts/11964094129",
+    "publication": "https://github.com/Pyush269/StockOverFlow/actions/runs/38720078293/artifacts/11964666653"
+  }
+}

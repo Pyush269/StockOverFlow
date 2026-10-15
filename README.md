@@ -1,10 +1,14 @@
 # StockFlow
 
+[![StockFlow CI](https://github.com/Pyush269/StockOverFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/Pyush269/StockOverFlow/actions/workflows/ci.yml)
+
+Source repository: [Pyush269/StockOverFlow](https://github.com/Pyush269/StockOverFlow).
+
 Inventory management with a product catalog, stock receipts/issues, an append-only API ledger, and low-stock reporting. Built for the DevSecOps capstone using React/FastAPI/PostgreSQL and the planned EKS/Helm/ArgoCD delivery architecture.
 
 ## Current stage
 
-**Prompts 1–3 implemented: backend, React frontend, and the full Docker Compose stack.** PostgreSQL health gates a one-shot Alembic migration, then backend readiness gates the production Nginx frontend. CI/security, Terraform, Helm, GitOps, and monitoring deployment are subsequent stages.
+**Prompts 1–4 implemented: application, persistent Compose stack, and CI/security/GHCR pipeline.** PostgreSQL health gates a one-shot Alembic migration, then backend readiness gates production Nginx. GitHub Actions tests PostgreSQL behavior, builds the frontend, scans both release images, and publishes those exact images only on successful main pushes. Terraform, Helm, GitOps, and monitoring deployment follow.
 
 - Product CRUD with normalized unique SKUs, search/category filters, and pagination.
 - Transactional stock-in/stock-out with PostgreSQL row locks.
@@ -22,7 +26,8 @@ Inventory management with a product catalog, stock receipts/issues, an append-on
 ```text
 Current: React/Nginx container -> /api proxy -> FastAPI container -> PostgreSQL 16
 Dev:     React/Vite -> /api proxy -> FastAPI -> development PostgreSQL
-Later:   GitHub Actions -> Trivy -> GHCR -> Git release values -> ArgoCD/Helm -> AWS EKS
+CI:      GitHub Actions -> tests/build -> strict Trivy gates -> SHA-tagged GHCR images
+Later:   Git release values -> ArgoCD/Helm -> AWS EKS
 ```
 
 The backend never creates tables on startup. Apply Alembic migrations before starting it. Stock changes and ledger inserts share a single transaction. All movement, metadata update, and product delete operations acquire the same product row lock, preventing competing issues from overselling. The database also enforces nonnegative inventory and restricts deletion of referenced products.
@@ -143,6 +148,28 @@ The frontend includes repeatable browser checks for create/edit, receive/issue a
 
 This starts the same images in an isolated Compose project on 3001/8002/5434, verifies non-root execution, migrations, API behavior, all 8 browser workflows, backend replacement, and persistence after `down`/`up`, then removes only its disposable QA volume. See [verification details](docs/CONTAINERS.md).
 
+## CI, security, and release images
+
+The active workflow is [.github/workflows/ci.yml](.github/workflows/ci.yml). Pull requests run tests/builds/scans without registry credentials. A separate publish job runs only for successful pushes to `main`, using the job's `GITHUB_TOKEN` with `packages: write`; no personal token is committed or required for CI publishing. Manual dispatch validates without publishing.
+
+Both images must pass `trivy image --severity HIGH,CRITICAL --exit-code 1`. Unfixed findings are included and there are no CVE suppressions. Test results, JSON scan reports, and publication receipts are saved as workflow artifacts. The publish job verifies a saved archive checksum and scanned image IDs before tagging/pushing; it never rebuilds or runs the downloaded images.
+
+Release names use the full source SHA, with a lowercase owner:
+
+```text
+ghcr.io/pyush269/stockflow-backend:<full-source-sha>
+ghcr.io/pyush269/stockflow-frontend:<full-source-sha>
+```
+
+See [CI/security operation and evidence](docs/CI_SECURITY.md), including the actual run link, image digests, security remediation, and package access requirements. GHCR packages initially default to private; public repository visibility alone does not make them anonymously pullable.
+
+Repeat the backend tests on Linux without host Python or development data access:
+
+```powershell
+docker compose -f compose.ci.yml up --build --abort-on-container-exit --exit-code-from backend-tests
+docker compose -f compose.ci.yml down
+```
+
 ## API contract
 
 | Method | Path | Behavior |
@@ -215,9 +242,12 @@ scripts/                    Local startup and test helpers
 frontend/                   React/Vite workspace, self-hosted assets, frontend/browser tests
 docker-compose.yml          Complete application, migration job, persistent PostgreSQL
 compose.test.yml            Separate disposable PostgreSQL test service
+compose.ci.yml              Isolated Linux backend test image and PostgreSQL
+.github/workflows/ci.yml    Tests, strict scans, archive verification, GHCR release
 docs/WORKFLOW.md            Full staged implementation plan
 docs/VERIFICATION.md        Completed checks and remaining work
 docs/CONTAINERS.md          Prompt 3 checks, local operation, troubleshooting
+docs/CI_SECURITY.md         Prompt 4 workflow, reports, digests, access requirements
 ```
 
-Next: **Prompt 4: CI/security/GHCR**, followed by Terraform/EKS, Helm/ArgoCD, monitoring, and submission artifacts according to [the workflow](docs/WORKFLOW.md). Take real evidence and make meaningful incremental commits as each stage passes.
+Next: **Prompt 5: Terraform/EKS**, followed by Helm/ArgoCD, monitoring, and submission artifacts according to [the workflow](docs/WORKFLOW.md). Take real evidence and make meaningful incremental commits as each stage passes.
