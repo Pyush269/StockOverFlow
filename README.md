@@ -1,6 +1,7 @@
 # StockFlow
 
 [![StockFlow CI](https://github.com/Pyush269/StockOverFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/Pyush269/StockOverFlow/actions/workflows/ci.yml)
+[![Terraform validation](https://github.com/Pyush269/StockOverFlow/actions/workflows/terraform.yml/badge.svg)](https://github.com/Pyush269/StockOverFlow/actions/workflows/terraform.yml)
 
 Source repository: [Pyush269/StockOverFlow](https://github.com/Pyush269/StockOverFlow).
 
@@ -8,7 +9,7 @@ Inventory management with a product catalog, stock receipts/issues, an append-on
 
 ## Current stage
 
-**Prompts 1–4 implemented: application, persistent Compose stack, and CI/security/GHCR pipeline.** PostgreSQL health gates a one-shot Alembic migration, then backend readiness gates production Nginx. GitHub Actions tests PostgreSQL behavior, builds the frontend, scans both release images, and publishes those exact images only on successful main pushes. Terraform, Helm, GitOps, and monitoring deployment follow.
+**Prompts 1–4 implemented; Prompt 5 Terraform code and the real AWS plan are ready for review.** PostgreSQL health gates a one-shot Alembic migration, then backend readiness gates production Nginx. GitHub Actions tests PostgreSQL behavior, builds the frontend, scans both release images, and publishes those exact images only on successful main pushes. The Sydney infrastructure plan has **59 additions, no changes or destroys**, with a baseline estimate of **$0.41/hour before usage charges and credits**. Review [infrastructure costs, configuration scan findings, and deployment steps](docs/INFRASTRUCTURE.md). No StockFlow AWS infrastructure has been applied. Helm, GitOps, and monitoring deployment follow.
 
 - Product CRUD with normalized unique SKUs, search/category filters, and pagination.
 - Transactional stock-in/stock-out with PostgreSQL row locks.
@@ -244,10 +245,13 @@ docker-compose.yml          Complete application, migration job, persistent Post
 compose.test.yml            Separate disposable PostgreSQL test service
 compose.ci.yml              Isolated Linux backend test image and PostgreSQL
 .github/workflows/ci.yml    Tests, strict scans, archive verification, GHCR release
+.github/workflows/terraform.yml  Credential-free Terraform validation and mock tests
+terraform/                  VPC, EKS managed nodes/add-ons, IAM, logs, locked providers
 docs/WORKFLOW.md            Full staged implementation plan
 docs/VERIFICATION.md        Completed checks and remaining work
 docs/CONTAINERS.md          Prompt 3 checks, local operation, troubleshooting
 docs/CI_SECURITY.md         Prompt 4 workflow, reports, digests, access requirements
+docs/INFRASTRUCTURE.md      Prompt 5 real plan review, Sydney prices, findings, cleanup
 ```
 
-Next: **Prompt 5: Terraform/EKS**, followed by Helm/ArgoCD, monitoring, and submission artifacts according to [the workflow](docs/WORKFLOW.md). Take real evidence and make meaningful incremental commits as each stage passes.
+Next: **review the Prompt 5 plan and approve deployment**, then verify the cluster before Prompt 6 (Helm/bootstrap). Follow with ArgoCD, monitoring, and submission artifacts according to [the workflow](docs/WORKFLOW.md). Take real evidence and make meaningful incremental commits as each stage passes.

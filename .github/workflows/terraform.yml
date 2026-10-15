@@ -1,0 +1,49 @@
+name: Terraform validation
+
+on:
+  pull_request:
+    paths: ['terraform/**', '.github/workflows/terraform.yml']
+  push:
+    branches: [main]
+    paths: ['terraform/**', '.github/workflows/terraform.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: terraform
+    shell: bash
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.16.5
+          terraform_wrapper: false
+      - name: Check formatting
+        run: terraform fmt -check -recursive
+      - name: Initialize locked providers without a backend
+        run: terraform init -backend=false -input=false -lockfile=readonly
+      - name: Validate provider schemas
+        run: terraform validate -no-color
+      - name: Test infrastructure with mocked AWS and TLS providers
+        run: |
+          mkdir -p ../reports/terraform
+          terraform test -no-color | tee ../reports/terraform/tests.txt
+      - name: Save offline validation evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: terraform-validation-${{ github.sha }}
+          path: reports/terraform/
+          overwrite: true
+          retention-days: 14
+      # No AWS credentials, plan against a real account, or apply in this workflow.

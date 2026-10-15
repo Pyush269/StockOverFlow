@@ -1,0 +1,18 @@
+# Copy to ignored terraform.tfvars; replace all example account/access values.
+# Authenticate separately: aws login --profile stockflow --region ap-southeast-2
+# Set AWS_PROFILE=stockflow in the terminal used for Terraform.
+aws_region             = "ap-southeast-2"
+expected_account_id    = "111111111111"
+operator_principal_arn = "arn:aws:iam::111111111111:role/StockFlowOperator"
+operator_cidrs         = ["203.0.113.10/32"] # Documentation IP; replace with your current public IP.
+cluster_name           = "stockflow-eks"
+environment            = "capstone"
+kubernetes_version     = "1.36"
+node_instance_type     = "m7i-flex.large"
+node_scaling           = { min = 2, desired = 2, max = 2 }
+node_disk_gib          = 30
+nat_mode               = "single" # Short-lived demo tradeoff; per_az costs more.
+deletion_protection    = false
+# Fill only after checking versions in the intended region; the plan otherwise
+# resolves latest compatible versions. Apply exactly the reviewed saved plan.
+addon_versions = {}

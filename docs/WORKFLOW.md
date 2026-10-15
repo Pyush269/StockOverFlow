@@ -400,19 +400,18 @@ Make demo packages public for straightforward pulling, or configure an image-pul
 
 ## 12. Phase 7: configure AWS and provision infrastructure
 
-Choose the account, region, cluster name, budget, and authentication method before infrastructure work. Suggested names: region `ap-south-1`, cluster `stockflow-eks`, namespace `stockflow`.
+The current AWS project is Fresh Deploy, using the new AWS experience, profile `stockflow`, and selected Region **`ap-southeast-2` (Sydney)**. Cluster: `stockflow-eks`; namespace: `stockflow`. See the actual [Prompt 5 plan, costs, findings, and runbook](INFRASTRUCTURE.md) before deployment.
 
-If your AWS account uses IAM Identity Center:
+Browser-based credentials are configured. Renew them when needed:
 
 ```powershell
-aws configure sso --profile capstone
-aws sso login --profile capstone
-$env:AWS_PROFILE = 'capstone'
-$env:AWS_REGION = 'ap-south-1'
+aws login --profile stockflow --region ap-southeast-2
+$env:AWS_PROFILE = 'stockflow'
+$env:AWS_REGION = 'ap-southeast-2'
 aws sts get-caller-identity
 ```
 
-This requires a valid organization/start URL and assigned role. If your course supplies another credential method, configure that method locally instead. Keep credentials out of Git and chat. [AWS SSO setup](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html)
+Keep credentials out of Git and chat. The existing project-managed operator role is used; no separate IAM Identity Center setup is required. [AWS browser sign-in](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sign-in.html)
 
 Implement valid multiline Terraform for:
 
@@ -424,21 +423,21 @@ Implement valid multiline Terraform for:
 - Inputs for region, cluster name, Kubernetes version, environment, and node sizing.
 - Useful outputs and a credential-free `terraform.tfvars.example`.
 
-Choose a Kubernetes version currently in standard support in your region and compatible with the installed kubectl and selected Terraform modules/providers. Do not copy the reference's old `1.31` value blindly. Inspect available versions with `aws eks describe-cluster-versions --region ap-south-1 --output table`, then check the [EKS lifecycle](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html).
+Choose a Kubernetes version currently in standard support in your region and compatible with the installed kubectl and selected Terraform modules/providers. The current plan uses **1.36**, verified in Sydney on 15 October 2026. Do not copy the reference's old `1.31` value blindly. Inspect available versions with `aws eks describe-cluster-versions --profile stockflow --region ap-southeast-2 --output table`, then check the [EKS lifecycle](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html).
 
 ```powershell
 # From stockflow/terraform, after implementing the files and local tfvars.
 terraform fmt -recursive
 terraform init
 terraform validate
-terraform plan -out=capstone.tfplan
+terraform plan '-input=false' '-out=stockflow.tfplan'
 ```
 
 Review the actual resources and expected running cost before applying the saved plan. EKS, EC2, NAT, load balancers, and disks are billable; this is a real cloud deployment.
 
 ```powershell
-terraform apply capstone.tfplan
-aws eks update-kubeconfig --region ap-south-1 --name stockflow-eks
+terraform apply 'stockflow.tfplan'
+aws eks update-kubeconfig --profile stockflow --region ap-southeast-2 --name stockflow-eks
 kubectl get nodes
 ```
 
@@ -648,4 +647,4 @@ Send one phase at a time and require its completion check before moving on. Each
 - [ ] At least 10 meaningful commits, complete README, minimum 8-slide deck, mandatory video.
 - [ ] Submission repository is accessible; final cleanup is scheduled after evaluation.
 
-Prompts 1–4 are implemented; review docs/VERIFICATION.md, docs/FRONTEND_VERIFICATION.md, docs/CONTAINERS.md, and docs/CI_SECURITY.md. Continue with Prompt 5 for Terraform/EKS, including a reviewable plan before applying resources.
+Prompts 1–4 are implemented. Prompt 5 code, offline checks, and the real Sydney plan are prepared; deployment is pending review of [INFRASTRUCTURE.md](INFRASTRUCTURE.md), including its cost estimate and three configuration scan findings. After approval, apply the reviewed plan and verify the cluster before continuing Prompt 6. Application/CI evidence remains in VERIFICATION.md, FRONTEND_VERIFICATION.md, CONTAINERS.md, and CI_SECURITY.md.

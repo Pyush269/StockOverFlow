@@ -1,0 +1,324 @@
+{
+  "prepared_at": "2026-10-15T13:01:46Z",
+  "stage": "Planned; not applied",
+  "region": "ap-southeast-2",
+  "profile": "stockflow",
+  "terraform_version": "1.16.5",
+  "providers": {
+    "aws": "6.69.0",
+    "tls": "4.4.1"
+  },
+  "plan_sha256": "60ba6ce6ce63dd4936dd4f44632ea3e5fa4bb871563f8145efb674bc79c383bf",
+  "actions": {
+    "read": 1,
+    "create": 59
+  },
+  "resource_counts": {
+    "aws_cloudwatch_log_group": 2,
+    "aws_default_security_group": 1,
+    "aws_eip": 1,
+    "aws_eks_access_entry": 1,
+    "aws_eks_access_policy_association": 1,
+    "aws_eks_addon": 4,
+    "aws_eks_cluster": 1,
+    "aws_eks_node_group": 1,
+    "aws_flow_log": 1,
+    "aws_iam_openid_connect_provider": 1,
+    "aws_iam_policy": 1,
+    "aws_iam_role": 6,
+    "aws_iam_role_policy": 1,
+    "aws_iam_role_policy_attachment": 6,
+    "aws_internet_gateway": 1,
+    "aws_kms_alias": 1,
+    "aws_kms_key": 1,
+    "aws_launch_template": 1,
+    "aws_nat_gateway": 1,
+    "aws_route": 3,
+    "aws_route_table": 3,
+    "aws_route_table_association": 4,
+    "aws_security_group": 1,
+    "aws_subnet": 4,
+    "aws_vpc": 1,
+    "aws_vpc_endpoint": 1,
+    "aws_vpc_security_group_egress_rule": 4,
+    "aws_vpc_security_group_ingress_rule": 5
+  },
+  "kubernetes_version": "1.36",
+  "addons": {
+    "aws-ebs-csi-driver": "v1.67.0-eksbuild.1",
+    "coredns": "v1.14.7-eksbuild.11",
+    "kube-proxy": "v1.36.0-eksbuild.45",
+    "vpc-cni": "v1.23.2-eksbuild.3"
+  },
+  "node_instance_type": "m7i-flex.large",
+  "node_count": 2,
+  "node_update_strategy": "MINIMAL",
+  "vcpu_quota": 5,
+  "planned_vcpus": 4,
+  "observed_active_instances": 0,
+  "nat_mode": "single",
+  "free_plan": {
+    "status": "ACTIVE",
+    "remaining_credits_usd": 100,
+    "expires": "2027-04-15"
+  },
+  "local_checks": {
+    "format": "pass",
+    "validate": "pass",
+    "mock_tests": {
+      "passed": 9,
+      "failed": 0
+    },
+    "real_plan": "pass",
+    "configuration_security_scan": {
+      "exit_code": 1,
+      "high": 0,
+      "critical": 3,
+      "findings": [
+        {
+          "id": "AWS-0040",
+          "title": "EKS Clusters should have the public access disabled",
+          "severity": "CRITICAL",
+          "resource": "aws_eks_cluster.main",
+          "reference": "https://avd.aquasec.com/misconfig/aws-0040"
+        },
+        {
+          "id": "AWS-0041",
+          "title": "EKS cluster should not have open CIDR range for public access",
+          "severity": "CRITICAL",
+          "resource": "aws_eks_cluster.main",
+          "reference": "https://avd.aquasec.com/misconfig/aws-0041"
+        },
+        {
+          "id": "AWS-0104",
+          "title": "A security group rule should not allow unrestricted egress to any IP address.",
+          "severity": "CRITICAL",
+          "resource": "aws_vpc_security_group_egress_rule.nodes",
+          "reference": "https://avd.aquasec.com/misconfig/aws-0104"
+        }
+      ]
+    }
+  },
+  "pricing_sources": {
+    "api": "AWS Price List GetProducts via AWS MCP",
+    "queried": "2026-10-15",
+    "endpoint_region": "us-east-1",
+    "resource_region": "ap-southeast-2",
+    "rows": {
+      "workers": [
+        {
+          "sku": "YZS4YR3ZPHD427K5",
+          "usage": "APS2-BoxUsage:m7i-flex.large",
+          "effectiveDate": "2026-10-01T00:00:00Z",
+          "description": "$0.1197 per On Demand Linux m7i-flex.large Instance Hour",
+          "unit": "Hrs",
+          "USD": "0.1197000000"
+        }
+      ],
+      "gp3": [
+        {
+          "sku": "QR74UAP3E9WUYT9B",
+          "usage": "APS2-EBS:VolumeUsage.gp3",
+          "effectiveDate": "2026-10-01T00:00:00Z",
+          "description": "$0.096 per GB-month of General Purpose (gp3) provisioned storage - Asia Pacific (Sydney)",
+          "unit": "GB-Mo",
+          "USD": "0.0960000000"
+        }
+      ],
+      "nat": [
+        {
+          "sku": "2VRX3DBVJ36HV98Z",
+          "usage": "APS2-RegionalNatGateway-Bytes",
+          "effectiveDate": "2026-10-01T00:00:00Z",
+          "description": "Charge for per GB data processed by NAT Gateways",
+          "unit": "GB",
+          "USD": "0.0590000000"
+        },
+        {
+          "sku": "KSHYFCUNWFSUXCAV",
+          "usage": "APS2-NatGateway-Bytes",
+          "effectiveDate": "2026-10-01T00:00:00Z",
+          "description": "$0.059 per GB Data Processed by NAT Gateways",
+          "unit": "GB",
+          "USD": "0.0590000000"
+        },
+        {
+          "sku": "NUKV5QPTHVFBW7DE",
+          "usage": "APS2-NatGateway-Hours",
+          "effectiveDate": "2026-10-01T00:00:00Z",
+          "description": "$0.059 per NAT Gateway Hour",
+          "unit": "Hrs",
+          "USD": "0.0590000000"
+        },
+        {
+          "sku": "TB9G32ZP98NJG9WT",
+          "usage": "APS2-RegionalNatGateway-Hours",
+          "effectiveDate": "2026-10-01T00:00:00Z",
+          "description": "Hourly charge for Regional NAT Gateways",
+          "unit": "Hrs",
+          "USD": "0.0590000000"
+        }
+      ],
+      "ipv4": [
+        {
+          "sku": "39Q94ABY2SWG3WP7",
+          "usage": "APS2-PublicIPv4:ContiguousBlock",
+          "effectiveDate": "2026-09-01T00:00:00Z",
+          "description": "$0.008 per hour per IPv4 address in contiguous IPv4 block",
+          "unit": "Hrs",
+          "USD": "0.0080000000"
+        },
+        {
+          "sku": "JZP2PURP9VVQ96GH",
+          "usage": "APS2-PublicIPv4:InUseAddress",
+          "effectiveDate": "2026-09-01T00:00:00Z",
+          "description": "$0.005 per In-use public IPv4 address per hour",
+          "unit": "Hrs",
+          "USD": "0.0050000000"
+        },
+        {
+          "sku": "QY2D8KY5X94X6NEB",
+          "usage": "APS2-PublicIPv4:IdleAddress",
+          "effectiveDate": "2026-09-01T00:00:00Z",
+          "description": "$0.005 per Idle public IPv4 address per hour",
+          "unit": "Hrs",
+          "USD": "0.0050000000"
+        }
+      ],
+      "alb": [
+        {
+          "sku": "6CFSD9EDEA5XS33F",
+          "usage": "APS2-LCUUsage",
+          "effectiveDate": "2026-08-01T00:00:00Z",
+          "description": "$0.008 per used Application load balancer capacity unit-hour (or partial hour)",
+          "unit": "LCU-Hrs",
+          "USD": "0.0080000000"
+        },
+        {
+          "sku": "77HB4MT7WAEME762",
+          "usage": "APS2-TS-LoadBalancerUsage",
+          "effectiveDate": "2026-08-01T00:00:00Z",
+          "description": "$0.0056 per associated Application load balancer Trust Store unit-hour ",
+          "unit": "Hrs",
+          "USD": "0.0056000000"
+        },
+        {
+          "sku": "H452BZGFB96QEDXQ",
+          "usage": "APS2-Outposts-LCUUsage",
+          "effectiveDate": "2026-08-01T00:00:00Z",
+          "description": "$0.0 per LCU-Hrs for Outposts-LCUUsage:LoadBalancing:Application in Asia Pacific (Sydney)",
+          "unit": "LCU-Hrs",
+          "USD": "0.0000000000"
+        },
+        {
+          "sku": "JW2ZSWKNHB8PSRWS",
+          "usage": "APS2-Outposts-LoadBalancerUsage",
+          "effectiveDate": "2026-08-01T00:00:00Z",
+          "description": "$0.0252 per Hrs for Outposts-LoadBalancerUsage:LoadBalancing:Application in Asia Pacific (Sydney)",
+          "unit": "Hrs",
+          "USD": "0.0252000000"
+        },
+        {
+          "sku": "M84CYHYUVJ4USFHD",
+          "usage": "APS2-LoadBalancerUsage",
+          "effectiveDate": "2026-08-01T00:00:00Z",
+          "description": "$0.0252 per Application LoadBalancer-hour (or partial hour)",
+          "unit": "Hrs",
+          "USD": "0.0252000000"
+        },
+        {
+          "sku": "N5A6UY2BUNBDNXN7",
+          "usage": "APS2-ReservedLCUUsage",
+          "effectiveDate": "2026-08-01T00:00:00Z",
+          "description": "$0.008 per reserved Application load balancer capacity unit-hour",
+          "unit": "ReservedLCU-Hr",
+          "USD": "0.0080000000"
+        }
+      ],
+      "eks": [
+        {
+          "sku": "BMJ7KNTWFFFQPFS4",
+          "usage": "APS2-AmazonEKS-Hours:perCluster",
+          "effectiveDate": "2026-09-01T00:00:00Z",
+          "description": "Amazon EKS cluster usage in Asia Pacific (Sydney)",
+          "unit": "Hours",
+          "USD": "0.1000000000"
+        },
+        {
+          "sku": "FJYYMWSVZGGV86NS",
+          "usage": "APS2-AmazonEKS-Local-Outposts-Hours:perCluster",
+          "effectiveDate": "2026-09-01T00:00:00Z",
+          "description": "Amazon EKS local cluster usage on AWS Outposts",
+          "unit": "hours",
+          "USD": "0.1000000000"
+        }
+      ],
+      "kms": [
+        {
+          "sku": "YPEURHYNRECJHEAD",
+          "usage": "ap-southeast-2-KMS-Keys",
+          "effectiveDate": "2025-07-01T00:00:00Z",
+          "description": "$1 per customer managed KMS key version in Asia Pacific (Sydney)",
+          "unit": "Keys",
+          "USD": "1.0000000000"
+        }
+      ]
+    }
+  },
+  "costs": {
+    "currency": "USD",
+    "basis": "Public on-demand prices before credits; 730 hours/month; usage charges excluded",
+    "rates": {
+      "worker_hour": "0.1197000000",
+      "gp3_gb_month": "0.0960000000",
+      "nat_hour": "0.0590000000",
+      "nat_gb": "0.0590000000",
+      "ipv4_hour": "0.0050000000",
+      "eks_hour": "0.1000000000",
+      "kms_key_month": "1.0000000000",
+      "alb_hour": "0.0252000000",
+      "alb_lcu_hour": "0.0080000000"
+    },
+    "infrastructure_hourly": {
+      "EKS control plane": "0.1000000000",
+      "Two workers": "0.2394000000",
+      "One NAT gateway": "0.0590000000",
+      "One NAT public IPv4": "0.0050000000",
+      "60 GiB gp3 worker disks": "0.007890410958904109589041095890",
+      "One KMS key": "0.001369863013698630136986301370"
+    },
+    "later_demo_hourly": {
+      "ALB": "0.0252000000",
+      "Two ALB public IPv4 addresses": "0.0100000000",
+      "One illustrative LCU": "0.0080000000",
+      "10 GiB illustrative database disk": "0.001315068493150684931506849315"
+    },
+    "baseline_hourly": "0.4126602739726027397260273973",
+    "demo_hourly": "0.4571753424657534246575342466",
+    "scenarios": {
+      "2": {
+        "infrastructure": "0.8253205479452054794520547946",
+        "demo_with_illustrative_lcu": "0.9143506849315068493150684932"
+      },
+      "6": {
+        "infrastructure": "2.475961643835616438356164384",
+        "demo_with_illustrative_lcu": "2.743052054794520547945205480"
+      },
+      "24": {
+        "infrastructure": "9.903846575342465753424657535",
+        "demo_with_illustrative_lcu": "10.97220821917808219178082192"
+      },
+      "96": {
+        "infrastructure": "39.61538630136986301369863014",
+        "demo_with_illustrative_lcu": "43.88883287671232876712328767"
+      },
+      "730": {
+        "infrastructure": "301.2420000000000000000000000",
+        "demo_with_illustrative_lcu": "333.7380000000000000000000000"
+      }
+    },
+    "rough_credit_hours_before_usage": "218.7344563699668602316787420",
+    "two_workers_vcpus": 4,
+    "quota_vcpus": 5
+  }
+}
