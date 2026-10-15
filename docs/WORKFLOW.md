@@ -30,12 +30,12 @@ Suppliers, barcode scanning, purchase orders, notifications, and multiple wareho
 | PostgreSQL 16 container image | Downloaded |
 | Reference backend dependencies and tests | Dependencies installed; 3 existing tests passed |
 | Reference frontend dependencies and build | Dependencies installed; build passed |
-| StockFlow backend, migrations, and PostgreSQL tests | Implemented; 47 tests passed |
-| StockFlow React frontend | Next stage |
+| StockFlow backend, migrations, and PostgreSQL tests | Implemented; 49 tests passed after frontend filter support |
+| StockFlow React frontend | Implemented; see FRONTEND_VERIFICATION.md |
 | GitHub/GHCR and AWS account configuration | To configure and verify |
 | StockFlow containers, CI, infrastructure, GitOps, monitoring | To implement |
 
-The reference frontend build is separate from StockFlow's completed backend checks. StockFlow frontend and cloud deployment remain to implement. Current startup instructions are in the [README](../README.md).
+StockFlow's own frontend now builds and is connected to its tested backend. Containerization and cloud deployment remain to implement. Current startup instructions are in the [README](../README.md).
 
 This file is an execution plan. Commands involving `stockflow`, manifests, workflows, or charts require the corresponding files to be created in the indicated phase first. Creating this guide does not create cloud resources.
 
@@ -645,4 +645,4 @@ Send one phase at a time and require its completion check before moving on. Each
 - [ ] At least 10 meaningful commits, complete README, minimum 8-slide deck, mandatory video.
 - [ ] Submission repository is accessible; final cleanup is scheduled after evaluation.
 
-Prompt 1 is implemented; review docs/VERIFICATION.md. Continue with Prompt 2 for the frontend. Finish the local stock workflow before starting AWS deployment.
+Prompts 1 and 2 are implemented; review docs/VERIFICATION.md and docs/FRONTEND_VERIFICATION.md. Continue with Prompt 3 for the complete application container stack. Finish the local stock workflow before starting AWS deployment.

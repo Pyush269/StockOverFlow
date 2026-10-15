@@ -1,4 +1,4 @@
-param([int]$Port = 8000)
+param([int]$Port = 8000, [switch]$Reload)
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Native.ps1')
 $repositoryRoot = Split-Path $PSScriptRoot -Parent
@@ -12,7 +12,9 @@ try {
     Invoke-CheckedNative 'docker' @('compose', 'up', '-d', '--wait', 'postgres')
     Set-Location $backendRoot
     Invoke-CheckedNative $pythonExecutable @('-m', 'alembic', 'upgrade', 'head')
-    Invoke-CheckedNative $pythonExecutable @('-m', 'uvicorn', 'app.main:app', '--host', '127.0.0.1', '--port', $Port.ToString(), '--reload')
+    $serverArguments = @('-m', 'uvicorn', 'app.main:app', '--host', '127.0.0.1', '--port', $Port.ToString())
+    if ($Reload) { $serverArguments += '--reload' }
+    Invoke-CheckedNative $pythonExecutable $serverArguments
 } finally {
     Pop-Location
 }

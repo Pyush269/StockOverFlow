@@ -4,7 +4,7 @@ Inventory management with a product catalog, stock receipts/issues, an append-on
 
 ## Current stage
 
-**Foundation and backend implemented.** The React interface, application Docker images, CI/CD, Terraform, Helm, GitOps, and monitoring deployment are subsequent stages. The current `docker-compose.yml` starts the development database only; it does not yet start a complete frontend/backend stack.
+**Foundation, backend, and React frontend implemented (Prompts 1 and 2).** Application Docker images, CI/CD, Terraform, Helm, GitOps, and monitoring deployment are subsequent stages. The current `docker-compose.yml` starts the development database only; the API and frontend currently run as local development processes.
 
 - Product CRUD with normalized unique SKUs, search/category filters, and pagination.
 - Transactional stock-in/stock-out with PostgreSQL row locks.
@@ -13,12 +13,15 @@ Inventory management with a product catalog, stock receipts/issues, an append-on
 - Dashboard totals, exact decimal inventory value, low-stock results, and recent movements.
 - Alembic migrations, health/schema readiness, Prometheus HTTP metrics, explicit development CORS origins.
 - PostgreSQL integration tests, including deterministic lock contention, rollback after a failed ledger write, migration round-trip, and database constraints.
+- Responsive React dashboard, searchable/paginated catalog, category/stock filters, create/edit/delete dialogs, receive/issue dialogs, and product history.
+- Inline error handling, pending states, success notifications, protected deletion, stale-stock recovery, keyboard-accessible dialogs/navigation, and mobile catalog cards.
+- Self-hosted fonts/assets and a development proxy to the real API; no placeholder inventory data.
 
 ## Architecture
 
 ```text
-Current: FastAPI -> PostgreSQL 16
-Next:    React/Nginx -> FastAPI -> PostgreSQL
+Current: React/Vite -> /api proxy -> FastAPI -> PostgreSQL 16
+Next:    React/Nginx container -> FastAPI container -> PostgreSQL
 Later:   GitHub Actions -> Trivy -> GHCR -> Git release values -> ArgoCD/Helm -> AWS EKS
 ```
 
@@ -59,6 +62,54 @@ Open [Swagger UI](http://localhost:8000/docs), [health](http://localhost:8000/he
 
 Stop the API with Ctrl+C. Stop the development DB with `docker compose down` from the repository root. This preserves its named volume. Do not add `-v` unless you intend to discard local inventory data.
 
+## React frontend
+
+The frontend is available at [http://127.0.0.1:5173](http://127.0.0.1:5173). Both that frontend and the API must be running for inventory operations. The current implementation session leaves both local servers running.
+
+For a fresh checkout, use Node 22 and install the locked dependencies:
+
+```powershell
+# From stockflow/.
+. ..\Enter-Project.ps1
+Set-Location frontend
+npm.cmd ci
+```
+
+Start the API with `scripts/start-backend.ps1` in one PowerShell terminal. In another terminal, from `stockflow/`:
+
+```powershell
+& .\scripts\start-frontend.ps1
+```
+
+The backend helper runs without automatic reload by default. Use `& .\scripts\start-backend.ps1 -Reload` for interactive backend development; restart it after source changes otherwise. Both helpers stay in the foreground when you run them yourself; Ctrl+C stops the corresponding server. A busy port means an existing server must be stopped or reused.
+
+The Vite server binds to loopback port 5173 and proxies relative `/api` requests to `http://127.0.0.1:8000`. `STOCKFLOW_API_TARGET` can select a different API for an isolated local test server; it is a development-server setting, not a client-side secret or production configuration. Production routing is part of Prompt 3.
+
+Workspace navigation: Overview, Products, and Stock activity. A product's name/history action opens its full paginated ledger. Activity shows the 10 latest movements across the workspace, with links to full product history. Low-stock navigation uses server-side filtering across all catalog pages. Stock dialogs fetch the latest quantity, preview the result, prevent obvious overselling, and preserve entered values if a concurrent change causes an API conflict.
+
+The current workspace displays amounts in **INR** and times in **IST**. This is a display convention; no currency conversion is performed. Monetary strings are passed directly to Intl formatting to preserve exact decimal values. Fonts are served from local bundled assets; their OFL licenses are included under `frontend/public/licenses/`.
+
+## Frontend checks
+
+```powershell
+# From frontend/, with Node 22 on PATH.
+npm.cmd test
+npm.cmd run build
+```
+
+For the complete browser workflow checks, from `stockflow/`:
+
+```powershell
+# First run if the isolated Chromium binary is not installed:
+& .\scripts\test-frontend.ps1 -InstallBrowser
+# Later runs:
+& .\scripts\test-frontend.ps1
+```
+
+This helper checks the unit tests/build, starts a disposable test database on 5433, API on 8001, and Vite on 5174, then runs Playwright in an isolated Chromium profile. It stops only its own QA servers and removes the disposable DB afterward. Development inventory on port 5432 is unaffected. Run it separately from the backend test helper because they share the disposable test DB/port.
+
+The frontend includes repeatable browser checks for create/edit, receive/issue and insufficient stock, deletion/cancellation, duplicate SKUs and failed-save retry, cross-page filters/pagination, stale-stock conflicts, picker/activity/history, and mobile navigation. Read [frontend verification](docs/FRONTEND_VERIFICATION.md) for results and screenshots. Generated browser caches, traces, and reports are ignored by Git.
+
 ## API contract
 
 | Method | Path | Behavior |
@@ -67,11 +118,12 @@ Stop the API with Ctrl+C. Stop the development DB with `docker compose down` fro
 | GET | `/ready` | DB connection, migration revision, and table readiness |
 | GET | `/metrics` | Prometheus HTTP metrics |
 | GET/POST | `/api/products` | Paginated catalog / create zero-stock product |
+| GET | `/api/products/categories` | Case-insensitive category choices across the whole catalog |
 | GET/PUT/DELETE | `/api/products/{id}` | Read / replace editable metadata / delete unused product |
 | GET/POST | `/api/products/{id}/movements` | Paginated history / stock-in or stock-out |
 | GET | `/api/dashboard` | Inventory totals, low-stock list, recent movements |
 
-Catalog query parameters: `q`, `category`, `limit` (1–100), and `offset` (>=0). Pages return `{items, total, limit, offset}`. Stock history uses the same pagination fields and newest-first ordering. Dashboard lists are limited to ten items each; total counters cover the whole catalog.
+Catalog query parameters: `q`, `category`, `stock_status` (`healthy`, `low`, or `out`), `limit` (1–100), and `offset` (>=0). `low` includes zero stock and the reorder boundary; `healthy` is above the reorder level; `out` is exactly zero. Pages return `{items, total, limit, offset}`. Stock history uses the same pagination fields and newest-first ordering. Dashboard lists are limited to ten items each; total counters cover the whole catalog.
 
 Product example:
 
@@ -127,10 +179,11 @@ backend/app/                API, schemas, models, transactional inventory servic
 backend/alembic/            Versioned schema migrations
 backend/tests/              API and PostgreSQL integration coverage
 scripts/                    Local startup and test helpers
+frontend/                   React/Vite workspace, self-hosted assets, frontend/browser tests
 docker-compose.yml          Persistent development PostgreSQL
 compose.test.yml            Separate disposable PostgreSQL test service
 docs/WORKFLOW.md            Full staged implementation plan
 docs/VERIFICATION.md        Completed checks and remaining work
 ```
 
-Next implement the React dashboard, catalog/forms, movement dialogs, and history against this API. Then complete the full non-root Docker Compose application stack, CI/security/GHCR, Terraform/EKS, Helm/ArgoCD, monitoring, and submission artifacts according to [the workflow](docs/WORKFLOW.md). Take real evidence and make meaningful incremental commits as each stage passes.
+Next complete **Prompt 3: the non-root Docker Compose application stack**, followed by CI/security/GHCR, Terraform/EKS, Helm/ArgoCD, monitoring, and submission artifacts according to [the workflow](docs/WORKFLOW.md). Take real evidence and make meaningful incremental commits as each stage passes.

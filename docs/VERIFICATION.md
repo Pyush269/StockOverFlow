@@ -2,6 +2,8 @@
 
 Verified on 15 October 2026 (IST), Windows/Python 3.12.10, using PostgreSQL 16 containers.
 
+This records Prompt 1. Prompt 2 adds the React frontend and two backend filter tests; see [current frontend verification](FRONTEND_VERIFICATION.md) and [README](../README.md) for the latest state.
+
 ## Completed
 
 - Created a separate local StockFlow Git repository and backend virtual environment.
