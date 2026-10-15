@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "stockflow.fullname" . }}-migrate-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "stockflow.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migration
+  annotations:
+    # Ordinary Job for Helm; Sync hook for ArgoCD, after the database wave.
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: {{ .Values.migrations.activeDeadlineSeconds }}
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        {{- include "stockflow.selector" . | nindent 8 }}
+        app.kubernetes.io/component: migration
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ include "stockflow.fullname" . }}
+      automountServiceAccountToken: false
+      {{- include "stockflow.pullSecrets" . | nindent 6 }}
+      securityContext:
+        {{- include "stockflow.podSecurity" . | nindent 8 }}
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: migrate
+          image: {{ include "stockflow.backendImage" . | quote }}
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          command: [python, /bootstrap/migrate.py]
+          env:
+            {{- include "stockflow.databaseEnv" . | nindent 12 }}
+          securityContext:
+            {{- include "stockflow.containerSecurity" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.migrations.resources | nindent 12 }}
+          volumeMounts:
+            - {name: bootstrap, mountPath: /bootstrap, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: bootstrap
+          configMap: {name: {{ include "stockflow.fullname" . }}-bootstrap}
+        - name: tmp
+          emptyDir: {sizeLimit: 64Mi}

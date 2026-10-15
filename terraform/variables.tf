@@ -89,15 +89,15 @@ variable "node_instance_type" {
 }
 
 variable "node_scaling" {
-  description = "Two workers; increase max only after checking the regional vCPU quota. No cluster autoscaler is installed."
+  description = "One worker for the capstone demo; max 2 permits manual expansion within the current quota. No cluster autoscaler is installed."
   type        = object({ min = number, desired = number, max = number })
-  default     = { min = 2, desired = 2, max = 2 }
+  default     = { min = 1, desired = 1, max = 2 }
   validation {
     condition = alltrue([for count in values(var.node_scaling) : count == floor(count)]) && (
-      var.node_scaling.min >= 2 && var.node_scaling.min <= var.node_scaling.desired &&
+      var.node_scaling.min >= 1 && var.node_scaling.min <= var.node_scaling.desired &&
       var.node_scaling.desired <= var.node_scaling.max && var.node_scaling.max <= 6
     )
-    error_message = "Use integer counts: 2 <= min <= desired <= max <= 6."
+    error_message = "Use integer counts: 1 <= min <= desired <= max <= 6."
   }
 }
 

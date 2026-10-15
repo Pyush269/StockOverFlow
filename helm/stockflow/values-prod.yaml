@@ -1,0 +1,6 @@
+# AWS profile: stockflow; Region: ap-southeast-2. Keep secrets outside this file.
+ingress:
+  enabled: true
+monitoring:
+  serviceMonitor:
+    enabled: true

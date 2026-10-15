@@ -2,6 +2,7 @@
 
 [![StockFlow CI](https://github.com/Pyush269/StockOverFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/Pyush269/StockOverFlow/actions/workflows/ci.yml)
 [![Terraform validation](https://github.com/Pyush269/StockOverFlow/actions/workflows/terraform.yml/badge.svg)](https://github.com/Pyush269/StockOverFlow/actions/workflows/terraform.yml)
+[![Helm validation](https://github.com/Pyush269/StockOverFlow/actions/workflows/helm.yml/badge.svg)](https://github.com/Pyush269/StockOverFlow/actions/workflows/helm.yml)
 
 Source repository: [Pyush269/StockOverFlow](https://github.com/Pyush269/StockOverFlow).
 
@@ -9,7 +10,7 @@ Inventory management with a product catalog, stock receipts/issues, an append-on
 
 ## Current stage
 
-**Prompts 1–4 implemented; Prompt 5 Terraform code and the real AWS plan are ready for review.** PostgreSQL health gates a one-shot Alembic migration, then backend readiness gates production Nginx. GitHub Actions tests PostgreSQL behavior, builds the frontend, scans both release images, and publishes those exact images only on successful main pushes. The Sydney infrastructure plan has **59 additions, no changes or destroys**, with a baseline estimate of **$0.41/hour before usage charges and credits**. Review [infrastructure costs, configuration scan findings, and deployment steps](docs/INFRASTRUCTURE.md). No StockFlow AWS infrastructure has been applied. Helm, GitOps, and monitoring deployment follow.
+**Prompts 1–4 implemented; Prompt 5 is planned; Prompt 6 Helm/bootstrap code is verified locally. AWS stays off at the user's request.** GitHub Actions tests PostgreSQL behavior, builds the frontend, scans both release images, and publishes those exact images only on successful main pushes. The revised one-worker Sydney plan has **59 additions, no changes or destroys**, estimated at **$0.29/hour for infrastructure**, or **$0.33/hour for the full demo**, before variable usage and credits. Review [costs and three configuration scan findings](docs/INFRASTRUCTURE.md). A real local Helm release passed migration, API, upgrade, and PVC recovery checks, with two frontend/backend replicas and working monitoring. [Prompt 6 evidence and limitations](docs/HELM.md) distinguish local results from pending EKS/ALB/EBS checks.
 
 - Product CRUD with normalized unique SKUs, search/category filters, and pagination.
 - Transactional stock-in/stock-out with PostgreSQL row locks.
@@ -246,12 +247,16 @@ compose.test.yml            Separate disposable PostgreSQL test service
 compose.ci.yml              Isolated Linux backend test image and PostgreSQL
 .github/workflows/ci.yml    Tests, strict scans, archive verification, GHCR release
 .github/workflows/terraform.yml  Credential-free Terraform validation and mock tests
+.github/workflows/helm.yml   Chart checks and disposable Kubernetes runtime verification
 terraform/                  VPC, EKS managed nodes/add-ons, IAM, logs, locked providers
+helm/stockflow/              App chart, migrations, storage, HPA, Ingress, ServiceMonitor
+k8s/bootstrap/              Pinned controllers, monitoring, ArgoCD, and bootstrap runbook
 docs/WORKFLOW.md            Full staged implementation plan
 docs/VERIFICATION.md        Completed checks and remaining work
 docs/CONTAINERS.md          Prompt 3 checks, local operation, troubleshooting
 docs/CI_SECURITY.md         Prompt 4 workflow, reports, digests, access requirements
 docs/INFRASTRUCTURE.md      Prompt 5 real plan review, Sydney prices, findings, cleanup
+docs/HELM.md                Prompt 6 local evidence and remaining cloud checks
 ```
 
-Next: **review the Prompt 5 plan and approve deployment**, then verify the cluster before Prompt 6 (Helm/bootstrap). Follow with ArgoCD, monitoring, and submission artifacts according to [the workflow](docs/WORKFLOW.md). Take real evidence and make meaningful incremental commits as each stage passes.
+Next cloud step, when deployment is authorized: refresh the plan/operator IP, apply the reviewed infrastructure, bootstrap controllers, and complete the EKS Helm/ALB/storage checks. Prompt 7 adds the ArgoCD Application; later stages add monitoring demonstrations and submission artifacts according to [the workflow](docs/WORKFLOW.md). Preserve real evidence and meaningful incremental commits as each stage passes.

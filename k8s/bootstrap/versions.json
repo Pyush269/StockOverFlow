@@ -1,0 +1,19 @@
+{
+  "verified": "2026-10-15",
+  "kubernetes": "1.36",
+  "charts": {
+    "loadBalancerController": {"chart": "eks/aws-load-balancer-controller", "version": "3.6.0", "appVersion": "v3.6.0"},
+    "metricsServer": {"chart": "metrics-server/metrics-server", "version": "3.14.0", "appVersion": "0.9.0"},
+    "monitoring": {"chart": "prometheus-community/kube-prometheus-stack", "version": "92.8.0", "appVersion": "v0.94.1"},
+    "argocd": {"chart": "argo/argo-cd", "version": "10.10.5", "appVersion": "v3.5.5"}
+  },
+  "gatewayCrdUrl": "https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.0/standard-install.yaml",
+  "gatewayCrdSha256": "a557172e8348f758479e9ee4000bbbb4b4aa48302a6b73461823ea5349bad56d",
+  "localKind": {"version": "v0.33.0", "nodeImage": "kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f2b7ea312e3cbfaed"},
+  "applicationRelease": {
+    "sourceSha": "71a365476ca83f9cf3a1307fb1f94c1b3605a9be",
+    "ciRun": "https://github.com/Pyush269/StockOverFlow/actions/runs/38739720946",
+    "backendDigest": "sha256:42643410da0e51de05a69eda2a1770d3470c3bc45a0795143dd3c78fc249200c",
+    "frontendDigest": "sha256:ea835b8d1fff9f8aa48f31584c6c27ddccc936f8126437c4bb90b2572e9c2d02"
+  }
+}

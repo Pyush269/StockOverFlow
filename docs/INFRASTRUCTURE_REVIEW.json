@@ -1,5 +1,5 @@
 {
-  "prepared_at": "2026-10-15T13:01:46Z",
+  "prepared_at": "2026-10-15T14:02:49Z",
   "stage": "Planned; not applied",
   "region": "ap-southeast-2",
   "profile": "stockflow",
@@ -8,7 +8,7 @@
     "aws": "6.69.0",
     "tls": "4.4.1"
   },
-  "plan_sha256": "60ba6ce6ce63dd4936dd4f44632ea3e5fa4bb871563f8145efb674bc79c383bf",
+  "plan_sha256": "4b6fae9ecf7b4196b994a6272b0619327484addff73fffd073b5a163d7a9dc4c",
   "actions": {
     "read": 1,
     "create": 59
@@ -51,10 +51,10 @@
     "vpc-cni": "v1.23.2-eksbuild.3"
   },
   "node_instance_type": "m7i-flex.large",
-  "node_count": 2,
+  "node_count": 1,
   "node_update_strategy": "MINIMAL",
   "vcpu_quota": 5,
-  "planned_vcpus": 4,
+  "planned_vcpus": 2,
   "observed_active_instances": 0,
   "nat_mode": "single",
   "free_plan": {
@@ -66,7 +66,7 @@
     "format": "pass",
     "validate": "pass",
     "mock_tests": {
-      "passed": 9,
+      "passed": 11,
       "failed": 0
     },
     "real_plan": "pass",
@@ -267,58 +267,64 @@
   },
   "costs": {
     "currency": "USD",
-    "basis": "Public on-demand prices before credits; 730 hours/month; usage charges excluded",
+    "basis": "Public Sydney on-demand prices before credits; 730 hours/month; variable usage excluded; one m7i-flex.large worker",
     "rates": {
-      "worker_hour": "0.1197000000",
-      "gp3_gb_month": "0.0960000000",
-      "nat_hour": "0.0590000000",
-      "nat_gb": "0.0590000000",
-      "ipv4_hour": "0.0050000000",
-      "eks_hour": "0.1000000000",
-      "kms_key_month": "1.0000000000",
-      "alb_hour": "0.0252000000",
-      "alb_lcu_hour": "0.0080000000"
+      "worker_hour": "0.1197",
+      "gp3_gb_month": "0.096",
+      "nat_hour": "0.059",
+      "nat_gb": "0.059",
+      "ipv4_hour": "0.005",
+      "eks_hour": "0.1",
+      "kms_key_month": "1",
+      "alb_hour": "0.0252",
+      "alb_lcu_hour": "0.008"
     },
     "infrastructure_hourly": {
-      "EKS control plane": "0.1000000000",
-      "Two workers": "0.2394000000",
-      "One NAT gateway": "0.0590000000",
-      "One NAT public IPv4": "0.0050000000",
-      "60 GiB gp3 worker disks": "0.007890410958904109589041095890",
+      "EKS control plane": "0.1",
+      "One worker": "0.1197",
+      "One NAT gateway": "0.059",
+      "One NAT public IPv4": "0.005",
+      "30 GiB gp3 worker disk": "0.003945205479452054794520547945",
       "One KMS key": "0.001369863013698630136986301370"
     },
     "later_demo_hourly": {
-      "ALB": "0.0252000000",
-      "Two ALB public IPv4 addresses": "0.0100000000",
-      "One illustrative LCU": "0.0080000000",
+      "ALB": "0.0252",
+      "Two ALB public IPv4 addresses": "0.010",
+      "One illustrative LCU": "0.008",
       "10 GiB illustrative database disk": "0.001315068493150684931506849315"
     },
-    "baseline_hourly": "0.4126602739726027397260273973",
-    "demo_hourly": "0.4571753424657534246575342466",
+    "baseline_hourly": "0.2890150684931506849315068493",
+    "demo_hourly": "0.3335301369863013698630136986",
     "scenarios": {
       "2": {
-        "infrastructure": "0.8253205479452054794520547946",
-        "demo_with_illustrative_lcu": "0.9143506849315068493150684932"
+        "infrastructure": "0.5780301369863013698630136986",
+        "demo_with_illustrative_lcu": "0.6670602739726027397260273972"
       },
       "6": {
-        "infrastructure": "2.475961643835616438356164384",
-        "demo_with_illustrative_lcu": "2.743052054794520547945205480"
+        "infrastructure": "1.734090410958904109589041096",
+        "demo_with_illustrative_lcu": "2.001180821917808219178082192"
       },
       "24": {
-        "infrastructure": "9.903846575342465753424657535",
-        "demo_with_illustrative_lcu": "10.97220821917808219178082192"
+        "infrastructure": "6.936361643835616438356164383",
+        "demo_with_illustrative_lcu": "8.004723287671232876712328766"
       },
       "96": {
-        "infrastructure": "39.61538630136986301369863014",
-        "demo_with_illustrative_lcu": "43.88883287671232876712328767"
+        "infrastructure": "27.74544657534246575342465753",
+        "demo_with_illustrative_lcu": "32.01889315068493150684931507"
       },
       "730": {
-        "infrastructure": "301.2420000000000000000000000",
-        "demo_with_illustrative_lcu": "333.7380000000000000000000000"
+        "infrastructure": "210.9810000000000000000000000",
+        "demo_with_illustrative_lcu": "243.4770000000000000000000000"
       }
     },
-    "rough_credit_hours_before_usage": "218.7344563699668602316787420",
-    "two_workers_vcpus": 4,
+    "rough_credit_hours_before_usage": "299.8229812261527782911732936",
+    "worker_vcpus": 2,
     "quota_vcpus": 5
-  }
+  },
+  "node_scaling": {
+    "min": 1,
+    "desired": 1,
+    "max": 2
+  },
+  "node_choice": "Single-worker demo; temporary downtime during node failure/update; manual expansion to two permitted"
 }

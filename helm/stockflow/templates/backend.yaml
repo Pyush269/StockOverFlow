@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "stockflow.fullname" . }}-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "stockflow.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.backend.replicas }}
+  {{- end }}
+  revisionHistoryLimit: 3
+  strategy:
+    rollingUpdate: {maxSurge: 1, maxUnavailable: 0}
+  selector:
+    matchLabels:
+      {{- include "stockflow.selector" . | nindent 6 }}
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        {{- include "stockflow.selector" . | nindent 8 }}
+        app.kubernetes.io/component: backend
+      annotations:
+        checksum/bootstrap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "stockflow.fullname" . }}
+      automountServiceAccountToken: false
+      {{- include "stockflow.pullSecrets" . | nindent 6 }}
+      securityContext:
+        {{- include "stockflow.podSecurity" . | nindent 8 }}
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      initContainers:
+        - name: wait-for-schema
+          image: {{ include "stockflow.backendImage" . | quote }}
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          command: [python, /bootstrap/wait-for-schema.py]
+          env:
+            {{- include "stockflow.databaseEnv" . | nindent 12 }}
+          securityContext:
+            {{- include "stockflow.containerSecurity" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.migrations.resources | nindent 12 }}
+          volumeMounts:
+            - {name: bootstrap, mountPath: /bootstrap, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+      containers:
+        - name: backend
+          image: {{ include "stockflow.backendImage" . | quote }}
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          ports:
+            - {name: http, containerPort: 8000}
+          env:
+            {{- include "stockflow.databaseEnv" . | nindent 12 }}
+            - {name: CORS_ORIGINS, value: '[]'}
+          securityContext:
+            {{- include "stockflow.containerSecurity" . | nindent 12 }}
+          startupProbe:
+            httpGet: {path: /ready, port: http}
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet: {path: /ready, port: http}
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /health, port: http}
+            periodSeconds: 10
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: bootstrap
+          configMap: {name: {{ include "stockflow.fullname" . }}-bootstrap}
+        - name: tmp
+          emptyDir: {sizeLimit: 64Mi}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "stockflow.fullname" . }}-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "stockflow.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    alb.ingress.kubernetes.io/healthcheck-path: /ready
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "stockflow.selector" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+  ports:
+    - {name: http, port: 8000, targetPort: http}

@@ -1,0 +1,2 @@
+# kind has self-signed kubelet serving certificates. This override is LOCAL ONLY.
+args: [--kubelet-insecure-tls]

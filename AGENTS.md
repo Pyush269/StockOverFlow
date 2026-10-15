@@ -6,6 +6,8 @@
 - User guidance preference: `help_level: HIGH` (explain steps and useful choices).
 - Keep the existing StockFlow architecture and staged DevSecOps workflow.
 - Prepare a real Terraform plan and resource/cost summary for review before applying infrastructure.
+- On 15 October 2026 the user explicitly chose to keep AWS off while code, local checks, and CI are finished. Do not apply infrastructure until the user authorizes deployment.
+- Current reviewed demo proposal: one `m7i-flex.large` worker (min/desired/max 1/1/2), two frontend/backend replicas, backend HPA capped at three. Verify actual EKS capacity after deployment.
 - Agent Toolkit service and MCP endpoint use `us-east-1`; this does not change the resource Region.
 - Project-specific context above takes precedence over general AWS guidance below.
 

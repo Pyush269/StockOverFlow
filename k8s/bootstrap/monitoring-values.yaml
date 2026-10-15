@@ -1,0 +1,62 @@
+# Small capstone profile. Prometheus/Grafana history is ephemeral; export evidence before cleanup.
+alertmanager:
+  enabled: false
+grafana:
+  replicas: 1
+  persistence:
+    enabled: false
+  service:
+    type: ClusterIP
+  resources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {cpu: 300m, memory: 384Mi}
+  sidecar:
+    resources:
+      requests: {cpu: 5m, memory: 32Mi}
+      limits: {cpu: 100m, memory: 64Mi}
+prometheusOperator:
+  resources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {cpu: 300m, memory: 256Mi}
+  prometheusConfigReloader:
+    resources:
+      requests: {cpu: 10m, memory: 32Mi}
+      limits: {cpu: 100m, memory: 64Mi}
+  admissionWebhooks:
+    patch:
+      resources:
+        requests: {cpu: 25m, memory: 32Mi}
+        limits: {cpu: 200m, memory: 128Mi}
+prometheus:
+  service:
+    type: ClusterIP
+  prometheusSpec:
+    replicas: 1
+    retention: 6h
+    retentionSize: 512MB
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+    resources:
+      requests: {cpu: 150m, memory: 512Mi}
+      limits: {cpu: "1", memory: 1Gi}
+    serviceMonitorNamespaceSelector: {}
+    serviceMonitorSelector:
+      matchLabels:
+        release: monitoring
+    # EmptyDir avoids extra EBS volumes in this recording-oriented monitoring profile.
+    storageSpec: {}
+kube-state-metrics:
+  resources:
+    requests: {cpu: 25m, memory: 64Mi}
+    limits: {cpu: 200m, memory: 192Mi}
+prometheus-node-exporter:
+  resources:
+    requests: {cpu: 10m, memory: 32Mi}
+    limits: {cpu: 100m, memory: 64Mi}
+# EKS hosts these control-plane components outside our worker network.
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false

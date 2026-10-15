@@ -417,7 +417,7 @@ Implement valid multiline Terraform for:
 
 - VPC, two Availability Zones, at least two public and two private subnets.
 - Internet access and NAT for private workers, with load-balancer discovery subnet tags.
-- EKS control plane and managed worker node group; two suitably sized workers are a starting point, with capacity checked for monitoring and application pods.
+- EKS control plane and managed worker node group. The current budget demo uses one `m7i-flex.large` worker (min/desired/max 1/1/2), following local capacity checks; verify actual EKS scheduling before accepting the cloud deployment. It has no worker redundancy.
 - EKS access for the operator, plus the CNI, CoreDNS, and kube-proxy prerequisites.
 - OIDC/IRSA and scoped IAM roles for the EBS CSI driver and AWS Load Balancer Controller.
 - Inputs for region, cluster name, Kubernetes version, environment, and node sizing.
@@ -647,4 +647,4 @@ Send one phase at a time and require its completion check before moving on. Each
 - [ ] At least 10 meaningful commits, complete README, minimum 8-slide deck, mandatory video.
 - [ ] Submission repository is accessible; final cleanup is scheduled after evaluation.
 
-Prompts 1–4 are implemented. Prompt 5 code, offline checks, and the real Sydney plan are prepared; deployment is pending review of [INFRASTRUCTURE.md](INFRASTRUCTURE.md), including its cost estimate and three configuration scan findings. After approval, apply the reviewed plan and verify the cluster before continuing Prompt 6. Application/CI evidence remains in VERIFICATION.md, FRONTEND_VERIFICATION.md, CONTAINERS.md, and CI_SECURITY.md.
+Prompts 1–4 are implemented. Prompt 5 has a real one-worker Sydney plan: 59 additions, about $0.29/hour infrastructure or $0.33/hour full demo before variable usage and credits. See [INFRASTRUCTURE.md](INFRASTRUCTURE.md), including the three configuration scan findings. Prompt 6 chart/bootstrap code and the real local Helm install, upgrade, persistence, HPA metrics, and Prometheus scrape checks are complete; see [HELM.md](HELM.md) and the [bootstrap runbook](../k8s/bootstrap/README.md). **The user chose to keep AWS off on 15 October 2026.** After later deployment authorization, refresh/apply the reviewed plan and finish EKS/ALB/EBS checks. Prompt 7's ArgoCD Application remains pending. Application/CI evidence remains in VERIFICATION.md, FRONTEND_VERIFICATION.md, CONTAINERS.md, and CI_SECURITY.md.

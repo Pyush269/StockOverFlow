@@ -1,0 +1,11 @@
+# clusterName, region, vpcId and serviceAccount.annotations are filled from Terraform outputs.
+replicaCount: 1
+enableShield: false
+enableWaf: false
+enableWafv2: false
+resources:
+  requests: {cpu: 50m, memory: 64Mi}
+  limits: {cpu: 300m, memory: 192Mi}
+serviceAccount:
+  create: true
+  name: aws-load-balancer-controller

@@ -1,0 +1,98 @@
+name: Helm validation
+
+on:
+  pull_request:
+    paths: ['helm/**', 'k8s/**', 'scripts/*helm*', 'scripts/create-k8s-secret.py', 'scripts/check-k8s-capacity.py', 'scripts/bootstrap-cluster.ps1', '.github/workflows/helm.yml']
+  push:
+    branches: [main]
+    paths: ['helm/**', 'k8s/**', 'scripts/*helm*', 'scripts/create-k8s-secret.py', 'scripts/check-k8s-capacity.py', 'scripts/bootstrap-cluster.ps1', '.github/workflows/helm.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  helm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      KUBECONFIG: ${{ github.workspace }}/.logs/kind.kubeconfig
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Install validation tools from official releases
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .logs "$RUNNER_TEMP/helm-tools"
+          cd "$RUNNER_TEMP/helm-tools"
+          curl -fsSLO https://get.helm.sh/helm-v3.22.0-linux-amd64.tar.gz
+          curl -fsSLO https://get.helm.sh/helm-v3.22.0-linux-amd64.tar.gz.sha256sum
+          sha256sum --check helm-v3.22.0-linux-amd64.tar.gz.sha256sum
+          tar -xzf helm-v3.22.0-linux-amd64.tar.gz
+          cp linux-amd64/helm ./helm
+          curl -fsSLO https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-linux-amd64
+          curl -fsSLO https://github.com/kubernetes-sigs/kind/releases/download/v0.33.0/kind-linux-amd64.sha256sum
+          sha256sum --check kind-linux-amd64.sha256sum
+          mv kind-linux-amd64 kind
+          chmod +x helm kind
+          echo "$RUNNER_TEMP/helm-tools" >> "$GITHUB_PATH"
+          python -m pip install PyYAML==6.0.3
+      - name: Lint and verify chart behavior
+        run: |
+          helm lint helm/stockflow --strict
+          helm lint helm/stockflow --strict --values helm/stockflow/values-prod.yaml
+          python scripts/test-helm.py 2>&1 | tee .logs/helm-tests.txt
+      - name: Create isolated Kubernetes 1.36 cluster with a 29-pod worker
+        run: >-
+          kind create cluster --name stockflow-smoke --config k8s/local-kind.yaml
+          --image kindest/node:v1.36.4@sha256:099e049362a1526b2db71494e1947aae99bd16290d7c895f2b7ea312e3cbfaed
+          --kubeconfig "$KUBECONFIG" --wait 120s
+      - name: Install local Metrics Server
+        run: |
+          helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+          helm upgrade --install metrics-server metrics-server/metrics-server --version 3.14.0 -n kube-system --kube-context kind-stockflow-smoke -f k8s/bootstrap/metrics-server-values.yaml -f k8s/bootstrap/metrics-server-local.yaml --wait --timeout 5m
+          kubectl --context kind-stockflow-smoke create namespace stockflow-smoke
+          kubectl --context kind-stockflow-smoke label namespace stockflow-smoke pod-security.kubernetes.io/enforce=restricted pod-security.kubernetes.io/enforce-version=v1.36
+      - name: Install and exercise a real disposable Helm release
+        run: |
+          python scripts/create-k8s-secret.py --context kind-stockflow-smoke --namespace stockflow-smoke --release warehouse --values helm/stockflow/values-local.yaml --secret-name stockflow-smoke-db
+          helm upgrade --install warehouse helm/stockflow --kube-context kind-stockflow-smoke -n stockflow-smoke -f helm/stockflow/values-local.yaml --set postgresql.existingSecret=stockflow-smoke-db --wait --wait-for-jobs --timeout 10m
+          python scripts/helm-smoke.py --context kind-stockflow-smoke --values helm/stockflow/values-local.yaml 2>&1 | tee .logs/helm-runtime.txt
+          helm list --kube-context kind-stockflow-smoke -n stockflow-smoke | tee .logs/helm-list.txt
+          kubectl --context kind-stockflow-smoke get pods,svc,pvc,hpa,jobs -n stockflow-smoke | tee .logs/kubernetes.txt
+          kubectl --context kind-stockflow-smoke top pods -n stockflow-smoke
+      - name: Save diagnostics
+        if: failure()
+        run: |
+          kubectl --context kind-stockflow-smoke get pods -A > .logs/pods.txt || true
+          kubectl --context kind-stockflow-smoke get events -A --sort-by=.lastTimestamp > .logs/events.txt || true
+          kubectl --context kind-stockflow-smoke describe pods -n stockflow-smoke > .logs/pod-details.txt || true
+      - name: Save non-secret validation evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: helm-validation-${{ github.sha }}
+          path: |
+            .logs/helm-tests.txt
+            .logs/helm-runtime.txt
+            .logs/helm-runtime.json
+            .logs/helm-list.txt
+            .logs/kubernetes.txt
+            .logs/pods.txt
+            .logs/events.txt
+            .logs/pod-details.txt
+          retention-days: 14
+          include-hidden-files: true
+      - name: Remove the disposable local cluster
+        if: always()
+        run: kind delete cluster --name stockflow-smoke --kubeconfig "$KUBECONFIG"
+      # This workflow has no AWS credentials and never creates cloud infrastructure.

@@ -1,0 +1,57 @@
+# Both application images come from the same successful, scanned CI release.
+imagePullSecrets: []
+backend:
+  image:
+    repository: ghcr.io/pyush269/stockflow-backend
+    tag: "71a365476ca83f9cf3a1307fb1f94c1b3605a9be"
+    pullPolicy: IfNotPresent
+  replicas: 2
+  resources:
+    requests: {cpu: 100m, memory: 96Mi}
+    limits: {cpu: 500m, memory: 256Mi}
+frontend:
+  image:
+    repository: ghcr.io/pyush269/stockflow-frontend
+    tag: "71a365476ca83f9cf3a1307fb1f94c1b3605a9be"
+    pullPolicy: IfNotPresent
+  replicas: 2
+  resources:
+    requests: {cpu: 25m, memory: 24Mi}
+    limits: {cpu: 200m, memory: 64Mi}
+postgresql:
+  image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+  database: stockflow
+  username: stockflow
+  # Create this Secret before Helm or ArgoCD. Keys: postgres-password, database-url.
+  existingSecret: stockflow-db
+  persistence:
+    storageClass: gp3
+    size: 10Gi
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {cpu: "1", memory: 512Mi}
+migrations:
+  activeDeadlineSeconds: 360
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {cpu: 300m, memory: 192Mi}
+ingress:
+  enabled: false
+  className: alb
+  # Empty host uses the ALB-generated hostname; no purchased domain required.
+  host: ""
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70
+monitoring:
+  serviceMonitor:
+    enabled: false
+    releaseLabel: monitoring
+    interval: 30s
+    scrapeTimeout: 10s

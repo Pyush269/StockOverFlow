@@ -80,6 +80,20 @@ run "per_az_egress" {
   }
 }
 
+run "single_worker_demo" {
+  command = apply
+  assert {
+    condition     = aws_eks_node_group.main.scaling_config[0].desired_size == 1 && aws_eks_node_group.main.scaling_config[0].max_size == 2 && length(aws_eks_node_group.main.subnet_ids) == 2
+    error_message = "The demo uses one worker with room for manual expansion and retains both private subnets."
+  }
+}
+
+run "reject_zero_workers" {
+  command = plan
+  variables { node_scaling = { min = 0, desired = 0, max = 2 } }
+  expect_failures = [var.node_scaling]
+}
+
 run "endpoint_identity_and_worker_security" {
   command = apply
   assert {

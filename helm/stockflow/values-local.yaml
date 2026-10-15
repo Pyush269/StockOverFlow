@@ -1,0 +1,10 @@
+# Isolated kind verification; AWS controllers and the Prometheus CRD are absent.
+postgresql:
+  persistence:
+    storageClass: standard
+    size: 1Gi
+ingress:
+  enabled: false
+monitoring:
+  serviceMonitor:
+    enabled: false

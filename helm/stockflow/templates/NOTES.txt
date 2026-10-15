@@ -1,0 +1,12 @@
+StockFlow release {{ .Release.Name }} in namespace {{ .Release.Namespace }}.
+
+Inspect resources:
+  kubectl get pods,svc,pvc,hpa -n {{ .Release.Namespace }}
+  kubectl get jobs -n {{ .Release.Namespace }}
+
+Local browser access:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "stockflow.fullname" . }}-frontend 3001:80
+  Open http://127.0.0.1:3001
+
+PostgreSQL PVCs are retained on uninstall. Back up data before intentionally deleting them.
+The pre-existing database Secret is managed outside this chart.

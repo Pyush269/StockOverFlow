@@ -9,7 +9,7 @@ cluster_name           = "stockflow-eks"
 environment            = "capstone"
 kubernetes_version     = "1.36"
 node_instance_type     = "m7i-flex.large"
-node_scaling           = { min = 2, desired = 2, max = 2 }
+node_scaling           = { min = 1, desired = 1, max = 2 }
 node_disk_gib          = 30
 nat_mode               = "single" # Short-lived demo tradeoff; per_az costs more.
 deletion_protection    = false
