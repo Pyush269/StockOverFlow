@@ -1,5 +1,4 @@
 """Verify the release and ArgoCD contract before touching a cluster."""
-import re
 import subprocess
 import unittest
 from pathlib import Path
@@ -10,6 +9,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class GitOpsTests(unittest.TestCase):
+    def test_manual_sync_preserves_migration_hooks(self):
+        helper = (ROOT / 'scripts/gitops-sync.py').read_text()
+        self.assertIn("'syncStrategy': {'hook': {}}", helper)
+        self.assertNotIn("'syncStrategy': {'apply': {}}", helper)
+
     def test_application_boundaries_and_hpa_ownership(self):
         for name, namespace, profile in [('application.yaml', 'stockflow', 'values-prod.yaml'), ('application-local.yaml', 'stockflow-gitops-smoke', 'values-local.yaml')]:
             app = yaml.safe_load((ROOT / 'argocd' / name).read_text())['spec']

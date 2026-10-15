@@ -15,7 +15,11 @@ def main():
     parser.add_argument('--application', default='stockflow')
     parser.add_argument('--timeout', type=int, default=600)
     parser.add_argument('--enable-auto', action='store_true')
+    parser.add_argument('--wait-only', action='store_true', help='Observe reconciliation without starting a sync')
+    parser.add_argument('--revision', help='Require this Git commit before reporting success')
     args = parser.parse_args()
+    if args.wait_only and not args.revision:
+        parser.error('--wait-only requires --revision to avoid accepting stale health')
     kube = ['kubectl', '--context', args.context, '-n', 'argocd']
 
     def run(tail):
@@ -33,9 +37,11 @@ def main():
             path.unlink()
 
     initial = json.loads(run(['get', 'application', args.application, '-o', 'json']))
-    if initial.get('operation'):
+    if initial.get('operation') and not args.wait_only:
         raise SystemExit('An ArgoCD operation is already running; wait before starting another')
-    patch({'operation': {'initiatedBy': {'username': 'stockflow-runbook'}, 'sync': {'prune': True, 'syncStrategy': {'apply': {}}}}})
+    # The apply strategy skips hooks, including the schema migration. Use hooks.
+    if not args.wait_only:
+        patch({'operation': {'initiatedBy': {'username': 'stockflow-runbook'}, 'retry': initial['spec'].get('syncPolicy', {}).get('retry', {}), 'sync': {'prune': True, 'syncStrategy': {'hook': {}}}}})
     deadline = time.monotonic() + args.timeout
     while time.monotonic() < deadline:
         app = json.loads(run(['get', 'application', args.application, '-o', 'json']))
@@ -43,7 +49,7 @@ def main():
         operation = status.get('operationState', {})
         if not app.get('operation') and operation.get('phase') in ['Failed', 'Error']:
             raise SystemExit('ArgoCD sync failed: ' + operation.get('message', 'inspect Application conditions'))
-        if not app.get('operation') and operation.get('phase') == 'Succeeded' and status.get('sync', {}).get('status') == 'Synced' and status.get('health', {}).get('status') == 'Healthy':
+        if not app.get('operation') and operation.get('phase') == 'Succeeded' and status.get('sync', {}).get('status') == 'Synced' and status.get('health', {}).get('status') == 'Healthy' and (not args.revision or status['sync'].get('revision') == args.revision):
             break
         time.sleep(3)
     else:
