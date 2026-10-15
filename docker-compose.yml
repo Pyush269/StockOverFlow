@@ -1,13 +1,27 @@
 name: stockflow
+x-backend: &backend-runtime
+  image: stockflow-backend:local
+  build:
+    context: ./backend
+  environment:
+    # .env DATABASE_URL is for host development; containers use service DNS.
+    DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:?Set POSTGRES_USER}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:?Set POSTGRES_DB}
+    CORS_ORIGINS: '[]'
+  init: true
+  read_only: true
+  tmpfs:
+    - /tmp:uid=10001,gid=10001,mode=1777
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
     environment:
       POSTGRES_DB: ${POSTGRES_DB:?Create .env from .env.example}
       POSTGRES_USER: ${POSTGRES_USER:?Create .env from .env.example}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a local database password}
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -15,6 +29,44 @@ services:
       interval: 3s
       timeout: 3s
       retries: 20
+    restart: unless-stopped
+  migrate:
+    <<: *backend-runtime
+    command: [python, -m, alembic, upgrade, head]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    restart: 'no'
+  backend:
+    <<: *backend-runtime
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+  frontend:
+    image: stockflow-frontend:local
+    build:
+      context: ./frontend
+    environment:
+      API_UPSTREAM: ${API_UPSTREAM:-backend:8000}
+      NGINX_RESOLVER: ${NGINX_RESOLVER:-127.0.0.11}
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3000}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:uid=101,gid=101,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
     restart: unless-stopped
 volumes:
   postgres-data:

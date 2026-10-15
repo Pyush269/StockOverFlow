@@ -1,0 +1,50 @@
+upstream stockflow_api {
+    zone stockflow_api 64k;
+    resolver ${NGINX_RESOLVER} valid=5s ipv6=off;
+    resolver_timeout 3s;
+    server ${API_UPSTREAM} resolve;
+}
+server {
+    listen 8080;
+    root /usr/share/nginx/html;
+    index index.html;
+    client_max_body_size 1m;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy same-origin always;
+
+    location = /health {
+        access_log off;
+        default_type text/plain;
+        return 200 'UP\n';
+    }
+    location = /api {
+        proxy_pass http://stockflow_api;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    location ^~ /api/ {
+        proxy_pass http://stockflow_api;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 3s;
+        proxy_read_timeout 30s;
+    }
+    location /assets/ {
+        try_files $uri =404;
+        expires 1y;
+        add_header Cache-Control 'public, immutable';
+        add_header X-Content-Type-Options nosniff always;
+    }
+    location = /index.html {
+        add_header Cache-Control 'no-cache';
+        add_header X-Content-Type-Options nosniff always;
+    }
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
