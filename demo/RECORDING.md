@@ -34,7 +34,7 @@ load, and recovery demonstrations. Credentials are handled outside recorded page
 - [x] Cloud Prometheus/Grafana and HPA metrics verified.
 - [x] PDF deck updated from `SLIDES.md` with verified cloud results and real screenshots.
 - [x] Complete silent walkthrough saved, with chapters, captions, and verification.
-- [ ] Repository and video access checked from another browser/device.
+- [x] Repository link and complete video download verified in a fresh signed-out browser.
 - [ ] Cleanup timing agreed with instructor; destroy evidence saved afterward.
 
 ## Evaluation and cleanup

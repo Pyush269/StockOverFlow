@@ -149,5 +149,13 @@
       "caption": "Live application request, latency, and availability panels"
     }
   ],
-  "visual_review": "All 11 slides and representative final chapter frames reviewed; text and required evidence are readable."
+  "visual_review": "All 11 slides and representative final chapter frames reviewed; text and required evidence are readable.",
+  "public_access_check": {
+    "checked_at_utc": "2026-10-16T09:44:22.229Z",
+    "fresh_browser_no_sign_in": true,
+    "public_readme_link": "passed",
+    "anonymous_video_download": "passed",
+    "download_bytes": 6311989,
+    "sha256": "6de40d17ed067f2982267f687858ea9525ba45213b54892feafa5f73c4c8de97"
+  }
 }
