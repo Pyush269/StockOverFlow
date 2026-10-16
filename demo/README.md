@@ -24,6 +24,7 @@ refuses to claim release/rollback/recovery or scaling without the corresponding
 recorded results. Review the output visually after changes. Do not edit evidence
 JSON to invent observations.
 
-Upload the video under this directory, or as a GitHub release asset and link it
-here. The mandatory video still needs to be linked before submission. Add actual
-destroy evidence when cleanup runs after the agreed evaluation window.
+The silent pipeline chapter is already committed in this directory and linked
+from the main README. Add the complete narrated walkthrough here, or as a GitHub
+release asset, and link it before final submission. Add actual destroy evidence
+when cleanup runs after the agreed evaluation window.

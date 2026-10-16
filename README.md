@@ -12,7 +12,9 @@ Stack: Python 3.12, FastAPI, SQLAlchemy/Alembic, PostgreSQL 16, React 19, Vite 8
 
 ## Current stage
 
-**StockFlow is deployed and verified on AWS EKS in Sydney (16 October 2026).** Open the [live application](http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com). Cloud checks passed for manual Helm install/upgrade/PVC recovery, ArgoCD image promotion and Git rollback, retained inventory, backend/database Pod recovery, encrypted EBS, healthy ALB targets, live monitoring, and HPA scaling. See [cloud verification](docs/CLOUD_VERIFICATION.md). The one-worker full-demo estimate remains about **$0.33/hour plus usage**; AWS is running and consumes credits. The mandatory walkthrough video and post-evaluation cleanup remain. Three Terraform configuration findings remain documented in [the infrastructure review](docs/INFRASTRUCTURE.md).
+**StockFlow is deployed and verified on AWS EKS in Sydney (16 October 2026).** Open the [live application](http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com). Cloud checks passed for manual Helm install/upgrade/PVC recovery, ArgoCD image promotion and Git rollback, retained inventory, backend/database Pod recovery, encrypted EBS, healthy ALB targets, live monitoring, and HPA scaling. See [cloud verification](docs/CLOUD_VERIFICATION.md). The one-worker full-demo estimate remains about **$0.33/hour plus usage**; AWS is running and consumes credits. The silent pipeline chapter is available below; the full narrated walkthrough and post-evaluation cleanup remain. Three Terraform configuration findings remain documented in [the infrastructure review](docs/INFRASTRUCTURE.md).
+
+**Pipeline video:** [Watch/download the silent MP4](demo/stockflow-pipeline-silent.mp4) (6 minutes 18 seconds). It shows an actual successful push, tests, security scans, and image publication. Use the [narration guide](demo/PIPELINE_NARRATION.md) to add your voice. See all [submission artifacts](demo/README.md), including the slides and full walkthrough checklist.
 
 - Product CRUD with normalized unique SKUs, search/category filters, and pagination.
 - Transactional stock-in/stock-out with PostgreSQL row locks.
@@ -177,11 +179,11 @@ docker compose -f compose.ci.yml down
 
 ## GitOps and monitoring
 
-The [ArgoCD runbook](argocd/README.md) describes the restricted AppProject, manual first sync, automated reconciliation, SHA promotion, and compatible rollback. ArgoCD owns its application resources; Actions publishes images. Secrets and namespaces are prepared separately. The production Application is prepared but has not been applied to AWS.
+The [ArgoCD runbook](argocd/README.md) describes the restricted AppProject, manual first sync, automated reconciliation, SHA promotion, and compatible rollback. ArgoCD owns its application resources; Actions publishes images. Secrets and namespaces are prepared separately. The production Application is deployed on AWS; image promotion and Git rollback passed the [cloud checks](docs/CLOUD_VERIFICATION.md).
 
 The [monitoring runbook](monitoring/README.md) contains canonical chart values, the provisioned six-panel Grafana dashboard, and bounded read traffic commands. [Local monitoring evidence](docs/OBSERVABILITY.md) records 8,780 requests without failures, populated queries, and HPA scaling 2 -> 3 -> 2. The longer check found and corrected Grafana sidecar OOMs; the replacement pod stayed healthy throughout the successful experiment. Local performance is not a cloud benchmark.
 
-The [PDF slides](demo/slides.pdf) cover the implemented architecture and explicitly mark AWS deployment pending. [Recording guidance](demo/RECORDING.md) lists the actual cloud evidence still needed. The video has not been recorded.
+The [PDF slides](demo/slides.pdf) cover the implemented architecture and verified AWS deployment. The [silent pipeline video](demo/stockflow-pipeline-silent.mp4) records a successful push-to-main CI run; its [verification record](demo/PIPELINE_VIDEO_VERIFICATION.json) links the actual run. [Recording guidance](demo/RECORDING.md) describes the remaining full narrated walkthrough.
 
 ## API contract
 
@@ -264,7 +266,7 @@ helm/stockflow/              App chart, migrations, storage, HPA, Ingress, Servi
 k8s/bootstrap/              Pinned controllers, monitoring, ArgoCD, and bootstrap runbook
 argocd/                     Restricted project and local/production Applications
 monitoring/                 Canonical chart values and provisioned dashboard JSON
-demo/                       PDF slides, editable content, recording checklist
+demo/                       Pipeline video, narration guide, PDF slides, recording checklist
 docs/WORKFLOW.md            Full staged implementation plan
 docs/VERIFICATION.md        Completed checks and remaining work
 docs/CONTAINERS.md          Prompt 3 checks, local operation, troubleshooting
@@ -275,4 +277,4 @@ docs/GITOPS_VERIFICATION.json  Actual local release, rollback, and recovery resu
 docs/OBSERVABILITY.md       Load, live metrics, scaling, and Grafana memory correction
 ```
 
-Next cloud step, when deployment is authorized: refresh the plan/operator IP, apply the reviewed infrastructure, bootstrap controllers, and repeat the Helm, GitOps, ALB/storage, and monitoring checks on EKS. Update the slides with real cloud evidence, record the mandatory walkthrough, and clean up after evaluation. Follow [the checklist](docs/DEPLOYMENT_CHECKLIST.md) and preserve actual evidence as each stage passes.
+Cloud deployment and verification are complete, and the silent pipeline chapter is recorded. Complete the full narrated walkthrough using [the recording checklist](demo/RECORDING.md), confirm evaluator access, and clean up AWS after the agreed evaluation window using [the deployment checklist](docs/DEPLOYMENT_CHECKLIST.md).
