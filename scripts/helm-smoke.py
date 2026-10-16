@@ -64,7 +64,8 @@ def main():
                     if process.poll() is not None:
                         raise RuntimeError("Port-forward exited; inspect .logs/helm-port-forward.log")
                     try:
-                        with urllib.request.urlopen(f"http://127.0.0.1:{args.port}/health", timeout=1) as response:
+                        # Cloud port-forwards include the operator-to-Region round trip.
+                        with urllib.request.urlopen(f"http://127.0.0.1:{args.port}/health", timeout=10) as response:
                             if response.status == 200:
                                 break
                     except (urllib.error.URLError, TimeoutError):

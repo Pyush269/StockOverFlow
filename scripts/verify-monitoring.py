@@ -58,7 +58,7 @@ def main():
                     if process.poll() is not None:
                         raise RuntimeError(f'Port-forward failed on {port}; check its log or a busy port')
                     try:
-                        with urllib.request.urlopen(f'http://127.0.0.1:{port}/api/health' if port == 3002 else f'http://127.0.0.1:{port}/health' if port == 3001 else f'http://127.0.0.1:{port}/-/ready', timeout=1):
+                        with urllib.request.urlopen(f'http://127.0.0.1:{port}/api/health' if port == 3002 else f'http://127.0.0.1:{port}/health' if port == 3001 else f'http://127.0.0.1:{port}/-/ready', timeout=10):
                             break
                     except Exception:
                         time.sleep(1)

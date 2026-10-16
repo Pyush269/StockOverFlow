@@ -1,0 +1,24 @@
+{
+  "context": "stockflow-eks-sydney",
+  "node": "ip-10-42-128-168.ap-southeast-2.compute.internal",
+  "active_pods": 25,
+  "reserved_missing_system_pods": 0,
+  "baseline_cpu_requests_millicores": "1430",
+  "baseline_memory_requests_mib": "2836",
+  "projected_cpu_requests_millicores": "1705",
+  "projected_memory_requests_mib": "3116",
+  "projected_pods_with_hpa_rollout_migration": 29,
+  "budgets": {
+    "cpu_millicores": 1930,
+    "memory_mib": 7105,
+    "pods": 29
+  },
+  "containers_missing_request_fields": [
+    "kube-system/aws-node-c5b8h:aws-node",
+    "kube-system/aws-node-c5b8h:aws-eks-nodeagent",
+    "kube-system/eks-pod-identity-agent-mfhpn:eks-pod-identity-agent",
+    "kube-system/kube-proxy-rlhbx:kube-proxy"
+  ],
+  "fits_requests_and_pod_budget": true,
+  "limitation": "Requests/pod-count projection; not proof of peak usage or EKS scheduling/storage behavior. Verify actual allocatable values after deployment."
+}
