@@ -20,12 +20,13 @@ try {
   const response = await context.request.get(origin + '/api/dashboard');
   if (response.status() !== 200 || errors.length) throw new Error('Public frontend/API browser verification failed');
   await page.screenshot({ path: path.join(root, 'docs/screenshots/stockflow-cloud-overview.png'), fullPage: true });
-  await page.getByRole('link', { name: 'Products', exact: true }).click();
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: /^Products/ }).click();
   await page.getByRole('textbox', { name: 'Search products', exact: true }).waitFor();
   await page.screenshot({ path: path.join(root, 'docs/screenshots/stockflow-cloud-products.png'), fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(origin);
   await page.getByRole('heading', { name: 'Inventory overview' }).waitFor();
+  await page.getByText('AWS capstone inventory proof', { exact: true }).first().waitFor();
   await page.screenshot({ path: path.join(root, 'docs/screenshots/stockflow-cloud-mobile.png'), fullPage: true });
   console.log('PASS: actual public ALB overview, catalog, mobile UI, and dashboard API');
   await context.close();

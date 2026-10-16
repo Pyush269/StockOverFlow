@@ -1,0 +1,13 @@
+{
+  "context": "stockflow-eks-sydney",
+  "namespace": "stockflow-smoke",
+  "release": "warehouse",
+  "product_id": 1,
+  "quantity_after_restart": 7,
+  "pvc_bound": true,
+  "migration_runs_verified": 2,
+  "replicas_ready": {
+    "backend": 2,
+    "frontend": 2
+  }
+}

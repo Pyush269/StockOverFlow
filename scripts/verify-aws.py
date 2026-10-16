@@ -75,8 +75,9 @@ def main():
         health = []
         for target_group in target_groups:
             targets = clients['elbv2'].describe_target_health(TargetGroupArn=target_group['TargetGroupArn'])['TargetHealthDescriptions']
-            assert len(targets) >= 2 and all(t['TargetHealth']['State'] == 'healthy' for t in targets)
-            health.append({'target_type': target_group['TargetType'], 'healthy_targets': len(targets)})
+            active = [t for t in targets if t['TargetHealth']['State'] != 'draining']
+            assert len(active) >= 2 and all(t['TargetHealth']['State'] == 'healthy' for t in active)
+            health.append({'target_type': target_group['TargetType'], 'healthy_targets': len(active), 'deregistering_targets': len(targets) - len(active)})
         assert len(health) == 2
         pvc = get(['-n', 'stockflow', 'get', 'pvc', '-o', 'json'])['items'][0]
         assert pvc['status']['phase'] == 'Bound' and pvc['spec']['storageClassName'] == 'gp3'

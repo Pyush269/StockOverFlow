@@ -20,6 +20,8 @@ def main():
     parser.add_argument('--context', required=True)
     parser.add_argument('--namespace', default='stockflow-gitops-smoke')
     parser.add_argument('--duration', type=int, default=120)
+    parser.add_argument('--concurrency', type=int, default=12)
+    parser.add_argument('--rps', type=int, default=80)
     parser.add_argument('--cloud', action='store_true', help='Verify only the applied Sydney EKS demo')
     args = parser.parse_args()
     if args.cloud and (args.context != 'stockflow-eks-sydney' or args.namespace != 'stockflow'):
@@ -28,6 +30,8 @@ def main():
         parser.error('This automated experiment is restricted to the disposable local cluster')
     if not 30 <= args.duration <= 180:
         parser.error('Use 30..180 seconds of bounded traffic')
+    if not 1 <= args.concurrency <= 32 or not 1 <= args.rps <= 200:
+        parser.error('Use 1..32 workers and a total ceiling of 1..200 requests/second')
     kube = ['kubectl', '--context', args.context]
     (ROOT / '.logs').mkdir(exist_ok=True)
 
@@ -102,7 +106,7 @@ def main():
 
         sample()
         with (ROOT / '.logs' / (report_prefix + 'load-test-output.txt')).open('w') as output:
-            load = subprocess.Popen([sys.executable, str(ROOT / 'scripts/load-test.py'), '--base-url', load_origin, '--duration', str(args.duration), '--concurrency', '12', '--rps', '80', '--output', str(ROOT / '.logs' / (report_prefix + 'load-test.json'))], stdout=output, stderr=output)
+            load = subprocess.Popen([sys.executable, str(ROOT / 'scripts/load-test.py'), '--base-url', load_origin, '--duration', str(args.duration), '--concurrency', str(args.concurrency), '--rps', str(args.rps), '--output', str(ROOT / '.logs' / (report_prefix + 'load-test.json'))], stdout=output, stderr=output)
             try:
                 while load.poll() is None:
                     sample()

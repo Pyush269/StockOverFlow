@@ -80,7 +80,7 @@
     "AWS-0041",
     "AWS-0104"
   ],
-  "deployment_status": "Terraform infrastructure applied successfully; cloud bootstrap and application verification in progress",
+  "deployment_status": "Infrastructure applied and verified; final Terraform plan has no changes",
   "initial_plan_sha256": "e370d3d318e86faddaba3a86504373818b39f3077a803654eb7371836755cda6",
   "initial_actions": {
     "read": 1,
@@ -118,5 +118,21 @@
     "cluster": "ACTIVE",
     "worker": "Ready",
     "private_worker": true
+  },
+  "final_drift_check": {
+    "exit_code": 0,
+    "result": "No changes",
+    "log": ".logs/final-terraform-plan.txt"
+  },
+  "configuration_rescan": {
+    "exit_code": 1,
+    "critical": 3,
+    "high": 0,
+    "ids": [
+      "AWS-0040",
+      "AWS-0041",
+      "AWS-0104"
+    ],
+    "suppressed": false
   }
 }
