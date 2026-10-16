@@ -1,4 +1,4 @@
-# clusterName, region, vpcId and serviceAccount.annotations are filled from Terraform outputs.
+# clusterName, region and vpcId come from Terraform; Pod Identity binds the service account below.
 replicaCount: 1
 enableShield: false
 enableWaf: false

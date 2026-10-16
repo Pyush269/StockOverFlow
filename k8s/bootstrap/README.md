@@ -1,6 +1,6 @@
 # Cluster bootstrap
 
-The AWS deployment is currently **off by user choice**. Prompt 6 was exercised on an isolated local Kubernetes cluster; it does not prove that EBS/IRSA or an ALB works on EKS. Read [the infrastructure review](../../docs/INFRASTRUCTURE.md) before approving the real deployment.
+AWS deployment was authorized on **16 October 2026** and is in progress. The initial managed-policy denial of IAM OIDC provider creation was addressed with EKS Pod Identity. Local checks do not prove cloud storage or ALB behavior; verify them on the deployed cluster. See [the reviewed infrastructure change](../../docs/INFRASTRUCTURE.md).
 
 ## Pinned dependencies
 
@@ -8,7 +8,7 @@ The AWS deployment is currently **off by user choice**. Prompt 6 was exercised o
 
 | Release | Chart version | Purpose |
 |---|---|---|
-| aws-load-balancer-controller | 3.6.0 | ALB Ingress; exact IRSA service account from Terraform |
+| aws-load-balancer-controller | 3.6.0 | ALB Ingress; exact Pod Identity service account from Terraform |
 | metrics-server | 3.14.0 | Resource Metrics API for `kubectl top` and HPA |
 | monitoring | kube-prometheus-stack 92.8.0 | Prometheus operator/CRDs, Prometheus, Grafana, node and workload metrics |
 | argocd | argo-cd 10.10.5 | GitOps controller/UI; Application configuration follows in Prompt 7 |
@@ -42,13 +42,14 @@ Apply the newly reviewed **one-worker** Terraform plan in Sydney, then configure
 # From stockflow/, only after the Terraform plan has been approved and applied.
 $env:AWS_PROFILE = 'stockflow'
 $env:AWS_REGION = 'ap-southeast-2'
-aws eks update-kubeconfig --profile stockflow --region ap-southeast-2 --name stockflow-eks
-$stockflowContext = kubectl config current-context
+python scripts/configure-eks.py
+$env:KUBECONFIG = Join-Path $PWD '.logs/eks.kubeconfig'
+$stockflowContext = 'stockflow-eks-sydney'
 kubectl --context $stockflowContext get nodes -o wide
 .\scripts\bootstrap-cluster.ps1 -Context $stockflowContext
 ```
 
-Bootstrap applies the encrypted `gp3` StorageClass, upstream Gateway API **v1.6.0** definitions, and the AWS-specific CRDs supplied by the pinned controller chart. These are different sets of CRDs; AWS Gateway configuration CRDs alone do not provide the upstream Gateway APIs. The upstream download is checksum verified. The controller receives `clusterName`, `region`, `vpcId`, and its IRSA role ARN from Terraform outputs; IMDS hop limit remains 1. Shield/WAF integrations are disabled for this demo.
+Bootstrap applies the encrypted `gp3` StorageClass, upstream Gateway API **v1.6.0** definitions, and the AWS-specific CRDs supplied by the pinned controller chart. These are different sets of CRDs; AWS Gateway configuration CRDs alone do not provide the upstream Gateway APIs. The upstream download is checksum verified. The controller receives `clusterName`, `region`, `vpcId`, from Terraform outputs; its service account is bound to a Terraform-managed Pod Identity role; IMDS hop limit remains 1. Shield/WAF integrations are disabled for this demo.
 
 The bootstrap does not create application database credentials or deploy the GitOps Application. It creates no extra IAM role through eksctl. On later chart upgrades, review release notes and apply compatible CRD changes explicitly; Helm does not upgrade CRDs automatically. [AWS controller installation](https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html), [controller 3.6.0 release](https://github.com/kubernetes-sigs/aws-load-balancer-controller/releases/tag/v3.6.0), [Helm CRD behavior](https://helm.sh/docs/chart_best_practices/custom_resource_definitions/).
 

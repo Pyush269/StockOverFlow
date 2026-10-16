@@ -115,8 +115,8 @@ variable "addon_versions" {
   type        = map(string)
   default     = {}
   validation {
-    condition     = alltrue([for name in keys(var.addon_versions) : contains(["vpc-cni", "coredns", "kube-proxy", "aws-ebs-csi-driver"], name)])
-    error_message = "Only vpc-cni, coredns, kube-proxy, and aws-ebs-csi-driver are managed here."
+    condition     = alltrue([for name in keys(var.addon_versions) : contains(["vpc-cni", "coredns", "kube-proxy", "aws-ebs-csi-driver", "eks-pod-identity-agent"], name)])
+    error_message = "Only vpc-cni, coredns, kube-proxy, aws-ebs-csi-driver, and eks-pod-identity-agent are managed here."
   }
 }
 

@@ -1,4 +1,4 @@
-# All AWS/TLS calls are mocked. These plans never contact or create AWS resources.
+# All AWS calls are mocked. These plans never contact or create AWS resources.
 mock_provider "aws" {
   mock_data "aws_availability_zones" {
     defaults = { names = ["ap-southeast-2a", "ap-southeast-2b", "ap-southeast-2c"] }
@@ -30,9 +30,6 @@ mock_provider "aws" {
   mock_resource "aws_kms_key" {
     defaults = { arn = "arn:aws:kms:ap-southeast-2:111111111111:key/11111111-1111-1111-1111-111111111111" }
   }
-  mock_resource "aws_iam_openid_connect_provider" {
-    defaults = { arn = "arn:aws:iam::111111111111:oidc-provider/oidc.eks.ap-southeast-2.amazonaws.com/id/EXAMPLE" }
-  }
   mock_resource "aws_eks_cluster" {
     defaults = {
       arn        = "arn:aws:eks:ap-southeast-2:111111111111:cluster/stockflow-eks"
@@ -40,12 +37,6 @@ mock_provider "aws" {
       identity   = [{ oidc = [{ issuer = "https://oidc.eks.ap-southeast-2.amazonaws.com/id/EXAMPLE" }] }]
       vpc_config = { cluster_security_group_id = "sg-11111111111111111" }
     }
-  }
-}
-
-mock_provider "tls" {
-  mock_data "tls_certificate" {
-    defaults = { certificates = [{ sha1_fingerprint = "0123456789012345678901234567890123456789" }] }
   }
 }
 
@@ -125,15 +116,33 @@ run "endpoint_identity_and_worker_security" {
 run "service_account_scoped_iam" {
   command = apply
   assert {
-    condition = alltrue([for name, subject in local.irsa_accounts :
-      jsondecode(aws_iam_role.irsa[name].assume_role_policy).Statement[0].Condition.StringEquals["${local.oidc_host}:sub"] == subject &&
-      jsondecode(aws_iam_role.irsa[name].assume_role_policy).Statement[0].Condition.StringEquals["${local.oidc_host}:aud"] == "sts.amazonaws.com"
+    condition = alltrue([for name, account in local.pod_accounts :
+      jsondecode(aws_iam_role.pod[name].assume_role_policy).Statement[0].Principal.Service == "pods.eks.amazonaws.com" &&
+      toset(jsondecode(aws_iam_role.pod[name].assume_role_policy).Statement[0].Action) == toset(["sts:AssumeRole", "sts:TagSession"]) &&
+      jsondecode(aws_iam_role.pod[name].assume_role_policy).Statement[0].Condition.StringEquals["aws:RequestTag/eks-cluster-arn"] == aws_eks_cluster.main.arn &&
+      jsondecode(aws_iam_role.pod[name].assume_role_policy).Statement[0].Condition.StringEquals["aws:RequestTag/kubernetes-namespace"] == "kube-system" &&
+      jsondecode(aws_iam_role.pod[name].assume_role_policy).Statement[0].Condition.StringEquals["aws:RequestTag/kubernetes-service-account"] == account
     ])
-    error_message = "Each IRSA trust must bind the exact service account and STS audience."
+    error_message = "Each Pod Identity trust must bind the EKS service, exact cluster, namespace, and service account."
   }
   assert {
-    condition     = !contains(keys(aws_iam_role_policy_attachment.nodes), "AmazonEKS_CNI_Policy") && aws_eks_addon.cni.service_account_role_arn == aws_iam_role.irsa["cni"].arn && aws_eks_addon.after_nodes["aws-ebs-csi-driver"].service_account_role_arn == aws_iam_role.irsa["ebs"].arn
+    condition = !contains(keys(aws_iam_role_policy_attachment.nodes), "AmazonEKS_CNI_Policy") && (
+      one(aws_eks_addon.cni.pod_identity_association).role_arn == aws_iam_role.pod["cni"].arn &&
+      one(aws_eks_addon.cni.pod_identity_association).service_account == "aws-node" &&
+      one(aws_eks_addon.after_nodes["aws-ebs-csi-driver"].pod_identity_association).role_arn == aws_iam_role.pod["ebs"].arn &&
+      one(aws_eks_addon.after_nodes["aws-ebs-csi-driver"].pod_identity_association).service_account == "ebs-csi-controller-sa"
+    )
     error_message = "CNI and EBS permissions must use separate pod roles, not the EC2 node role."
+  }
+  assert {
+    condition = aws_eks_pod_identity_association.load_balancer.cluster_name == aws_eks_cluster.main.name && (
+      aws_eks_pod_identity_association.load_balancer.namespace == "kube-system" &&
+      aws_eks_pod_identity_association.load_balancer.service_account == "aws-load-balancer-controller" &&
+      aws_eks_pod_identity_association.load_balancer.role_arn == aws_iam_role.pod["lbc"].arn &&
+      !aws_eks_pod_identity_association.load_balancer.disable_session_tags &&
+      aws_eks_addon.pod_identity_agent.addon_name == "eks-pod-identity-agent"
+    )
+    error_message = "Load balancer credentials require the exact Pod Identity association and enabled session tags."
   }
 }
 

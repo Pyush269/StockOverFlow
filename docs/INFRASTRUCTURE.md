@@ -1,21 +1,21 @@
 # StockFlow infrastructure review
 
-Prepared 15 October 2026; refreshed on 16 October 2026. **The user authorized deployment after the refreshed plan/cost review, and Terraform apply has started.** The current pre-apply [review](DEPLOYMENT_REVIEW_20261016.json) confirms 59 additions, unchanged prices, and USD 100 credits before deployment. Provisioning and actual cloud verification are in progress; earlier local results are not cloud completion evidence. The existing default VPC remains outside this Terraform configuration.
+Prepared 15 October 2026; refreshed on 16 October 2026. **The user authorized deployment after the refreshed plan/cost review.** The initial apply created the VPC and EKS control plane, then the managed project SCP denied IAM OIDC provider creation. The reviewed continuation uses supported EKS Pod Identity: **13 additions, no changes or deletions**, at the unchanged estimate. The [review](DEPLOYMENT_REVIEW_20261016.json) preserves both plan hashes. Provisioning and cloud verification are in progress; earlier local results are not cloud completion evidence. The existing default VPC remains outside this Terraform configuration.
 
 ## Actual plan and verification
 
-The real Sydney plan is **59 to add, 0 to change, 0 to destroy**. These are Terraform-managed resource entries, not 59 virtual machines; the node group will create one EC2 worker and its root volume through AWS. The plan also defers the OIDC TLS certificate lookup until the cluster exists.
+The initial Sydney plan was **59 to add, 0 to change, 0 to destroy**. After partial provisioning, the revised plan is **13 to add, 0 to change, 0 to destroy**, retaining 47 unchanged managed resources. These are Terraform resource entries; the node group creates one EC2 worker and its root volume. Pod Identity replaces the denied OIDC provider, adds its agent, and binds the controller service account without changing organization policies.
 
 Local files, deliberately excluded from Git:
 
-- Saved binary plan: `terraform/stockflow.tfplan`.
-- Readable plan: `.logs/terraform-plan.txt`; complete JSON: `.logs/terraform-plan.json`.
+- Current saved binary plan: `terraform/stockflow-pod-identity.tfplan`.
+- Current readable/JSON plans: `.logs/terraform-plan-pod-identity-20261016.txt` and `.json`. Apply logs: `.logs/terraform-apply-20261016.txt` and `.logs/terraform-apply-pod-identity-20261016.txt`.
 - Actual project, operator role, and current public IPv4/32: `terraform/terraform.tfvars`.
 - Test output: `.logs/terraform-tests.txt`.
 - Configuration scan: `.logs/terraform-security.json` and `.logs/terraform-security.log`.
 - Price lookup evidence: `.logs/terraform-research/sydney-review.json`; revised one-worker calculation: `.logs/terraform-research/one-worker-costs.json`.
 
-16 October saved-plan SHA-256: `e370d3d318e86faddaba3a86504373818b39f3077a803654eb7371836755cda6`. The earlier 15 October plan hash `4b6fae9ecf7b4196b994a6272b0619327484addff73fffd073b5a163d7a9dc4c` is historical and must not be applied.
+16 October continuation-plan SHA-256: `64c7e5db5623ad4f765f7abde6f6d68e573a218531276340d9b5524fd0b27314`. The initial plan hash `e370d3d318e86faddaba3a86504373818b39f3077a803654eb7371836755cda6` is historical after partial apply and must not be reused. The earlier 15 October plan hash `4b6fae9ecf7b4196b994a6272b0619327484addff73fffd073b5a163d7a9dc4c` is historical and must not be applied.
 
 The committed [review data](INFRASTRUCTURE_REVIEW.json) contains a summary without the operator's IP or project identity. Local plan files are needed to review exact values; the summary cannot be applied. Regenerating the plan changes its checksum and requires a fresh review.
 
@@ -30,7 +30,7 @@ The operator's permanent role ARN was obtained with IAM `GetRole`; its `/managed
 | Component | Checked selection |
 |---|---|
 | Terraform | 1.16.5; supported configuration range >=1.16, <2 |
-| AWS / TLS providers | 6.69.0 / 4.4.1; signed Windows and Linux checksums locked |
+| AWS provider | 6.69.0; signed Windows/Linux checksums locked; TLS no longer required by configuration |
 | EKS / kubectl | Kubernetes 1.36 / installed kubectl 1.36.1 |
 | EKS standard support | Regional API confirms standard support through 2 August 2027 |
 | Worker OS | EKS-optimized AL2023 x86_64; regional SSM release `1.36.4-20261012` exists and its AMI is free-plan eligible |
@@ -39,9 +39,10 @@ The operator's permanent role ARN was obtained with IAM `GetRole`; its `/managed
 | CoreDNS | `v1.14.7-eksbuild.11` |
 | kube-proxy | `v1.36.0-eksbuild.45` |
 | EBS CSI driver | `v1.67.0-eksbuild.1` |
+| EKS Pod Identity Agent | `v1.4.0-eksbuild.4` |
 | Load Balancer Controller IAM policy | Vendored official `v3.6.0`; controller/chart installation belongs to Prompt 6 |
 
-The saved plan fixes the four resolved add-on versions. An optional `addon_versions` map pins them across future plans. The node AMI release is AWS-selected for the requested Kubernetes/OS combination at creation; the checked SSM release is evidence, not a custom-AMI pin. Recheck versions, eligibility, and quotas if deploying much later. [EKS version lifecycle](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html), [EC2 free-plan instance types](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-free-tier-usage.html).
+The saved plan fixes the five resolved add-on versions. An optional `addon_versions` map pins them across future plans. The node AMI release is AWS-selected for the requested Kubernetes/OS combination at creation; the checked SSM release is evidence, not a custom-AMI pin. Recheck versions, eligibility, and quotas if deploying much later. [EKS version lifecycle](https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html), [EC2 free-plan instance types](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-free-tier-usage.html).
 
 The earlier `t3.medium` proposal was changed because it is not free-plan eligible. `m7i-flex.large` provides memory for the later PostgreSQL, Prometheus, Grafana, and ArgoCD workloads while preserving the x86_64 images. Prompt 6 local checks pass for the complete small-demo bootstrap and app; actual EKS allocatable resources and scheduling still need deployment verification.
 
@@ -54,7 +55,7 @@ The earlier `t3.medium` proposal was changed because it is not free-plan eligibl
 - One managed node group with **min/desired/max = 1/1/2**, private workers, no SSH, encrypted 30 GiB gp3 root volumes, IMDSv2 required, metadata hop limit 1.
 - Worker egress: HTTPS to external destinations through NAT; TCP/UDP DNS to the VPC resolver; pod/node traffic within the worker security group. Control-plane ingress permits API/kubelet/controller-webhook traffic as needed.
 - A customer-managed KMS key with rotation for secrets and infrastructure logs; all five EKS control-plane log types and VPC flow logs, with seven-day retention.
-- Six purpose-specific IAM roles: cluster, workers, VPC flow logs, CNI, EBS CSI, and Load Balancer Controller. Pod roles trust exact service-account subjects and STS audience through the cluster OIDC provider. CNI permissions stay off the worker role.
+- Six purpose-specific IAM roles: cluster, workers, VPC flow logs, CNI, EBS CSI, and Load Balancer Controller. Pod roles trust `pods.eks.amazonaws.com` with `AssumeRole`/`TagSession`, constrained by the exact cluster ARN, namespace, and service-account request tags. Managed CNI/EBS add-ons own their Pod Identity associations; Terraform separately manages the Load Balancer Controller association. No IAM OIDC provider is required. See [Pod Identity trust](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-role.html) and [session tags](https://docs.aws.amazon.com/eks/latest/userguide/pod-id-abac.html). CNI permissions stay off the worker role.
 - AWS-managed EKS/node/ECR/CNI/EBS policies where appropriate; upstream controller policy retained with its resource-tag conditions. Some discovery actions require wildcard resources. Controller policy SHA-256: `16f232c9d9f79366fe949c4550ad517a202380058a9e48d45a4e215044a20a6a`.
 
 The current regional On-Demand Standard quota is **5 vCPUs**, with no running or pending instances observed. The initial worker needs **2 vCPUs**; two workers would need **4 vCPUs**. A third worker would exceed the quota. Managed-node updates use **MINIMAL**, replacing a worker before launching its replacement. With one worker, node updates/failures temporarily take the application offline. Incompatible disruption budgets can block draining. Increase the quota before adding workers or switching to the default surge strategy. No quota increase was submitted. [Managed-node update behavior](https://docs.aws.amazon.com/eks/latest/userguide/managed-node-update-behavior.html).
@@ -65,7 +66,7 @@ The earlier two-worker plan is superseded by this one-worker plan. See [Prompt 6
 
 ## Cost review
 
-Current public USD on-demand rates were queried through AWS Price List on 15 October 2026 for Sydney. This is a usage estimate **before credits**, not a fixed-price quote. Monthly normalization uses 730 hours. The [machine-readable review](INFRASTRUCTURE_REVIEW.json) retains the rate SKUs, effective dates, and calculations.
+Current public USD on-demand rates were queried through AWS Price List on 16 October 2026 for Sydney. This is a usage estimate **before credits**, not a fixed-price quote. Monthly normalization uses 730 hours. The [machine-readable review](INFRASTRUCTURE_REVIEW.json) retains the rate SKUs, effective dates, and calculations.
 
 | Planned infrastructure | Quantity / rate | Approx. USD/hour |
 |---|---|---:|
@@ -112,8 +113,8 @@ From `stockflow/`, load the tool environment if needed, then use the authenticat
 $env:AWS_PROFILE = 'stockflow'
 $env:AWS_REGION = 'ap-southeast-2'
 Set-Location terraform
-terraform show -no-color 'stockflow.tfplan'
-Get-FileHash -LiteralPath stockflow.tfplan -Algorithm SHA256
+terraform show -no-color 'stockflow-pod-identity.tfplan'
+Get-FileHash -LiteralPath stockflow-pod-identity.tfplan -Algorithm SHA256
 ```
 
 Before applying, review the exact target project, IAM role, IP allowlist, resource count, estimate, remaining scan findings, and cleanup window. If credentials expire, renew using `aws login --profile stockflow --region ap-southeast-2`. If the public IP, configuration, state, or reviewed values change, regenerate the plan and review it again. Keep credentials, tfvars, state, and binary/complete JSON plans out of Git.
@@ -122,10 +123,12 @@ Only after approval of the current plan:
 
 ```powershell
 # From stockflow/terraform, with the environment above.
-terraform apply 'stockflow.tfplan'
-aws eks update-kubeconfig --profile stockflow --region ap-southeast-2 --name stockflow-eks
-kubectl get nodes -o wide
-kubectl get pods -n kube-system
+terraform apply 'stockflow-pod-identity.tfplan'
+Set-Location ..
+python scripts/configure-eks.py
+$env:KUBECONFIG = Join-Path $PWD ".logs/eks.kubeconfig"
+kubectl --context stockflow-eks-sydney get nodes -o wide
+kubectl --context stockflow-eks-sydney get pods -n kube-system
 ```
 
 If apply partially fails, preserve state, inspect the error, and create a fresh plan. Do not rerun a stale binary plan or create conflicting resources manually. The credential-free GitHub Terraform workflow validates schemas and runs mock tests; it never plans or applies against this project.
@@ -137,3 +140,5 @@ Local Terraform state lives at `terraform/terraform.tfstate`; retain a secure ba
 Keep resources only for the agreed recording/evaluation window. First stop ArgoCD reconciliation and remove application Ingress/load balancers while their controller is still running. Back up required data, inspect reclaim policies, and intentionally remove disposable workloads/PVCs. Then review `terraform plan -destroy` and run `terraform destroy` from the same state.
 
 Verify removal of EKS, workers, NAT/EIP, ALB/target groups, application EBS volumes, snapshots, and log groups. Terraform schedules its KMS key for deletion after seven days. Controller/PVC-created resources are not all recorded in Terraform state. Do not delete state until cleanup and resource verification succeed. Save the destroy evidence for grading.
+
+Pod Identity credentials reach the EKS Auth API using existing NAT HTTPS egress. A PrivateLink endpoint is required for nodes without outbound internet access; this design retains NAT. No endpoint or extra worker is added by this correction. See [private-cluster requirements](https://docs.aws.amazon.com/eks/latest/userguide/private-clusters.html).

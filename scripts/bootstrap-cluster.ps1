@@ -57,7 +57,7 @@ foreach ($stockflowRepo in @(
 )) { Invoke-StockFlowTool 'helm' @('repo', 'add', $stockflowRepo[0], $stockflowRepo[1], '--force-update') }
 
 if (-not $Local) {
-    # IAM already belongs to Terraform. Helm creates only the annotated service account.
+    # Terraform owns IAM and Pod Identity; Helm creates the exact associated service account.
     $stockflowLbcVersion = $stockflowVersions.charts.loadBalancerController.version
     $stockflowCrdFile = Join-Path $stockflowGenerated 'lbc-crds.yaml'
     $stockflowCrds = Invoke-StockFlowTool 'helm' @('show', 'crds', 'eks/aws-load-balancer-controller', '--version', $stockflowLbcVersion)
@@ -74,7 +74,7 @@ if (-not $Local) {
         clusterName = $stockflowInfra.cluster_name.value
         region = $stockflowInfra.region.value
         vpcId = $stockflowInfra.vpc_id.value
-        serviceAccount = @{ annotations = @{ 'eks.amazonaws.com/role-arn' = $stockflowInfra.load_balancer_controller_role_arn.value } }
+        serviceAccount = @{ create = $true; name = 'aws-load-balancer-controller' }
     } | ConvertTo-Json -Depth 5
     $stockflowLbcFile = Join-Path $stockflowGenerated 'lbc-infrastructure.json'
     [System.IO.File]::WriteAllText($stockflowLbcFile, $stockflowLbcValues, [System.Text.UTF8Encoding]::new($false))

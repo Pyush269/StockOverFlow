@@ -5,10 +5,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "6.69.0"
     }
-    tls = {
-      source  = "hashicorp/tls"
-      version = "4.4.1"
-    }
   }
   # Single operator: local state. Back up securely; never commit state/plans.
   backend "local" {}
@@ -25,5 +21,3 @@ provider "aws" {
     }
   }
 }
-
-provider "tls" {}

@@ -1,46 +1,36 @@
 locals {
-  addon_names = toset(["vpc-cni", "coredns", "kube-proxy", "aws-ebs-csi-driver"])
-  irsa_accounts = {
-    cni = "system:serviceaccount:kube-system:aws-node"
-    ebs = "system:serviceaccount:kube-system:ebs-csi-controller-sa"
-    lbc = "system:serviceaccount:kube-system:aws-load-balancer-controller"
+  addon_names = toset(["vpc-cni", "coredns", "kube-proxy", "aws-ebs-csi-driver", "eks-pod-identity-agent"])
+  pod_accounts = {
+    cni = "aws-node"
+    ebs = "ebs-csi-controller-sa"
+    lbc = "aws-load-balancer-controller"
   }
-  oidc_host = replace(aws_eks_cluster.main.identity[0].oidc[0].issuer, "https://", "")
 }
 
-data "tls_certificate" "oidc" {
-  url = aws_eks_cluster.main.identity[0].oidc[0].issuer
-}
-
-resource "aws_iam_openid_connect_provider" "cluster" {
-  url             = aws_eks_cluster.main.identity[0].oidc[0].issuer
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = [data.tls_certificate.oidc.certificates[length(data.tls_certificate.oidc.certificates) - 1].sha1_fingerprint]
-}
-
-resource "aws_iam_role" "irsa" {
-  for_each = local.irsa_accounts
+resource "aws_iam_role" "pod" {
+  for_each = local.pod_accounts
   name     = "${local.prefix}-${each.key}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect    = "Allow", Action = "sts:AssumeRoleWithWebIdentity"
-      Principal = { Federated = aws_iam_openid_connect_provider.cluster.arn }
+      Effect    = "Allow", Action = ["sts:AssumeRole", "sts:TagSession"]
+      Principal = { Service = "pods.eks.amazonaws.com" }
       Condition = { StringEquals = {
-        "${local.oidc_host}:sub" = each.value
-        "${local.oidc_host}:aud" = "sts.amazonaws.com"
+        "aws:RequestTag/eks-cluster-arn"            = aws_eks_cluster.main.arn
+        "aws:RequestTag/kubernetes-namespace"       = "kube-system"
+        "aws:RequestTag/kubernetes-service-account" = each.value
       } }
     }]
   })
 }
 
 resource "aws_iam_role_policy_attachment" "cni" {
-  role       = aws_iam_role.irsa["cni"].name
+  role       = aws_iam_role.pod["cni"].name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
 
 resource "aws_iam_role_policy_attachment" "ebs" {
-  role       = aws_iam_role.irsa["ebs"].name
+  role       = aws_iam_role.pod["ebs"].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicyV2"
 }
 
@@ -51,7 +41,7 @@ resource "aws_iam_policy" "load_balancer" {
 }
 
 resource "aws_iam_role_policy_attachment" "load_balancer" {
-  role       = aws_iam_role.irsa["lbc"].name
+  role       = aws_iam_role.pod["lbc"].name
   policy_arn = aws_iam_policy.load_balancer.arn
 }
 
@@ -62,23 +52,49 @@ data "aws_eks_addon_version" "compatible" {
   most_recent        = true
 }
 
+resource "aws_eks_addon" "pod_identity_agent" {
+  cluster_name                = aws_eks_cluster.main.name
+  addon_name                  = "eks-pod-identity-agent"
+  addon_version               = lookup(var.addon_versions, "eks-pod-identity-agent", data.aws_eks_addon_version.compatible["eks-pod-identity-agent"].version)
+  resolve_conflicts_on_create = "OVERWRITE"
+  resolve_conflicts_on_update = "PRESERVE"
+}
+
+resource "aws_eks_pod_identity_association" "load_balancer" {
+  cluster_name         = aws_eks_cluster.main.name
+  namespace            = "kube-system"
+  service_account      = local.pod_accounts.lbc
+  role_arn             = aws_iam_role.pod["lbc"].arn
+  disable_session_tags = false
+  depends_on           = [aws_eks_addon.pod_identity_agent, aws_iam_role_policy_attachment.load_balancer]
+}
+
 resource "aws_eks_addon" "cni" {
   cluster_name                = aws_eks_cluster.main.name
   addon_name                  = "vpc-cni"
   addon_version               = lookup(var.addon_versions, "vpc-cni", data.aws_eks_addon_version.compatible["vpc-cni"].version)
-  service_account_role_arn    = aws_iam_role.irsa["cni"].arn
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "PRESERVE"
-  depends_on                  = [aws_iam_role_policy_attachment.cni]
+  pod_identity_association {
+    role_arn        = aws_iam_role.pod["cni"].arn
+    service_account = local.pod_accounts.cni
+  }
+  depends_on = [aws_iam_role_policy_attachment.cni, aws_eks_addon.pod_identity_agent]
 }
 
 resource "aws_eks_addon" "after_nodes" {
-  for_each                    = setsubtract(local.addon_names, toset(["vpc-cni"]))
+  for_each                    = setsubtract(local.addon_names, toset(["vpc-cni", "eks-pod-identity-agent"]))
   cluster_name                = aws_eks_cluster.main.name
   addon_name                  = each.value
   addon_version               = lookup(var.addon_versions, each.value, data.aws_eks_addon_version.compatible[each.value].version)
-  service_account_role_arn    = each.value == "aws-ebs-csi-driver" ? aws_iam_role.irsa["ebs"].arn : null
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "PRESERVE"
-  depends_on                  = [aws_eks_node_group.main, aws_iam_role_policy_attachment.ebs]
+  dynamic "pod_identity_association" {
+    for_each = each.value == "aws-ebs-csi-driver" ? [local.pod_accounts.ebs] : []
+    content {
+      role_arn        = aws_iam_role.pod["ebs"].arn
+      service_account = pod_identity_association.value
+    }
+  }
+  depends_on = [aws_eks_node_group.main, aws_iam_role_policy_attachment.ebs]
 }

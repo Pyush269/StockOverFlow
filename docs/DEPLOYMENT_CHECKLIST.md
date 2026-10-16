@@ -34,7 +34,7 @@ usable on another computer with the documented prerequisites and a fresh `.env`.
 7. Prepare the final `stockflow` namespace and generated database Secret. Install
    the restricted AppProject and production Application, then perform manual
    sync. Confirm migration success and two Ready frontend/backend replicas.
-8. Verify Load Balancer Controller IRSA, ALB reconciliation, target health, and
+8. Verify Load Balancer Controller Pod Identity, ALB reconciliation, target health, and
    both frontend and API routes through the public hostname. No purchased domain
    is needed. Use only demo data with the current HTTP/no-auth app.
 9. Enable automated sync after health checks. Verify live images match Git;

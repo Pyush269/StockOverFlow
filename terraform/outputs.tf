@@ -5,10 +5,10 @@ output "vpc_id" { value = aws_vpc.main.id }
 output "public_subnet_ids" { value = aws_subnet.public[*].id }
 output "private_subnet_ids" { value = aws_subnet.private[*].id }
 output "node_security_group_id" { value = aws_security_group.nodes.id }
-output "load_balancer_controller_role_arn" { value = aws_iam_role.irsa["lbc"].arn }
-output "ebs_csi_role_arn" { value = aws_iam_role.irsa["ebs"].arn }
+output "load_balancer_controller_role_arn" { value = aws_iam_role.pod["lbc"].arn }
+output "ebs_csi_role_arn" { value = aws_iam_role.pod["ebs"].arn }
 output "addon_versions" {
-  value = merge({ "vpc-cni" = aws_eks_addon.cni.addon_version }, { for name, addon in aws_eks_addon.after_nodes : name => addon.addon_version })
+  value = merge({ "vpc-cni" = aws_eks_addon.cni.addon_version, "eks-pod-identity-agent" = aws_eks_addon.pod_identity_agent.addon_version }, { for name, addon in aws_eks_addon.after_nodes : name => addon.addon_version })
 }
 output "update_kubeconfig_command" {
   value = "aws eks update-kubeconfig --region ${var.aws_region} --name ${aws_eks_cluster.main.name}"

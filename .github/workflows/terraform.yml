@@ -34,7 +34,7 @@ jobs:
         run: terraform init -backend=false -input=false -lockfile=readonly
       - name: Validate provider schemas
         run: terraform validate -no-color
-      - name: Test infrastructure with mocked AWS and TLS providers
+      - name: Test infrastructure with mocked AWS providers
         run: |
           mkdir -p ../reports/terraform
           terraform test -no-color | tee ../reports/terraform/tests.txt
