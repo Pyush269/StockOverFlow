@@ -11,6 +11,8 @@
   See the [optional explanation notes](PIPELINE_NARRATION.md) and [video details](PIPELINE_VIDEO.md).
 - [RECORDING.md](RECORDING.md): walkthrough order, verified cloud evidence, and
   evaluation/cleanup checklist.
+- [Grading evidence index](../docs/GRADING_EVIDENCE.md): module-by-module source,
+  screenshots, and actual verification results.
 
 The rubric accepts PDF slides. Submit the repository link with the complete
 silent walkthrough and PDF above. The video uses on-screen explanations and

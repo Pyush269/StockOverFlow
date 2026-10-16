@@ -1,0 +1,7 @@
+{
+  "captured_on": "2026-10-16",
+  "historical": true,
+  "source_log_sha256": "13603adcdc3b40ac82489957d19031660dea48fbce866fedb02a493f322ce770",
+  "summary": "Plan: 59 to add, 0 to change, 0 to destroy.",
+  "note": "Original pre-apply plan. Pod Identity later replaced the denied OIDC provider; do not reuse this old plan for deployment."
+}

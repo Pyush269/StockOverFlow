@@ -13,15 +13,22 @@ state, or Secret contents.
    Dockerfile, and a brief view of the working application.
 3. **CI/security and registry** — successful main run, strict image scan gate,
    reports and both SHA image tags. Explain the separate Terraform findings.
-4. **Terraform and AWS** — real plan output and actual AWS Console VPC/EKS views.
+4. **Terraform and AWS** — execute a real read-only plan, show the historical
+   original provisioning plan, and actual AWS Console VPC/EKS views.
 5. **ArgoCD** — repository/path/values, Synced/Healthy, matching image SHA,
    promotion commit and compatible rollback.
-6. **Kubernetes** — healthy pods, Services, and Ingress output.
+6. **Kubernetes** — execute the healthy pods, Services, and Ingress commands.
 7. **Prometheus** — `/metrics` and the Targets page showing the app as UP.
 8. **Grafana** — the live dashboard with populated application metrics.
 
 The final edit includes the required sections only. It omits optional installation,
 load, and recovery demonstrations. Credentials are handled outside recorded pages.
+
+The localhost verification viewer streams stdout from a fixed allowlist of real
+processes; it does not synthesize command results. Source excerpts and historical
+plan/Helm evidence are labelled separately. Additional required screenshots live
+in the [grading evidence index](../docs/GRADING_EVIDENCE.md), keeping the video
+focused on the specified walkthrough order.
 
 ## Actual cloud evidence and recording checklist
 

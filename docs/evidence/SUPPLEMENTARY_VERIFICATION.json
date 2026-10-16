@@ -1,0 +1,87 @@
+{
+  "captured_at_utc": "2026-10-16T10:13:23.112Z",
+  "screenshots": [
+    {
+      "file": "docs/screenshots/stockflow-git-history.png",
+      "source": "https://github.com/Pyush269/StockOverFlow/commits/main/",
+      "sha256": "379d7324a154838d2b73e9071187d07991419b46e4ba26910d8258a164d5bed6"
+    },
+    {
+      "file": "docs/screenshots/stockflow-ghcr-backend.png",
+      "source": "https://github.com/users/Pyush269/packages/container/package/stockflow-backend",
+      "sha256": "d063f9d4a39514ad12955a7229df96a02f69fc5eb6448cb256b0afb5bfc4ccec"
+    },
+    {
+      "file": "docs/screenshots/stockflow-ghcr-frontend.png",
+      "source": "https://github.com/users/Pyush269/packages/container/package/stockflow-frontend",
+      "sha256": "c42a83e4581f382d7a5e1bd8df478f1f3c97665dda5303974e44e1205c0313fa"
+    },
+    {
+      "file": "docs/screenshots/stockflow-localhost-3000.png",
+      "source": "http://127.0.0.1:3000",
+      "sha256": "055e7bb641a630066d7842bee981089bbc10ae5fa05338121572c1ebcca7f073"
+    },
+    {
+      "file": "docs/screenshots/stockflow-compose-startup.png",
+      "source": "Actual successful execution at 2026-10-16T10:10:53.265050+00:00",
+      "sha256": "60c9ce17cb9130bb40fed2b1bb3c3ad600acdec6e3d7de6274f5f51ad9872119"
+    },
+    {
+      "file": "docs/screenshots/stockflow-pytest-verbose.png",
+      "source": "Actual successful execution at 2026-10-16T10:11:11.652877+00:00",
+      "sha256": "b60ebfef44139c39be7a7616cc7b25663616c959f72836a7974a529b36f3d147"
+    },
+    {
+      "file": "docs/screenshots/stockflow-helm-list.png",
+      "source": "Actual historical Helm output; docs/CLOUD_HELM_LIST.txt",
+      "sha256": "53f5a7e6b998a3154b525ddc59d7c11465758a35909c597fc1d22acd22560c3e"
+    },
+    {
+      "file": "docs/screenshots/stockflow-curl-metrics.png",
+      "source": "Actual curl response captured during this cloud verification",
+      "sha256": "fdc1e7d98dd42ae94f8847d778108ef4599746b37f2203d5791b67ac2087fe12"
+    },
+    {
+      "file": "docs/screenshots/stockflow-trivy-ci.png",
+      "source": "Actual strict scan job 116864354356 in GitHub Actions run 38867618119",
+      "sha256": "3fb9a312d3de2303c89679b1efa8881faa3600f91c1e63c9d0b2143bba7c0c2e"
+    }
+  ],
+  "actual_command_execution": {
+    "compose": {
+      "command": [
+        "docker",
+        "compose",
+        "up",
+        "--build",
+        "-d",
+        "--wait"
+      ],
+      "started_at_utc": "2026-10-16T10:10:40.595186+00:00",
+      "finished_at_utc": "2026-10-16T10:10:53.265050+00:00",
+      "exit_code": 0
+    },
+    "pytest": {
+      "command": [
+        "docker",
+        "compose",
+        "-f",
+        "compose.ci.yml",
+        "up",
+        "--build",
+        "--abort-on-container-exit",
+        "--exit-code-from",
+        "backend-tests"
+      ],
+      "started_at_utc": "2026-10-16T10:10:53.384963+00:00",
+      "finished_at_utc": "2026-10-16T10:11:11.652877+00:00",
+      "exit_code": 0
+    }
+  },
+  "pytest_stdout": {
+    "file": "docs/evidence/pytest-verbose.txt",
+    "selection": "All backend-tests-1 stdout lines from the actual isolated Compose run; line-end whitespace trimmed",
+    "passed_cases": 49,
+    "source_log_sha256": "74ebb78ccf440a340e721dec61590d71db1303bc658dde7051c767fe4ba7cdbc"
+  }
+}

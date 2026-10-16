@@ -16,6 +16,8 @@ Stack: Python 3.12, FastAPI, SQLAlchemy/Alembic, PostgreSQL 16, React 19, Vite 8
 
 **Submission video:** [Watch/download the complete silent walkthrough](demo/stockflow-walkthrough-silent.mp4). It includes the required sections in order, with on-screen explanations and captions. **No narration is needed.** See [chapter times and sources](demo/WALKTHROUGH.md), the [PDF slides](demo/slides.pdf), and all [submission artifacts](demo/README.md).
 
+**Grading evidence:** [M1–M10 evidence index](docs/GRADING_EVIDENCE.md) links each rubric item to its source, screenshots, and verification. [Submission readiness](docs/SUBMISSION_READINESS.md) records the remaining form submission and post-evaluation AWS cleanup.
+
 - Product CRUD with normalized unique SKUs, search/category filters, and pagination.
 - Transactional stock-in/stock-out with PostgreSQL row locks.
 - Insufficient-stock and integer-overflow protection.

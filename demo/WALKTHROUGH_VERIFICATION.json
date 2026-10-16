@@ -1,15 +1,15 @@
 {
-  "created_at_utc": "2026-10-16T09:04:41.048041+00:00",
+  "created_at_utc": "2026-10-16T10:20:25.334403+00:00",
   "file": "demo/stockflow-walkthrough-silent.mp4",
   "silent": true,
   "audio_tracks": 0,
-  "duration_seconds": 672.68,
+  "duration_seconds": 733.08,
   "resolution": [
     1600,
     900
   ],
-  "bytes": 6311989,
-  "sha256": "6de40d17ed067f2982267f687858ea9525ba45213b54892feafa5f73c4c8de97",
+  "bytes": 7923298,
+  "sha256": "129023ad4d9ebae8cc666389b5fc8f655cc4eea336f421242c9cd08206349312",
   "full_video_decode": "passed",
   "scope": "Required capstone walkthrough: slides, code, actual push/CI, Terraform/AWS Console, ArgoCD, Kubernetes, Prometheus Targets, Grafana",
   "ci_run_url": "https://github.com/Pyush269/StockOverFlow/actions/runs/38867618119",
@@ -18,7 +18,7 @@
     50,
     354
   ],
-  "cloud_recorded_at_utc": "2026-10-16T08:58:52.926Z",
+  "cloud_recorded_at_utc": "2026-10-16T10:13:22.923Z",
   "checks": [
     {
       "application": "live dashboard and catalog rendered"
@@ -34,7 +34,7 @@
       "caption": "11 project slides, including stack, architecture, CI, AWS, Kubernetes, and observability."
     },
     {
-      "seconds": 111.0,
+      "seconds": 110.0,
       "title": "Live application",
       "caption": "Real AWS ALB; no mocked API responses"
     },
@@ -49,113 +49,161 @@
       "caption": "Source excerpt: backend/app/services/inventory.py"
     },
     {
-      "seconds": 167.0,
+      "seconds": 166.0,
       "title": "Tests and containers",
       "caption": "Actual test output from the recorded successful pipeline"
     },
     {
-      "seconds": 180.0,
+      "seconds": 179.92000000000002,
       "title": "Actual git push",
       "caption": "Source SHA e207e786c6df07b2f270b1d5120a5fc78b8edfc1"
     },
     {
-      "seconds": 192.0,
+      "seconds": 191.92000000000002,
       "title": "Live GitHub Actions run",
       "caption": "https://github.com/Pyush269/StockOverFlow/actions/runs/38867618119"
     },
     {
-      "seconds": 194.0,
+      "seconds": 193.92000000000002,
       "title": "Pipeline progress",
       "caption": "PostgreSQL tests and frontend build: in_progress"
     },
     {
-      "seconds": 256.0,
+      "seconds": 255.92000000000002,
       "title": "Pipeline progress",
       "caption": "PostgreSQL tests and frontend build: success | Build once and scan release images: in_progress"
     },
     {
-      "seconds": 402.0,
+      "seconds": 401.92,
       "title": "Pipeline progress",
       "caption": "PostgreSQL tests and frontend build: success | Build once and scan release images: success | Publish scanned images to GHCR: success"
     },
     {
-      "seconds": 407.0,
+      "seconds": 406.92,
       "title": "Final GitHub result",
       "caption": "Conclusion: success"
     },
     {
-      "seconds": 430.0,
+      "seconds": 429.92,
       "title": "PostgreSQL tests and frontend build",
       "caption": "Actual GitHub Actions job output"
     },
     {
-      "seconds": 448.0,
+      "seconds": 447.92,
       "title": "Build once and scan release images",
       "caption": "Actual GitHub Actions job output"
     },
     {
-      "seconds": 466.0,
+      "seconds": 465.9200000000001,
       "title": "Publish scanned images to GHCR",
       "caption": "Actual GitHub Actions job output"
     },
     {
-      "seconds": 484.0,
-      "title": "Terraform plan",
-      "caption": "Actual read-only plan output; infrastructure already deployed"
+      "seconds": 483.92,
+      "title": "Terraform plan: live execution",
+      "caption": "Real command launched during this recording; stdout streams from the actual process."
     },
     {
-      "seconds": 498.0,
+      "seconds": 547.9200000000001,
+      "title": "Original provisioning plan",
+      "caption": "Historical actual output from before deployment; not a plan to apply again."
+    },
+    {
+      "seconds": 559.9200000000001,
       "title": "AWS Console: EKS",
       "caption": "Actual AWS Console capture"
     },
     {
-      "seconds": 512.0,
+      "seconds": 573.9200000000001,
       "title": "AWS Console: VPC",
       "caption": "Actual AWS Console capture"
     },
     {
-      "seconds": 529.0,
+      "seconds": 589.9200000000001,
       "title": "ArgoCD live application",
       "caption": "Synced and Healthy; Git controls the deployed image values"
     },
     {
-      "seconds": 556.0,
+      "seconds": 615.9200000000001,
       "title": "GitOps delivery",
       "caption": "The repository values select the deployed image; ArgoCD reconciles Git with EKS."
     },
     {
-      "seconds": 568.0,
-      "title": "Kubernetes pods",
-      "caption": "Actual output captured 2026-10-16T08:58:08.442288+00:00"
+      "seconds": 627.9200000000001,
+      "title": "Kubernetes pods: live execution",
+      "caption": "Real command launched during this recording; stdout streams from the actual process."
     },
     {
-      "seconds": 580.0,
-      "title": "Services and Ingress",
-      "caption": "Actual output captured 2026-10-16T08:58:08.442288+00:00"
+      "seconds": 642.9200000000001,
+      "title": "Services and Ingress: live execution",
+      "caption": "Real command launched during this recording; stdout streams from the actual process."
     },
     {
-      "seconds": 593.0,
+      "seconds": 654.9200000000001,
       "title": "Application metrics",
       "caption": "Actual backend /metrics response through a localhost port-forward"
     },
     {
-      "seconds": 607.0,
+      "seconds": 669.9200000000001,
       "title": "Prometheus live Targets",
       "caption": "Actual scrape targets are UP"
     },
     {
-      "seconds": 634.0,
+      "seconds": 695.9200000000001,
       "title": "Grafana live dashboard",
       "caption": "Live application request, latency, and availability panels"
     }
   ],
-  "visual_review": "All 11 slides and representative final chapter frames reviewed; text and required evidence are readable.",
-  "public_access_check": {
-    "checked_at_utc": "2026-10-16T09:44:22.229Z",
-    "fresh_browser_no_sign_in": true,
-    "public_readme_link": "passed",
-    "anonymous_video_download": "passed",
-    "download_bytes": 6311989,
-    "sha256": "6de40d17ed067f2982267f687858ea9525ba45213b54892feafa5f73c4c8de97"
+  "live_command_execution": {
+    "terraform": {
+      "command": [
+        "terraform",
+        "-chdir=terraform",
+        "plan",
+        "-no-color",
+        "-input=false",
+        "-parallelism=2",
+        "-lock-timeout=30s"
+      ],
+      "started_at_utc": "2026-10-16T10:14:43.356004+00:00",
+      "finished_at_utc": "2026-10-16T10:15:38.519609+00:00",
+      "exit_code": 0
+    },
+    "pods": {
+      "command": [
+        "kubectl",
+        "--context",
+        "stockflow-eks-sydney",
+        "--request-timeout=30s",
+        "-n",
+        "stockflow",
+        "get",
+        "pods"
+      ],
+      "started_at_utc": "2026-10-16T10:17:07.559294+00:00",
+      "finished_at_utc": "2026-10-16T10:17:13.938338+00:00",
+      "exit_code": 0
+    },
+    "services": {
+      "command": [
+        "kubectl",
+        "--context",
+        "stockflow-eks-sydney",
+        "--request-timeout=30s",
+        "-n",
+        "stockflow",
+        "get",
+        "svc,ingress"
+      ],
+      "started_at_utc": "2026-10-16T10:17:22.141976+00:00",
+      "finished_at_utc": "2026-10-16T10:17:25.072188+00:00",
+      "exit_code": 0
+    }
+  },
+  "supplementary_evidence": "docs/evidence/SUPPLEMENTARY_VERIFICATION.json",
+  "visual_review": {
+    "reviewed_at_utc": "2026-10-16T10:22:19.108465+00:00",
+    "result": "passed",
+    "scope": "Representative final MP4 frames, required section order, readable actual command outputs, actual cloud screens, two Prometheus targets UP, populated Grafana panels; all 11 slide source frames were previously reviewed and are unchanged."
   }
 }

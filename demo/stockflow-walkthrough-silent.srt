@@ -1,10 +1,10 @@
 1
-00:00:00,000 --> 00:01:51,000
+00:00:00,000 --> 00:01:50,000
 Slides: project and architecture
 11 project slides, including stack, architecture, CI, AWS, Kubernetes, and observability.
 
 2
-00:01:51,000 --> 00:02:09,000
+00:01:50,000 --> 00:02:09,000
 Live application
 Real AWS ALB; no mocked API responses
 
@@ -14,106 +14,111 @@ Codebase structure
 Each layer has a separate responsibility
 
 4
-00:02:23,000 --> 00:02:47,000
+00:02:23,000 --> 00:02:46,000
 Transactional inventory service
 Source excerpt: backend/app/services/inventory.py
 
 5
-00:02:47,000 --> 00:03:00,000
+00:02:46,000 --> 00:02:59,920
 Tests and containers
 Actual test output from the recorded successful pipeline
 
 6
-00:03:00,000 --> 00:03:12,000
+00:02:59,920 --> 00:03:11,920
 Actual git push
 Source SHA e207e786c6df07b2f270b1d5120a5fc78b8edfc1
 
 7
-00:03:12,000 --> 00:03:14,000
+00:03:11,920 --> 00:03:13,920
 Live GitHub Actions run
 https://github.com/Pyush269/StockOverFlow/actions/runs/38867618119
 
 8
-00:03:14,000 --> 00:04:16,000
+00:03:13,920 --> 00:04:15,920
 Pipeline progress
 PostgreSQL tests and frontend build: in_progress
 
 9
-00:04:16,000 --> 00:06:42,000
+00:04:15,920 --> 00:06:41,920
 Pipeline progress
 PostgreSQL tests and frontend build: success | Build once and scan release images: in_progress
 
 10
-00:06:42,000 --> 00:06:47,000
+00:06:41,920 --> 00:06:46,920
 Pipeline progress
 PostgreSQL tests and frontend build: success | Build once and scan release images: success | Publish scanned images to GHCR: success
 
 11
-00:06:47,000 --> 00:07:10,000
+00:06:46,920 --> 00:07:09,920
 Final GitHub result
 Conclusion: success
 
 12
-00:07:10,000 --> 00:07:28,000
+00:07:09,920 --> 00:07:27,920
 PostgreSQL tests and frontend build
 Actual GitHub Actions job output
 
 13
-00:07:28,000 --> 00:07:46,000
+00:07:27,920 --> 00:07:45,920
 Build once and scan release images
 Actual GitHub Actions job output
 
 14
-00:07:46,000 --> 00:08:04,000
+00:07:45,920 --> 00:08:03,920
 Publish scanned images to GHCR
 Actual GitHub Actions job output
 
 15
-00:08:04,000 --> 00:08:18,000
-Terraform plan
-Actual read-only plan output; infrastructure already deployed
+00:08:03,920 --> 00:09:07,920
+Terraform plan: live execution
+Real command launched during this recording; stdout streams from the actual process.
 
 16
-00:08:18,000 --> 00:08:32,000
+00:09:07,920 --> 00:09:19,920
+Original provisioning plan
+Historical actual output from before deployment; not a plan to apply again.
+
+17
+00:09:19,920 --> 00:09:33,920
 AWS Console: EKS
 Actual AWS Console capture
 
-17
-00:08:32,000 --> 00:08:49,000
+18
+00:09:33,920 --> 00:09:49,920
 AWS Console: VPC
 Actual AWS Console capture
 
-18
-00:08:49,000 --> 00:09:16,000
+19
+00:09:49,920 --> 00:10:15,920
 ArgoCD live application
 Synced and Healthy; Git controls the deployed image values
 
-19
-00:09:16,000 --> 00:09:28,000
+20
+00:10:15,920 --> 00:10:27,920
 GitOps delivery
 The repository values select the deployed image; ArgoCD reconciles Git with EKS.
 
-20
-00:09:28,000 --> 00:09:40,000
-Kubernetes pods
-Actual output captured 2026-10-16T08:58:08.442288+00:00
-
 21
-00:09:40,000 --> 00:09:53,000
-Services and Ingress
-Actual output captured 2026-10-16T08:58:08.442288+00:00
+00:10:27,920 --> 00:10:42,920
+Kubernetes pods: live execution
+Real command launched during this recording; stdout streams from the actual process.
 
 22
-00:09:53,000 --> 00:10:07,000
+00:10:42,920 --> 00:10:54,920
+Services and Ingress: live execution
+Real command launched during this recording; stdout streams from the actual process.
+
+23
+00:10:54,920 --> 00:11:09,920
 Application metrics
 Actual backend /metrics response through a localhost port-forward
 
-23
-00:10:07,000 --> 00:10:34,000
+24
+00:11:09,920 --> 00:11:35,920
 Prometheus live Targets
 Actual scrape targets are UP
 
-24
-00:10:34,000 --> 00:11:12,680
+25
+00:11:35,920 --> 00:12:13,080
 Grafana live dashboard
 Live application request, latency, and availability panels

@@ -1,0 +1,16 @@
+Terraform will perform the following actions:
+  # data.tls_certificate.oidc will be read during apply
+  # (config refers to values not yet known)
+ <= data "tls_certificate" "oidc" {
+      + certificates = (known after apply)
+      + id           = (known after apply)
+      + url          = (known after apply)
+    }
+  # aws_cloudwatch_log_group.cluster will be created
+  + resource "aws_cloudwatch_log_group" "cluster" {
+      + arn                         = (known after apply)
+      + deletion_protection_enabled = (known after apply)
+
+[Intermediate resource blocks omitted in this excerpt.]
+
+Plan: 59 to add, 0 to change, 0 to destroy.

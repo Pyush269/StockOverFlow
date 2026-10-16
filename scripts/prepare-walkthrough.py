@@ -14,6 +14,8 @@ import subprocess
 import time
 import urllib.request
 
+from live_command_viewer import viewer
+
 ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT / '.logs/walkthrough'
 KUBE = ['kubectl', '--context', 'stockflow-eks-sydney', '--request-timeout=30s']
@@ -68,6 +70,7 @@ def main():
     evidence['images'] = sorted({c['image'] for d in deployments for c in d['spec']['template']['spec']['containers']})
     (WORK / 'commands.json').write_text(json.dumps(evidence, indent=2) + '\n')
     with ExitStack() as stack:
+        viewer_origin = stack.enter_context(viewer())
         stack.enter_context(forward('stockflow', 'stockflow-stockflow-backend', 8001, 8000))
         stack.enter_context(forward('monitoring', 'monitoring-kube-prometheus-prometheus', 9090, 9090))
         stack.enter_context(forward('monitoring', 'monitoring-grafana', 3002, 80))
@@ -76,7 +79,7 @@ def main():
             return json.loads(run(KUBE + ['-n', namespace, 'get', 'secret', name, '-o', 'json']))['data']
         grafana = secret('monitoring', 'monitoring-grafana')
         argo = secret('argocd', 'argocd-initial-admin-secret')
-        settings = {'grafana_user': base64.b64decode(grafana['admin-user']).decode(), 'grafana_password': base64.b64decode(grafana['admin-password']).decode(), 'argocd_password': base64.b64decode(argo['password']).decode()}
+        settings = {'grafana_user': base64.b64decode(grafana['admin-user']).decode(), 'grafana_password': base64.b64decode(grafana['admin-password']).decode(), 'argocd_password': base64.b64decode(argo['password']).decode(), 'viewer_origin': viewer_origin}
         # Only the child stdin receives credentials; no command-line or report copies.
         result = subprocess.run(['node', str(ROOT / 'scripts/record-walkthrough.mjs')], input=json.dumps(settings), text=True, encoding='utf-8', capture_output=True, timeout=1200)
         if result.returncode:
@@ -86,6 +89,7 @@ def main():
             (WORK / 'recorder-error.txt').write_text(message, encoding='utf-8')
             raise RuntimeError('Walkthrough recording failed; inspect the private recorder-error.txt')
         print(result.stdout)
+        subprocess.run(['docker', 'compose', '-f', 'compose.ci.yml', 'down'], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
 
 
 if __name__ == '__main__':

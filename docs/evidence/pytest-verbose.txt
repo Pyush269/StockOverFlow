@@ -1,0 +1,65 @@
+backend-tests-1  | ============================= test session starts ==============================
+backend-tests-1  | platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.6.0 -- /opt/venv/bin/python
+backend-tests-1  | rootdir: /app
+backend-tests-1  | configfile: pytest.ini
+backend-tests-1  | testpaths: tests
+backend-tests-1  | plugins: anyio-4.15.1
+backend-tests-1  | collecting ... collected 49 items
+backend-tests-1  |
+backend-tests-1  | tests/test_migrations.py::test_migration_upgrade_downgrade_and_model_parity PASSED [  2%]
+backend-tests-1  | tests/test_migrations.py::test_database_enforces_nonnegative_inventory PASSED [  4%]
+backend-tests-1  | tests/test_migrations.py::test_database_enforces_movement_constraints[IN-0] PASSED [  6%]
+backend-tests-1  | tests/test_migrations.py::test_database_enforces_movement_constraints[BAD-1] PASSED [  8%]
+backend-tests-1  | tests/test_migrations.py::test_database_protects_product_with_history PASSED [ 10%]
+backend-tests-1  | tests/test_movements.py::test_receive_issue_reject_and_history PASSED    [ 12%]
+backend-tests-1  | tests/test_movements.py::test_invalid_movement_quantities[0] PASSED      [ 14%]
+backend-tests-1  | tests/test_movements.py::test_invalid_movement_quantities[-1] PASSED     [ 16%]
+backend-tests-1  | tests/test_movements.py::test_invalid_movement_quantities[1.5] PASSED    [ 18%]
+backend-tests-1  | tests/test_movements.py::test_invalid_movement_quantities[True] PASSED   [ 20%]
+backend-tests-1  | tests/test_movements.py::test_invalid_movement_quantities[3] PASSED      [ 22%]
+backend-tests-1  | tests/test_movements.py::test_invalid_movement_quantities[2147483648] PASSED [ 24%]
+backend-tests-1  | tests/test_movements.py::test_invalid_movement_type PASSED               [ 26%]
+backend-tests-1  | tests/test_movements.py::test_quantity_overflow_is_controlled_conflict PASSED [ 28%]
+backend-tests-1  | tests/test_movements.py::test_failed_ledger_insert_rolls_back_quantity PASSED [ 30%]
+backend-tests-1  | tests/test_movements.py::test_concurrent_issues_wait_for_lock_and_cannot_oversell PASSED [ 32%]
+backend-tests-1  | tests/test_operations.py::test_health_ready_docs_and_metrics PASSED      [ 34%]
+backend-tests-1  | tests/test_operations.py::test_health_remains_up_when_database_unreachable PASSED [ 36%]
+backend-tests-1  | tests/test_operations.py::test_stale_migration_revision_is_not_ready PASSED [ 38%]
+backend-tests-1  | tests/test_operations.py::test_empty_dashboard_has_zero_totals PASSED    [ 40%]
+backend-tests-1  | tests/test_operations.py::test_dashboard_totals_include_threshold_boundary PASSED [ 42%]
+backend-tests-1  | tests/test_operations.py::test_cors_allows_only_configured_development_origin PASSED [ 44%]
+backend-tests-1  | tests/test_products.py::test_create_product_normalizes_sku_and_starts_empty PASSED [ 46%]
+backend-tests-1  | tests/test_products.py::test_duplicate_sku_is_conflict PASSED            [ 48%]
+backend-tests-1  | tests/test_products.py::test_list_detail_filter_and_pagination PASSED    [ 51%]
+backend-tests-1  | tests/test_products.py::test_search_treats_sql_wildcards_as_literal PASSED [ 53%]
+backend-tests-1  | tests/test_products.py::test_put_replaces_metadata_without_changing_stock PASSED [ 55%]
+backend-tests-1  | tests/test_products.py::test_update_to_duplicate_sku_preserves_original PASSED [ 57%]
+backend-tests-1  | tests/test_products.py::test_unused_product_delete_returns_empty_204 PASSED [ 59%]
+backend-tests-1  | tests/test_products.py::test_product_with_ledger_cannot_be_deleted PASSED [ 61%]
+backend-tests-1  | tests/test_products.py::test_invalid_product_fields_are_rejected[changes0] PASSED [ 63%]
+backend-tests-1  | tests/test_products.py::test_invalid_product_fields_are_rejected[changes1] PASSED [ 65%]
+backend-tests-1  | tests/test_products.py::test_invalid_product_fields_are_rejected[changes2] PASSED [ 67%]
+backend-tests-1  | tests/test_products.py::test_invalid_product_fields_are_rejected[changes3] PASSED [ 69%]
+backend-tests-1  | tests/test_products.py::test_invalid_product_fields_are_rejected[changes4] PASSED [ 71%]
+backend-tests-1  | tests/test_products.py::test_invalid_product_fields_are_rejected[changes5] PASSED [ 73%]
+backend-tests-1  | tests/test_products.py::test_invalid_product_fields_are_rejected[changes6] PASSED [ 75%]
+backend-tests-1  | tests/test_products.py::test_invalid_product_fields_are_rejected[changes7] PASSED [ 77%]
+backend-tests-1  | tests/test_products.py::test_put_cannot_bypass_ledger PASSED             [ 79%]
+backend-tests-1  | tests/test_products.py::test_missing_product_is_404[GET-/api/products/999999-None] PASSED [ 81%]
+backend-tests-1  | tests/test_products.py::test_missing_product_is_404[PUT-/api/products/999999-payload1] PASSED [ 83%]
+backend-tests-1  | tests/test_products.py::test_missing_product_is_404[DELETE-/api/products/999999-None] PASSED [ 85%]
+backend-tests-1  | tests/test_products.py::test_missing_product_is_404[GET-/api/products/999999/movements-None] PASSED [ 87%]
+backend-tests-1  | tests/test_products.py::test_missing_product_is_404[POST-/api/products/999999/movements-payload4] PASSED [ 89%]
+backend-tests-1  | tests/test_products.py::test_pagination_bounds[params0] PASSED           [ 91%]
+backend-tests-1  | tests/test_products.py::test_pagination_bounds[params1] PASSED           [ 93%]
+backend-tests-1  | tests/test_products.py::test_pagination_bounds[params2] PASSED           [ 95%]
+backend-tests-1  | tests/test_products.py::test_categories_cover_catalog_and_group_case_insensitively PASSED [ 97%]
+backend-tests-1  | tests/test_products.py::test_stock_status_filters_have_correct_totals_across_pages PASSED [100%]
+backend-tests-1  |
+backend-tests-1  | =============================== warnings summary ===============================
+backend-tests-1  | ../opt/venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+backend-tests-1  |   /opt/venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+backend-tests-1  |     from starlette.testclient import TestClient as TestClient  # noqa
+backend-tests-1  |
+backend-tests-1  | -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+backend-tests-1  | ======================== 49 passed, 1 warning in 2.52s =========================

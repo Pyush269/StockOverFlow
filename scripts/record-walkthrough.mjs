@@ -3,6 +3,7 @@ import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
+import {captureGradingEvidence} from './capture-grading-evidence.mjs';
 let input='';for await(const chunk of process.stdin)input+=chunk;
 const credentials=JSON.parse(input); input='';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
@@ -31,9 +32,20 @@ async function card(title,caption,body,source='Actual StockFlow source or captur
   await page.setContent(`<html><style>*{box-sizing:border-box}body{margin:0;background:#f6f5ef;color:#143c3a;font:25px/1.45 Arial}main{padding:42px 60px}h1{font-size:40px;margin:0 0 12px}p{color:#536a68;margin:0 0 24px}pre{background:#102b2a;color:#effaf6;border-radius:8px;padding:24px;font:19px/1.45 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;max-height:645px;overflow:auto}footer{position:fixed;bottom:0;left:0;right:0;padding:12px 60px;font:18px Arial;background:#e8eee5;color:#536a68}</style><main><h1>${esc(title)}</h1><p>${esc(caption)}</p><pre>${esc(body)}</pre></main><footer>${esc(source)}</footer></html>`);
 }
 async function shot(name){await page.screenshot({path:path.join(screens,name)});}
+async function live(task,title,screenshot){
+  await mark(title,'Real command launched during this recording; stdout streams from the actual process.');
+  await page.goto(credentials.viewer_origin+'/?task='+task);
+  await page.waitForFunction(()=>typeof document.querySelector('#run')?.onclick==='function',{},{timeout:10000});
+  await page.getByRole('button',{name:'Run command',exact:true}).click();
+  await page.waitForFunction(()=>document.body.dataset.done!==undefined,{},{timeout:600000});
+  assert.equal(await page.locator('body').getAttribute('data-done'),'0',title+' failed');
+  if(screenshot)await shot(screenshot);
+  await sleep(8000);
+}
 async function finish(){segment.video=path.relative(root,await page.video().path());segment.seconds=Math.round((Date.now()-began)/1000);await context.close();proof.segments.push(segment);await writeFile(path.join(work,'recording.json'),JSON.stringify(proof,null,2)+'\n');}
 try{
   await mkdir(screens,{recursive:true});
+  await captureGradingEvidence(browser,credentials.viewer_origin,root);
   await start('application-code');
   await mark('Live application','Real AWS ALB; no mocked API responses');
   await page.goto(origin);await page.getByRole('heading',{name:'Inventory overview'}).waitFor();
@@ -49,8 +61,8 @@ try{
   await card('Tests and containers','Actual test output from the recorded successful pipeline',JSON.parse(await readFile(path.join(root,'.logs/pipeline-video/job-116863979627.json'),'utf8')).excerpt+'\n\n'+(await readFile(path.join(root,'frontend/Dockerfile'),'utf8')));await shot('stockflow-tests-and-docker.png');await sleep(14000);
   await finish();
   await start('operations');
-  const plan=await readFile(path.join(work,'plan.txt'),'utf8');
-  await card('Terraform plan','Actual read-only plan output; infrastructure already deployed',plan);await shot('stockflow-terraform-plan.png');await sleep(14000);
+  await live('terraform','Terraform plan: live execution','stockflow-terraform-plan.png');
+  await card('Original provisioning plan','Historical actual output from before deployment; not a plan to apply again.',await readFile(path.join(root,'docs/evidence/terraform-initial-plan-excerpt.txt'),'utf8'));await shot('stockflow-terraform-initial-plan.png');await sleep(12000);
   for(const [file,title] of [['stockflow-aws-eks-console.png','AWS Console: EKS'],['stockflow-aws-vpc-console.png','AWS Console: VPC']]){
     try{
       const bytes=await readFile(path.join(screens,file));
@@ -64,7 +76,7 @@ try{
   await label('Live EKS ArgoCD: Synced and Healthy. Actions publishes images; a values commit promotes a release.');await shot('stockflow-argocd-walkthrough.png');await sleep(16000);
   await card('GitOps delivery','The repository values select the deployed image; ArgoCD reconciles Git with EKS.', 'Repository: https://github.com/Pyush269/StockOverFlow\nApplication: stockflow\nSync: Synced   Health: Healthy\nObserved Git revision: '+evidence.argocd_revision+'\n\nDeployed images:\n'+evidence.images.join('\n')+'\n\nPublishing to GHCR does not change this release automatically.\nA release-values commit promotes a published SHA; reverting it rolls back.');await sleep(12000);
   for(const [key,title] of [['pods','Kubernetes pods'],['services','Services and Ingress']]){
-    const c=evidence.commands[key];await card(title,'Actual output captured '+evidence.captured_at_utc,c.command+'\n\n'+c.output);await shot('stockflow-'+key+'-terminal.png');await sleep(12000);
+    await live(key,title+': live execution','stockflow-'+key+'-terminal.png');
   }
   const metrics=await(await context.request.get('http://127.0.0.1:8001/metrics')).text();assert(metrics.includes('http_requests_total'));
   await card('Application metrics','Actual backend /metrics response through a localhost port-forward',metrics.split('\n').filter(l=>/http_requests_total|http_request_duration_seconds_(count|sum)/.test(l)).slice(0,14).join('\n'));await shot('stockflow-metrics-output.png');await sleep(12000);

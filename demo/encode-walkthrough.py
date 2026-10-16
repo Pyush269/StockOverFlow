@@ -40,6 +40,10 @@ def clock(seconds, separator=','):
 def main():
     recording = json.loads((WORK / 'recording.json').read_text())
     assert len(recording['segments']) == 2
+    live_commands = json.loads((WORK / 'live-commands.json').read_text())
+    for task in ['terraform', 'pods', 'services']:
+        assert live_commands[task]['exit_code'] == 0, task + ' did not complete successfully'
+        assert live_commands[task]['started_at_utc'] >= recording['recorded_at_utc'], task + ' is not from this recording'
     assert not any('missing_required_console_capture' in check for check in recording['checks']), 'Actual AWS Console captures are required'
     for name in ['stockflow-aws-eks-console.png', 'stockflow-aws-vpc-console.png']:
         assert (ROOT / 'docs/screenshots' / name).is_file()
@@ -96,11 +100,13 @@ def main():
     actual = media(output)
     assert abs(actual['duration'] - total) < 2
     report = {'created_at_utc': datetime.now(timezone.utc).isoformat(), 'file': str(output.relative_to(ROOT)).replace('\\', '/'), 'silent': True, 'audio_tracks': 0, 'duration_seconds': actual['duration'], 'resolution': actual['size'], 'bytes': output.stat().st_size, 'sha256': hashlib.sha256(output.read_bytes()).hexdigest(), 'full_video_decode': 'passed', 'scope': 'Required capstone walkthrough: slides, code, actual push/CI, Terraform/AWS Console, ArgoCD, Kubernetes, Prometheus Targets, Grafana', 'ci_run_url': pipeline['run_url'], 'ci_source_sha': pipeline['source_sha'], 'ci_excerpt_seconds': [ci_start, ci_end], 'cloud_recorded_at_utc': recording['recorded_at_utc'], 'checks': recording['checks'], 'chapters': chapters}
+    report['live_command_execution'] = {name: live_commands[name] for name in ['terraform', 'pods', 'services']}
+    report['supplementary_evidence'] = 'docs/evidence/SUPPLEMENTARY_VERIFICATION.json'
     (ROOT / 'demo/WALKTHROUGH_VERIFICATION.json').write_text(json.dumps(report, indent=2) + '\n')
     guide = ['# Silent capstone walkthrough', '', '[Watch/download the complete MP4](stockflow-walkthrough-silent.mp4).', '', 'No narration is needed. On-screen explanations and selectable captions describe the actual project evidence.', '', f'Duration: {clock(actual["duration"], ".")}. Resolution: 1600 x 900. No audio track.', '', '## Chapters', '']
     for chapter in chapters:
         guide.append(f'- **{clock(chapter["seconds"], ".")[:-4]}** — {chapter["title"]}')
-    guide += ['', 'The pipeline section is the actual successful push-triggered run linked in the verification report. It ends at GHCR publication; the separate ArgoCD section explains how a Git values commit controls deployment.', '', 'AWS Console images are actual captured project screens. Command cards display real captured output and source excerpts. Optional installation, load, and recovery demonstrations are omitted.', '', 'After evaluation, perform and verify AWS cleanup and save destroy evidence. Cleanup has not yet been performed.']
+    guide += ['', 'The pipeline section is the actual successful push-triggered run linked in the verification report. It ends at GHCR publication; the separate ArgoCD section explains how a Git values commit controls deployment.', '', 'Terraform and Kubernetes commands execute during the recording, with stdout streamed from real processes. AWS Console images are actual captured project screens. Source excerpts and the original provisioning plan are labelled separately; the original plan is historical and must not be reapplied. Optional installation, load, and recovery demonstrations are omitted.', '', 'Additional required screenshots and their sources are linked in the [grading evidence index](../docs/GRADING_EVIDENCE.md).', '', 'After evaluation, perform and verify AWS cleanup and save destroy evidence. Cleanup has not yet been performed.']
     (ROOT / 'demo/WALKTHROUGH.md').write_text('\n'.join(guide) + '\n', encoding='utf-8')
     for index, seconds in enumerate([5, 105, durations[0] + 8, offset - durations[2] + 5, offset + 3, offset + 24, total - 45, total - 12]):
         subprocess.run([FFMPEG, '-hide_banner', '-loglevel', 'error', '-y', '-ss', str(max(0, seconds)), '-i', str(output), '-frames:v', '1', str(WORK / f'qa-final-{index + 1:02}.png')], check=True)
