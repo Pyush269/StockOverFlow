@@ -1,6 +1,8 @@
 # StockFlow infrastructure review
 
-Prepared 15 October 2026; refreshed on 16 October 2026. **The user authorized deployment after the refreshed plan/cost review.** The initial apply created the VPC and EKS control plane, then the managed project SCP denied IAM OIDC provider creation. The reviewed continuation uses supported EKS Pod Identity: **13 additions, no changes or deletions**, at the unchanged estimate. The [review](DEPLOYMENT_REVIEW_20261016.json) preserves both plan hashes. Provisioning and cloud verification are in progress; earlier local results are not cloud completion evidence. The existing default VPC remains outside this Terraform configuration.
+Prepared 15 October 2026; refreshed on 16 October 2026. **The user authorized deployment after the refreshed plan/cost review.** The initial apply created the VPC and EKS control plane, then the managed project SCP denied IAM OIDC provider creation. The reviewed continuation uses supported EKS Pod Identity: **13 additions, no changes or deletions**, at the unchanged estimate. The [review](DEPLOYMENT_REVIEW_20261016.json) preserves both plan hashes. Provisioning and cloud verification are complete; earlier local results are not cloud completion evidence. The existing default VPC remains outside this Terraform configuration.
+
+The final four-addition storage continuation applied successfully with **0 changes and 0 destroys**; current cloud checks are recorded in [CLOUD_VERIFICATION.md](CLOUD_VERIFICATION.md). Final apply log: `.logs/terraform-apply-storage-20261016.txt`. Saved plan SHA-256: `429e6de8a1e45aaefc14d84ae7eca9fd54fcadc89c3c74ff39d1df4d38b34480`. Earlier plans below are historical and must not be reused.
 
 ## Actual plan and verification
 
@@ -8,8 +10,8 @@ The initial Sydney plan was **59 to add, 0 to change, 0 to destroy**. After part
 
 Local files, deliberately excluded from Git:
 
-- Current saved binary plan: `terraform/stockflow-pod-identity.tfplan`.
-- Current readable/JSON plans: `.logs/terraform-plan-pod-identity-20261016.txt` and `.json`. Apply logs: `.logs/terraform-apply-20261016.txt` and `.logs/terraform-apply-pod-identity-20261016.txt`.
+- Historical Pod Identity continuation plan: `terraform/stockflow-pod-identity.tfplan`.
+- Pod Identity continuation readable/JSON plans: `.logs/terraform-plan-pod-identity-20261016.txt` and `.json`. Apply logs: `.logs/terraform-apply-20261016.txt` and `.logs/terraform-apply-pod-identity-20261016.txt`.
 - Actual project, operator role, and current public IPv4/32: `terraform/terraform.tfvars`.
 - Test output: `.logs/terraform-tests.txt`.
 - Configuration scan: `.logs/terraform-security.json` and `.logs/terraform-security.log`.
@@ -113,8 +115,9 @@ From `stockflow/`, load the tool environment if needed, then use the authenticat
 $env:AWS_PROFILE = 'stockflow'
 $env:AWS_REGION = 'ap-southeast-2'
 Set-Location terraform
-terraform show -no-color 'stockflow-pod-identity.tfplan'
-Get-FileHash -LiteralPath stockflow-pod-identity.tfplan -Algorithm SHA256
+terraform plan -input=false -out='stockflow-reviewed.tfplan'
+terraform show -no-color 'stockflow-reviewed.tfplan'
+Get-FileHash -LiteralPath stockflow-reviewed.tfplan -Algorithm SHA256
 ```
 
 Before applying, review the exact target project, IAM role, IP allowlist, resource count, estimate, remaining scan findings, and cleanup window. If credentials expire, renew using `aws login --profile stockflow --region ap-southeast-2`. If the public IP, configuration, state, or reviewed values change, regenerate the plan and review it again. Keep credentials, tfvars, state, and binary/complete JSON plans out of Git.
@@ -123,7 +126,7 @@ Only after approval of the current plan:
 
 ```powershell
 # From stockflow/terraform, with the environment above.
-terraform apply 'stockflow-pod-identity.tfplan'
+terraform apply 'stockflow-reviewed.tfplan'
 Set-Location ..
 python scripts/configure-eks.py
 $env:KUBECONFIG = Join-Path $PWD ".logs/eks.kubeconfig"

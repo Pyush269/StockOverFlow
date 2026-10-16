@@ -1,0 +1,289 @@
+{
+  "verified_on": "2026-10-16",
+  "environment": "AWS EKS Sydney",
+  "aws_deployed": true,
+  "namespace": "stockflow",
+  "load": {
+    "base_url": "http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com",
+    "duration_seconds": 120.78,
+    "concurrency": 32,
+    "target_max_rps": 200,
+    "requests": 4601,
+    "statuses": {
+      "200": 4601
+    },
+    "failed": 0,
+    "achieved_rps": 38.09,
+    "latency_ms": {
+      "median": 813.0,
+      "p95": 938.0
+    },
+    "endpoints": [
+      "/api/products?limit=20",
+      "/api/dashboard"
+    ]
+  },
+  "prometheus_backend_targets_up": 3,
+  "dashboard_uid": "stockflow-overview",
+  "dashboard_live_queries": [
+    {
+      "panel": "API request rate",
+      "query": "sum(rate(http_requests_total{namespace=\"stockflow\",handler=~\"/api/.*\"}[2m]))",
+      "series": 1,
+      "values": [
+        "38.36404444444444"
+      ]
+    },
+    {
+      "panel": "API p95 latency",
+      "query": "histogram_quantile(0.95, sum by(le) (rate(http_request_duration_seconds_bucket{namespace=\"stockflow\",handler=~\"/api/.*\"}[2m])))",
+      "series": 1,
+      "values": [
+        "0.09510978146655702"
+      ]
+    },
+    {
+      "panel": "API 5xx rate",
+      "query": "sum(rate(http_requests_total{namespace=\"stockflow\",handler=~\"/api/.*\",status=~\"5..\"}[2m])) or (0 * sum(rate(http_requests_total{namespace=\"stockflow\",handler=~\"/api/.*\"}[2m])))",
+      "series": 1,
+      "values": [
+        "0"
+      ]
+    },
+    {
+      "panel": "Backend CPU",
+      "query": "sum by(pod) (rate(container_cpu_usage_seconds_total{namespace=\"stockflow\",container=\"backend\",image!=\"\"}[2m]))",
+      "series": 3,
+      "values": [
+        "0.0669369491127042",
+        "0.06493638355526306",
+        "0.046311058792225114"
+      ]
+    },
+    {
+      "panel": "Backend memory",
+      "query": "sum by(pod) (container_memory_working_set_bytes{namespace=\"stockflow\",container=\"backend\",image!=\"\"})",
+      "series": 3,
+      "values": [
+        "71286784",
+        "71716864",
+        "70991872"
+      ]
+    },
+    {
+      "panel": "Backend ready replicas",
+      "query": "kube_deployment_status_replicas_available{namespace=\"stockflow\",deployment=~\".*-backend\"}",
+      "series": 1,
+      "values": [
+        "3"
+      ]
+    }
+  ],
+  "hpa_samples": [
+    {
+      "elapsed_seconds": 4.6,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 9.3,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 18.9,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 28.6,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 38.1,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 34
+    },
+    {
+      "elapsed_seconds": 47.9,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 63
+    },
+    {
+      "elapsed_seconds": 58.0,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 63
+    },
+    {
+      "elapsed_seconds": 67.6,
+      "current_replicas": 2,
+      "desired_replicas": 3,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 87
+    },
+    {
+      "elapsed_seconds": 77.2,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 83
+    },
+    {
+      "elapsed_seconds": 86.6,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 83
+    },
+    {
+      "elapsed_seconds": 98.4,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 87
+    },
+    {
+      "elapsed_seconds": 108.3,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 71
+    },
+    {
+      "elapsed_seconds": 117.7,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 71
+    },
+    {
+      "elapsed_seconds": 127.6,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 60
+    },
+    {
+      "elapsed_seconds": 182.3,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 7
+    },
+    {
+      "elapsed_seconds": 192.0,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 7
+    },
+    {
+      "elapsed_seconds": 201.6,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 211.2,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 221.9,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 231.5,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 241.0,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 251.0,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 4
+    },
+    {
+      "elapsed_seconds": 260.5,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 3,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 270.0,
+      "current_replicas": 3,
+      "desired_replicas": 3,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 279.8,
+      "current_replicas": 3,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 3
+    },
+    {
+      "elapsed_seconds": 289.3,
+      "current_replicas": 2,
+      "desired_replicas": 2,
+      "ready_replicas": 2,
+      "cpu_utilization_percent": 4
+    }
+  ],
+  "hpa_max_ready_replicas": 3,
+  "hpa_scaled_above_two": true,
+  "grafana_containers_stable": {
+    "pod": "monitoring-grafana-7b896b6d66-prjqh",
+    "containers": [
+      {
+        "name": "grafana",
+        "ready": true,
+        "restarts": 0
+      },
+      {
+        "name": "grafana-sc-dashboard",
+        "ready": true,
+        "restarts": 0
+      },
+      {
+        "name": "grafana-sc-datasources",
+        "ready": true,
+        "restarts": 0
+      }
+    ]
+  },
+  "screenshot": "docs/screenshots/stockflow-grafana-cloud.png"
+}

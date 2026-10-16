@@ -1,8 +1,6 @@
 # StockFlow presentation content
 
-Prepared 15 October 2026. This is editable content and speaker guidance for the
-PDF deck, not proof of an AWS deployment. Replace pending cloud evidence after
-deploying and verifying EKS. Do not present local screenshots as AWS screenshots.
+Updated 16 October 2026. Editable content and speaker guidance for the PDF deck. Cloud results and screenshots come from the verified EKS deployment; see `docs/CLOUD_VERIFICATION.md`. The personal walkthrough is still to be recorded.
 
 ## 1. StockFlow
 
@@ -21,7 +19,7 @@ https://github.com/Pyush269/StockOverFlow
 - Low-stock reporting uses the current database quantity.
 - Products with movement history retain their ledger.
 
-Visual: `docs/screenshots/container-overview-qa.png`, an actual local screenshot.
+Visual: `docs/screenshots/stockflow-cloud-overview.png`, the actual public AWS application.
 Speaker note: Receive 10, issue 3, then reject an issue of 8. Quantity stays 7.
 
 ## 3. Application architecture
@@ -66,16 +64,16 @@ Source: `.github/workflows/ci.yml`, `docs/CI_SECURITY.md`.
 
 Sydney · private worker · public ALB · persistent encrypted gp3 database disk
 
-- Terraform plan: 59 additions, no changes or destroys.
+- Terraform applied successfully; final refreshed plan reports no changes.
+- EKS ACTIVE; five ACTIVE add-ons and scoped Pod Identity service roles.
 - One `m7i-flex.large` worker; two frontend/backend Pods each.
 - Estimated infrastructure: $0.29/hour; illustrative full demo: $0.33/hour.
 - Variable usage adds cost. A single worker has no worker redundancy.
 
-Visible status: AWS deployment pending. Replace with actual VPC/EKS evidence
-after approval, including real node readiness.
+Verified status: one Ready private EKS worker, encrypted gp3 storage, and an active public ALB with healthy frontend/API targets. The managed project blocked IAM OIDC creation, so supported EKS Pod Identity was used without changing organization policies.
 Speaker note: Explain NAT, EKS, worker, public IPv4, and storage costs. Credits
 pay eligible usage; leaving infrastructure running continues consuming them.
-Source: `docs/INFRASTRUCTURE.md`, `docs/INFRASTRUCTURE_REVIEW.json`.
+Source: `docs/INFRASTRUCTURE.md`, `docs/AWS_VERIFICATION.json`, and `docs/DEPLOYMENT_REVIEW_20261016.json`.
 
 ## 7. Kubernetes and Helm
 
@@ -84,10 +82,9 @@ Source: `docs/INFRASTRUCTURE.md`, `docs/INFRASTRUCTURE_REVIEW.json`.
 - A migration Job completes before application schema readiness.
 - Ingress routes `/` and `/api`; HPA scales backend Pods from 2 to 3.
 
-Visual: local Helm evidence now; actual `helm list`, gp3 PVC, and ALB health later.
-Speaker note: The local Helm install, upgrade, and DB pod replacement preserved
-stock. EBS/IRSA and public ALB behavior still need real AWS verification.
-Source: `docs/HELM.md`, `docs/HELM_VERIFICATION.json`.
+Visual: `docs/CLOUD_HELM_LIST.txt`, the actual cloud replicas/PVC report, and public ALB screenshot.
+Speaker note: Cloud Helm install, upgrade/migration, and PostgreSQL replacement preserved quantity 7 on the same PVC. The disposable smoke release and test volume were removed before production GitOps.
+Source: `docs/CLOUD_HELM_VERIFICATION.json`, `docs/AWS_VERIFICATION.json`.
 
 ## 8. GitOps release and rollback
 
@@ -101,7 +98,7 @@ Green source CI → release-values commit → ArgoCD reconciliation
 Visual: real ArgoCD Synced/Healthy view and recorded release/rollback evidence.
 Speaker note: Image rollback does not undo database migrations. The first demo
 uses application releases with the same schema. Show actual Git revisions.
-Source: `argocd/README.md`, local verification report when generated.
+Source: `argocd/README.md`, `docs/CLOUD_RUNTIME_VERIFICATION.json`, and `docs/screenshots/stockflow-argocd-cloud.png`.
 
 ## 9. Monitoring and scaling
 
@@ -110,24 +107,26 @@ Source: `argocd/README.md`, local verification report when generated.
 - Bounded traffic exercises only read endpoints.
 - HPA observations show what actually happened under that traffic.
 
-Visual: `docs/screenshots/stockflow-grafana-local.png` after verification.
+Visual: `docs/screenshots/stockflow-grafana-cloud.png`, the actual cloud dashboard.
 Speaker note: Quote the saved load result and replica observations exactly. Do
-not infer throughput, availability, or cloud performance from this local test.
-Source: monitoring JSON and runtime verification report when generated.
+not treat this client-side demo load as a production benchmark.
+Source: `docs/CLOUD_OBSERVABILITY_VERIFICATION.json`.
 
 ## 10. Recovery and lessons
 
 - Backend pod replacement restores the declared replica count.
 - PVC reuse preserves database inventory after a PostgreSQL pod restart.
 - ArgoCD migration hooks must run during sync.
-- Grafana sidecars needed larger memory limits during the longer check.
+- Managed project policy required EKS Pod Identity instead of IAM OIDC.
+- Actual one-worker capacity fits the demo but has limited pod headroom.
 
 Speaker note: Show the recorded recovery, explain the diagnosed issues, and
 distinguish Pod recovery from a single worker failure that interrupts the demo.
 
 ## 11. Evaluation and cleanup
 
-- Final cloud checks: EKS, EBS, ALB, ArgoCD, and dashboard evidence.
+- Cloud checks passed: EKS, EBS, ALB, ArgoCD, dashboard, and recovery evidence.
+- Record the mandatory personal walkthrough with the actual AWS Console views.
 - The public URL works on other devices while AWS resources remain running.
 - Keep resources for evaluation unless the instructor permits recording only.
 - Back up required data, remove the ALB/workloads, then destroy Terraform.
@@ -139,6 +138,7 @@ Save real destroy output after evaluation. Do not mark cleanup complete early.
 ## Deck format
 
 The rubric accepts PDF slides. `demo/slides.pdf` uses this content and actual
-local evidence on a 16:9 canvas. `demo/build-slides.py` generates the PDF from the
-saved verification reports. Regenerate it after cloud verification so it reflects
-the final EKS/ALB results. Keep this editable content for rehearsal and updates.
+cloud evidence on a 16:9 canvas. `demo/build-slides.py` generates the PDF from the
+saved verification reports. Regenerate it from the verified cloud reports when evidence changes. Keep this editable content for rehearsal and updates.
+
+Final cloud load: 4,601 GET requests in 120.78 seconds, 0 failures; HPA peak Ready replicas 3. This is the measured client workload, not the configured RPS ceiling.

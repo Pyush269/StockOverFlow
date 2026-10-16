@@ -1,7 +1,6 @@
 # Monitoring, load, and recovery evidence
 
-Verified locally on 15 October 2026. AWS remains off. These observations are
-from the isolated two-core kind worker, not an EKS performance benchmark.
+The local observations below were verified on 15 October 2026 using the isolated two-core kind worker. Later EKS checks passed on 16 October, including **4,601 public GET requests with no failures**, six populated queries, stable Grafana, and observed **HPA 2 -> 3 -> 2**. See [the cloud report](CLOUD_OBSERVABILITY_VERIFICATION.json). Keep the local and cloud measurements separate.
 
 ## Recorded results
 
@@ -62,10 +61,11 @@ installation are needed for screenshot capture. The helper reuses the full
 Chromium channel installed with `--no-shell`. Generated Grafana credentials stay
 in memory and travel to the isolated browser through stdin.
 
-For a later approved AWS run, verify cloud metrics and use the bounded load
-helper against the intended demo origin. The automated monitoring experiment is
-deliberately restricted to local kind. Do not reuse its self-signed local kubelet
-TLS exception in EKS. Repeat the live target/dashboard/replica evidence there.
+Cloud mode is restricted to the applied Sydney endpoint and `stockflow` namespace. Run `python scripts/verify-monitoring.py --cloud --context stockflow-eks-sydney --namespace stockflow --duration 120 --concurrency 32 --rps 200` with the project EKS kubeconfig. The configured RPS is a ceiling; the measured final rate was 38.09 requests/second from this client. EKS uses verified kubelet TLS, without the local self-signed exception.
 
 Backend Pod recovery and inventory across the GitOps release/rollback are
 recorded separately in [the GitOps evidence](GITOPS_VERIFICATION.json).
+
+## Cloud verification, 16 October 2026
+
+The cloud experiment passed with six populated dashboard queries, healthy backend scrape targets, stable Grafana containers, and observed HPA scaling. See [the actual cloud report](CLOUD_OBSERVABILITY_VERIFICATION.json) and [cloud Grafana screenshot](screenshots/stockflow-grafana-cloud.png). Run `python scripts/verify-monitoring.py --cloud --context stockflow-eks-sydney --namespace stockflow` with `.logs/eks.kubeconfig`. EKS uses verified kubelet TLS; the local-only exception was not carried into the cloud.

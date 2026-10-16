@@ -421,7 +421,7 @@ Implement valid multiline Terraform for:
 - Internet access and NAT for private workers, with load-balancer discovery subnet tags.
 - EKS control plane and managed worker node group. The current budget demo uses one `m7i-flex.large` worker (min/desired/max 1/1/2), following local capacity checks; verify actual EKS scheduling before accepting the cloud deployment. It has no worker redundancy.
 - EKS access for the operator, plus the CNI, CoreDNS, and kube-proxy prerequisites.
-- OIDC/IRSA and scoped IAM roles for the EBS CSI driver and AWS Load Balancer Controller.
+- EKS Pod Identity and scoped IAM roles for the EBS CSI driver and AWS Load Balancer Controller (supported replacement for OIDC/IRSA under this managed project policy).
 - Inputs for region, cluster name, Kubernetes version, environment, and node sizing.
 - Useful outputs and a credential-free `terraform.tfvars.example`.
 
@@ -649,4 +649,8 @@ Send one phase at a time and require its completion check before moving on. Each
 - [ ] At least 10 meaningful commits, complete README, minimum 8-slide deck, mandatory video.
 - [ ] Submission repository is accessible; final cleanup is scheduled after evaluation.
 
-Prompts 1–4 are implemented. Prompt 5 has a real one-worker Sydney plan: 59 additions, about $0.29/hour infrastructure or $0.33/hour full demo before variable usage and credits. See [INFRASTRUCTURE.md](INFRASTRUCTURE.md), including the three configuration scan findings. Prompts 6–8 now have local Helm, GitOps release/rollback/recovery, live dashboard, bounded load, and observed HPA 2 -> 3 -> 2 evidence. See [HELM.md](HELM.md), [GitOps evidence](GITOPS_VERIFICATION.json), [observability](OBSERVABILITY.md), and the [PDF slides](../demo/slides.pdf). The longer monitoring check corrected Grafana sidecar OOMs. **The user chose to keep AWS off on 15 October 2026.** Real EKS/EBS/ALB deployment, cloud retesting, final cloud slide updates, the mandatory video, and post-evaluation destroy remain pending. Follow the [deployment/evaluation checklist](DEPLOYMENT_CHECKLIST.md).
+Prompts 1–4 are implemented. Prompt 5 has a real one-worker Sydney plan: 59 additions, about $0.29/hour infrastructure or $0.33/hour full demo before variable usage and credits. See [INFRASTRUCTURE.md](INFRASTRUCTURE.md), including the three configuration scan findings. Prompts 6–8 now have local Helm, GitOps release/rollback/recovery, live dashboard, bounded load, and observed HPA 2 -> 3 -> 2 evidence. See [HELM.md](HELM.md), [GitOps evidence](GITOPS_VERIFICATION.json), [observability](OBSERVABILITY.md), and the [PDF slides](../demo/slides.pdf). The longer monitoring check corrected Grafana sidecar OOMs. **The user authorized deployment on 16 October 2026.** Real EKS/EBS/ALB, cloud retesting, and the final PDF updates are complete; see [cloud evidence](CLOUD_VERIFICATION.md). The mandatory personal video, access check, and post-evaluation destroy remain. Follow the [deployment/evaluation checklist](DEPLOYMENT_CHECKLIST.md).
+
+## Verified cloud completion - 16 October 2026
+
+The user authorized deployment after the refreshed review. The full technical cloud workflow is verified in [CLOUD_VERIFICATION.md](CLOUD_VERIFICATION.md). This supersedes earlier keep-AWS-off/pending status notes. Only the personal walkthrough recording, access check, and post-evaluation cleanup/evidence remain.

@@ -19,9 +19,11 @@ REPO = 'https://github.com/Pyush269/StockOverFlow'
 
 
 def main():
-    obs = json.loads((ROOT / 'docs/OBSERVABILITY_VERIFICATION.json').read_text(encoding='utf-8-sig'))
-    gitops = json.loads((ROOT / 'docs/GITOPS_VERIFICATION.json').read_text(encoding='utf-8-sig'))
-    assert {'baseline', 'release', 'rollback', 'recovery'} <= {stage['stage'] for stage in gitops['stages']}
+    obs = json.loads((ROOT / 'docs/CLOUD_OBSERVABILITY_VERIFICATION.json').read_text(encoding='utf-8-sig'))
+    gitops = json.loads((ROOT / 'docs/CLOUD_RUNTIME_VERIFICATION.json').read_text(encoding='utf-8-sig'))
+    aws = json.loads((ROOT / 'docs/AWS_VERIFICATION.json').read_text(encoding='utf-8-sig'))
+    assert {'baseline', 'release', 'rollback', 'recovery', 'storage'} <= {stage['stage'] for stage in gitops['stages']}
+    assert obs['aws_deployed'] and aws['cluster']['status'] == 'ACTIVE'
     assert obs['hpa_scaled_above_two'] and obs['load']['failed'] == 0
     pdf = canvas.Canvas(str(OUT), pagesize=(W, H))
     pdf.setTitle('StockFlow - DevSecOps capstone')
@@ -61,13 +63,13 @@ def main():
 
     slide('StockFlow', REPO)
     text('Inventory management with a stock movement ledger', 56, 160, 800, 38, color=TEAL)
-    text('Piyush<br/>DevSecOps capstone | 15 October 2026', 60, 330, 800, 23)
-    text('Local implementation verified. AWS deployment remains pending.', 60, 430, 820, 18, color=MUTED)
+    text('Piyush<br/>DevSecOps capstone | 16 October 2026', 60, 330, 800, 23)
+    text('Deployed and verified on AWS EKS in Sydney.', 60, 430, 820, 18, color=MUTED)
     pdf.showPage()
 
-    slide('Inventory workflow', 'Source: StockFlow application and docs/CONTAINERS.md | Actual local screenshot')
+    slide('Inventory workflow', 'Source: docs/CLOUD_RUNTIME_VERIFICATION.json | Actual public AWS application')
     bullets(['Product catalog', 'Receipts and issues', 'Append-only movement history', 'Low-stock reporting'], width=260, size=22)
-    image('docs/screenshots/container-overview-qa.png', 340, 128, 565, 350)
+    image('docs/screenshots/stockflow-cloud-overview.png', 340, 128, 565, 350)
     pdf.showPage()
 
     slide('Application architecture', 'Source: backend/app/, backend/alembic/, docker-compose.yml')
@@ -93,32 +95,33 @@ def main():
     bullets(['HIGH/CRITICAL image findings fail publication.', 'The pipeline publishes the same scanned image bytes.', 'Pull requests receive no package publication credentials.', 'Terraform has three separate documented scan findings.'], top=235, size=22)
     pdf.showPage()
 
-    slide('AWS infrastructure - deployment pending', 'Source: docs/INFRASTRUCTURE_REVIEW.json | USD estimate, before variable usage and credits')
+    slide('AWS infrastructure', 'Source: docs/AWS_VERIFICATION.json and docs/DEPLOYMENT_REVIEW_20261016.json')
     text('Sydney | EKS | private worker | NAT | public ALB | gp3', 62, 135, 830, 28, color=TEAL, bold=True)
-    bullets(['Reviewed plan: 59 additions; one m7i-flex.large worker.', 'Infrastructure estimate: $0.29/hour.', 'Illustrative full demo estimate: $0.33/hour.', 'A single worker has no worker redundancy.'], top=225, size=23)
+    bullets(['EKS ACTIVE; five active managed add-ons.', 'One private m7i-flex.large; encrypted gp3 storage.', 'Scoped Pod Identity roles; no worker redundancy.', 'Full demo estimate: $0.33/hour plus variable usage.'], top=225, size=23)
     pdf.showPage()
 
-    slide('Kubernetes and Helm', 'Source: docs/HELM.md and docs/HELM_VERIFICATION.json | Local verification')
-    bullets(['Two frontend and backend replicas with health probes.', 'Persistent PostgreSQL PVC and ordered migration Job.', 'Helm upgrade and database pod replacement retained stock.', 'Cloud EBS/IRSA and ALB routing still need verification.'], top=140, size=25)
+    slide('Kubernetes and Helm', 'Source: docs/CLOUD_HELM_VERIFICATION.json and docs/AWS_VERIFICATION.json')
+    bullets(['Two Ready frontend and backend replicas each.', 'Encrypted Bound gp3 PVC and ordered migration Job.', 'Helm upgrade and database replacement retained stock.', 'Public ALB frontend and API targets are healthy.'], top=140, size=25)
     pdf.showPage()
 
-    slide('GitOps release and rollback', 'Source: docs/GITOPS_VERIFICATION.json and argocd/README.md | Local ArgoCD')
+    slide('GitOps release and rollback', 'Source: docs/CLOUD_RUNTIME_VERIFICATION.json | Actual EKS ArgoCD')
     text('Green source CI > release-values commit > ArgoCD sync', 62, 135, 830, 27, color=TEAL, bold=True)
     bullets(['Initial sync: Synced and Healthy, with migration hooks.', 'A Git promotion changed both published image SHA tags.', 'Reverting that commit restored the previous image release.', 'Quantity 7 and the same PVC survived both changes.'], top=225, size=22)
     pdf.showPage()
 
-    slide('Live monitoring', 'Source: docs/OBSERVABILITY_VERIFICATION.json | Actual local Grafana screenshot')
-    image('docs/screenshots/stockflow-grafana-local.png', 46, 110, 866, 350)
+    slide('Live monitoring', 'Source: docs/CLOUD_OBSERVABILITY_VERIFICATION.json | Actual EKS Grafana')
+    image('docs/screenshots/stockflow-grafana-cloud.png', 46, 110, 866, 350)
     text(f'{obs["load"]["requests"]:,} read requests; {obs["load"]["failed"]} failures; HPA observed 2 > 3 ready replicas', 60, 466, 840, 17, color=TEAL, bold=True)
     pdf.showPage()
 
-    slide('Recovery and lessons', 'Source: docs/GITOPS_VERIFICATION.json and docs/OBSERVABILITY_VERIFICATION.json')
-    bullets(['A replacement backend Pod restored healthy replicas.', 'Persistent inventory survived release and rollback.', 'ArgoCD sync must preserve database migration hooks.', 'Longer monitoring exposed Grafana sidecar memory limits.'], top=140, size=25)
+    slide('Recovery and lessons', 'Source: docs/CLOUD_RUNTIME_VERIFICATION.json and docs/CLOUD_VERIFICATION.md')
+    bullets(['Backend and database replacement Pods became Ready.', 'Quantity 7 survived release, rollback, and recovery.', 'ArgoCD sync must preserve database migration hooks.', 'Managed project policy required EKS Pod Identity.'], top=140, size=25)
     pdf.showPage()
 
-    slide('Evaluation and cleanup', 'Source: docs/INFRASTRUCTURE.md and demo/RECORDING.md | Cloud evidence remains pending')
-    bullets(['Next: deploy and verify EKS, EBS, public ALB, and cloud GitOps.', 'Record the mandatory walkthrough with actual cloud evidence.', 'Keep the live demo until evaluation, unless instructed otherwise.', 'Back up data, remove the ALB/workloads, then destroy Terraform.'], top=135, size=24)
-    text('Destroy stops the public URL. Source code and saved evidence remain.', 62, 435, 820, 18, color=MUTED)
+    slide('Evaluation and cleanup', 'Source: docs/CLOUD_VERIFICATION.md and demo/RECORDING.md')
+    bullets(['Record the mandatory personal walkthrough.', 'Keep the live demo for the agreed evaluation window.', 'AWS continues using credits: about $8/day plus usage.', 'Back up data, remove the ALB/workloads, then destroy Terraform.'], top=135, size=24)
+    text('Open live StockFlow | Destroy removes this public URL.', 62, 435, 820, 18, color=TEAL)
+    pdf.linkURL(gitops['origin'], (62, 76, 520, 108), relative=0)
     pdf.showPage()
     pdf.save()
     print(f'Created {len(pages)} slides: {OUT}')

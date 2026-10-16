@@ -1,6 +1,6 @@
 # Cluster bootstrap
 
-AWS deployment was authorized on **16 October 2026** and is in progress. The initial managed-policy denial of IAM OIDC provider creation was addressed with EKS Pod Identity. Local checks do not prove cloud storage or ALB behavior; verify them on the deployed cluster. See [the reviewed infrastructure change](../../docs/INFRASTRUCTURE.md).
+AWS deployment was authorized on **16 October 2026** and has passed cloud checks; see [actual evidence](../../docs/CLOUD_VERIFICATION.md). The initial managed-policy denial of IAM OIDC provider creation was addressed with EKS Pod Identity. Local checks do not prove cloud storage or ALB behavior; verify them on the deployed cluster. See [the reviewed infrastructure change](../../docs/INFRASTRUCTURE.md).
 
 ## Pinned dependencies
 
@@ -67,7 +67,7 @@ helm list --kube-context $stockflowContext -n stockflow-smoke
 kubectl --context $stockflowContext get pods,svc,pvc,hpa,jobs -n stockflow-smoke
 ```
 
-The runtime verifier is restricted to namespaces ending in `-smoke`. It creates demo inventory, tests overselling, upgrades the release, and replaces its PostgreSQL pod. It always disables Ingress during upgrades, even with production values. It never deletes a PVC or namespace. Save screenshots of `helm list`, Ready replicas, migration completion, Bound gp3 PVC, and persistence after pod replacement. These EKS checks are still pending.
+The runtime verifier is restricted to namespaces ending in `-smoke`. It creates demo inventory, tests overselling, upgrades the release, and replaces its PostgreSQL pod. It always disables Ingress during upgrades, even with production values. It never deletes a PVC or namespace. Save screenshots of `helm list`, Ready replicas, migration completion, Bound gp3 PVC, and persistence after pod replacement. These EKS checks passed on 16 October 2026; the disposable release was removed after its proof was saved.
 
 After collecting evidence, uninstall only this disposable release. Confirm its data is disposable before deleting its retained PVC and Secret. Remove it **before** the real GitOps app so the one worker does not host both application copies simultaneously. The script does not clean up data automatically.
 

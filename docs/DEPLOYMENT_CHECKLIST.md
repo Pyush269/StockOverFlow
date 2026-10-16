@@ -1,7 +1,7 @@
 # Deployment and evaluation checklist
 
 AWS deployment was authorized on 16 October 2026 after refreshing the plan and
-costs. Terraform provisioning is in progress; no verified public URL exists yet. Local Docker/Compose remains
+costs. Cloud provisioning and runtime checks passed; see [the live URL and evidence](CLOUD_VERIFICATION.md). The mandatory personal walkthrough recording is still pending. Local Docker/Compose remains
 usable on another computer with the documented prerequisites and a fresh `.env`.
 
 ## Before starting the paid-resource clock

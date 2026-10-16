@@ -1,0 +1,74 @@
+{
+  "environment": "AWS EKS Sydney",
+  "origin": "http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com",
+  "product_id": 1,
+  "pvc_uid": "0f009658-34ae-4984-af9b-fd1e79fe5fe2",
+  "volume_name": "pvc-0f009658-34ae-4984-af9b-fd1e79fe5fe2",
+  "stages": [
+    {
+      "stage": "baseline",
+      "verified_at_utc": "2026-10-16T05:30:49.029892+00:00",
+      "git_revision": "b196f42435e148a150cd66a63895c3503788cb76",
+      "image_source_sha": "71a365476ca83f9cf3a1307fb1f94c1b3605a9be",
+      "sync": "Synced",
+      "health": "Healthy",
+      "migration_hook": "Succeeded",
+      "quantity": 7,
+      "pvc_unchanged": true,
+      "public_frontend_and_api": "pass",
+      "frontend_backend_ready_replicas": "at least 2"
+    },
+    {
+      "stage": "release",
+      "verified_at_utc": "2026-10-16T05:33:47.120053+00:00",
+      "git_revision": "26830e6695172277dd419b8f237758cd881f53fc",
+      "image_source_sha": "b196f42435e148a150cd66a63895c3503788cb76",
+      "sync": "Synced",
+      "health": "Healthy",
+      "migration_hook": "Succeeded",
+      "quantity": 7,
+      "pvc_unchanged": true,
+      "public_frontend_and_api": "pass",
+      "frontend_backend_ready_replicas": "at least 2"
+    },
+    {
+      "stage": "rollback",
+      "verified_at_utc": "2026-10-16T05:35:57.746461+00:00",
+      "git_revision": "576d778e948919f019cf1117a6409727c9cd4613",
+      "image_source_sha": "71a365476ca83f9cf3a1307fb1f94c1b3605a9be",
+      "sync": "Synced",
+      "health": "Healthy",
+      "migration_hook": "Succeeded",
+      "quantity": 7,
+      "pvc_unchanged": true,
+      "public_frontend_and_api": "pass",
+      "frontend_backend_ready_replicas": "at least 2"
+    },
+    {
+      "stage": "recovery",
+      "verified_at_utc": "2026-10-16T05:36:38.075259+00:00",
+      "git_revision": "576d778e948919f019cf1117a6409727c9cd4613",
+      "image_source_sha": "71a365476ca83f9cf3a1307fb1f94c1b3605a9be",
+      "sync": "Synced",
+      "health": "Healthy",
+      "migration_hook": "Succeeded",
+      "quantity": 7,
+      "pvc_unchanged": true,
+      "public_frontend_and_api": "pass",
+      "frontend_backend_ready_replicas": "at least 2"
+    },
+    {
+      "stage": "storage",
+      "verified_at_utc": "2026-10-16T05:37:15.465944+00:00",
+      "git_revision": "576d778e948919f019cf1117a6409727c9cd4613",
+      "image_source_sha": "71a365476ca83f9cf3a1307fb1f94c1b3605a9be",
+      "sync": "Synced",
+      "health": "Healthy",
+      "migration_hook": "Succeeded",
+      "quantity": 7,
+      "pvc_unchanged": true,
+      "public_frontend_and_api": "pass",
+      "frontend_backend_ready_replicas": "at least 2"
+    }
+  ]
+}

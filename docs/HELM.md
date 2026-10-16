@@ -1,6 +1,9 @@
 # Prompt 6: Helm and bootstrap verification
 
-Prepared 15 October 2026. **Chart/bootstrap implementation and local runtime checks are complete. AWS remains off at the user's request.** EKS EBS/IRSA, live ALB routing, and real cloud Helm evidence are pending deployment.
+**Cloud update, 16 October 2026:** manual Helm upgrade/migration, database replacement, two Ready replicas each, encrypted gp3, and public ALB routing passed. [Cloud checks](CLOUD_VERIFICATION.md). Earlier local evidence below remains separately labelled.
+
+
+The following report preserves the local checks from 15 October 2026. The later EKS checks passed on 16 October: Pod Identity, encrypted EBS/gp3, ALB routing, Helm upgrade/migration, and storage recovery. Pod Identity replaced the original IRSA design because the managed project disallows IAM OIDC provider creation.
 
 Subsequent longer checks added [GitOps](GITOPS_VERIFICATION.json), [monitoring/scaling evidence](OBSERVABILITY.md), and a [revised capacity projection](KUBERNETES_CAPACITY.json). They found and corrected Grafana sidecar OOMs after the initial installation had become Ready. The historical report below records the earlier short Helm check; current monitoring values live in `monitoring/values.yaml`.
 

@@ -1,0 +1,32 @@
+{
+  "checked_on": "2026-10-16",
+  "workflows": [
+    {
+      "name": "StockFlow CI",
+      "head_sha": "76ae750a29780145042a0f3f023181556b5f7c6b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Pyush269/StockOverFlow/actions/runs/38857009805"
+    },
+    {
+      "name": "Helm validation",
+      "head_sha": "76ae750a29780145042a0f3f023181556b5f7c6b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Pyush269/StockOverFlow/actions/runs/38857009726"
+    },
+    {
+      "name": "Terraform validation",
+      "head_sha": "e627eb7060c55cc211c32129707aa092cf5a4f97",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Pyush269/StockOverFlow/actions/runs/38854981841"
+    }
+  ],
+  "promotion_commit": "26830e6695172277dd419b8f237758cd881f53fc",
+  "rollback_commit": "576d778e948919f019cf1117a6409727c9cd4613",
+  "image_baseline_sha": "71a365476ca83f9cf3a1307fb1f94c1b3605a9be",
+  "promoted_image_source_sha": "b196f42435e148a150cd66a63895c3503788cb76",
+  "baseline_images_rescanned_on": "2026-10-16",
+  "baseline_image_high_critical_findings": 0
+}

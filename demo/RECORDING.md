@@ -26,16 +26,16 @@ Suggested length: 8–12 minutes unless the instructor specifies otherwise. Rehe
 once and keep browser tabs/terminal commands ready. Pause recording when handling
 credentials. Avoid recording installation wait time.
 
-## Evidence still requiring AWS
+## Actual cloud evidence and recording checklist
 
-- [ ] Reviewed plan refreshed for current operator IP and actual profile/session.
-- [ ] Terraform apply and Ready EKS worker recorded.
-- [ ] EBS CSI/IRSA and Bound encrypted gp3 application PVC verified.
-- [ ] Real Helm smoke release evidence captured, then smoke workload removed.
-- [ ] AWS Load Balancer Controller and public ALB frontend/API checks pass.
-- [ ] Cloud ArgoCD sync, image promotion/rollback, and recovery captured.
-- [ ] Cloud Prometheus/Grafana and HPA metrics verified.
-- [ ] PDF deck updated from `SLIDES.md` with verified cloud results and real screenshots.
+- [x] Reviewed plan refreshed for current operator IP and actual profile/session.
+- [x] Terraform apply and Ready EKS worker recorded.
+- [x] EBS CSI Pod Identity and Bound encrypted gp3 application PVC verified.
+- [x] Real Helm smoke release evidence captured, then smoke workload removed.
+- [x] AWS Load Balancer Controller and public ALB frontend/API checks pass.
+- [x] Cloud ArgoCD sync, image promotion/rollback, and recovery captured.
+- [x] Cloud Prometheus/Grafana and HPA metrics verified.
+- [x] PDF deck updated from `SLIDES.md` with verified cloud results and real screenshots.
 - [ ] Walkthrough video saved or uploaded with an accessible submission link.
 - [ ] Repository and video access checked from another browser/device.
 - [ ] Cleanup timing agreed with instructor; destroy evidence saved afterward.
@@ -53,3 +53,7 @@ does not stop AWS resources.
 The source submission document gives 19 October 2026 at 11:59 PM IST but calls it
 Sunday; that date is Monday. Confirm the intended deadline with the instructor.
 Source: https://github.com/Nency-Ravaliya/devsecops-python/blob/main/SUBMISSION.md
+
+Actual cloud URL: http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com
+
+Technical reports and screenshots: [cloud verification](../docs/CLOUD_VERIFICATION.md). These reports are ready to show; the AWS Console views and personal narrated walkthrough still need recording. Use only the project resources in Sydney and avoid showing credentials.

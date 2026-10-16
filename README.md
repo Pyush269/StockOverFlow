@@ -6,13 +6,13 @@
 
 Source repository: [Pyush269/StockOverFlow](https://github.com/Pyush269/StockOverFlow).
 
-Inventory management with a product catalog, stock receipts/issues, an append-only API ledger, and low-stock reporting. Built for the DevSecOps capstone using React/FastAPI/PostgreSQL and the planned EKS/Helm/ArgoCD delivery architecture.
+Inventory management with a product catalog, stock receipts/issues, an append-only API ledger, and low-stock reporting. Built for the DevSecOps capstone using React/FastAPI/PostgreSQL and EKS/Helm/ArgoCD delivery.
 
 Stack: Python 3.12, FastAPI, SQLAlchemy/Alembic, PostgreSQL 16, React 19, Vite 8, Nginx, Docker Compose, GitHub Actions/GHCR, Trivy, Terraform, Kubernetes/EKS, Helm, ArgoCD, Prometheus, and Grafana.
 
 ## Current stage
 
-**Application/CI and the local Helm, GitOps, and monitoring demonstrations are implemented. AWS deployment was authorized and started on 16 October 2026.** The refreshed one-worker Sydney plan has **59 additions, no changes or destroys**, estimated at **$0.29/hour for infrastructure**, or **$0.33/hour for the full demo**, before variable usage and credits. See the [fresh deployment review](docs/DEPLOYMENT_REVIEW_20261016.json) and [three configuration scan findings](docs/INFRASTRUCTURE.md). Local checks cover Helm upgrade/PVC recovery, ArgoCD release/rollback, retained inventory, backend Pod recovery, live Grafana panels, and HPA scaling from two to three replicas and back. Real EKS/ALB/EBS checks and the mandatory cloud walkthrough video remain pending until recorded. Use the [deployment/evaluation checklist](docs/DEPLOYMENT_CHECKLIST.md).
+**StockFlow is deployed and verified on AWS EKS in Sydney (16 October 2026).** Open the [live application](http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com). Cloud checks passed for manual Helm install/upgrade/PVC recovery, ArgoCD image promotion and Git rollback, retained inventory, backend/database Pod recovery, encrypted EBS, healthy ALB targets, live monitoring, and HPA scaling. See [cloud verification](docs/CLOUD_VERIFICATION.md). The one-worker full-demo estimate remains about **$0.33/hour plus usage**; AWS is running and consumes credits. The mandatory walkthrough video and post-evaluation cleanup remain. Three Terraform configuration findings remain documented in [the infrastructure review](docs/INFRASTRUCTURE.md).
 
 - Product CRUD with normalized unique SKUs, search/category filters, and pagination.
 - Transactional stock-in/stock-out with PostgreSQL row locks.
@@ -32,7 +32,7 @@ Current: React/Nginx container -> /api proxy -> FastAPI container -> PostgreSQL 
 Dev:     React/Vite -> /api proxy -> FastAPI -> development PostgreSQL
 CI:      GitHub Actions -> tests/build -> strict Trivy gates -> SHA-tagged GHCR images
 Local:   Git release values -> ArgoCD/Helm -> isolated Kubernetes demo
-Pending: Same GitOps deployment -> AWS EKS -> public ALB
+Cloud:   Same GitOps deployment -> AWS EKS -> public ALB
 ```
 
 The backend never creates tables on startup. Apply Alembic migrations before starting it. Stock changes and ledger inserts share a single transaction. All movement, metadata update, and product delete operations acquire the same product row lock, preventing competing issues from overselling. The database also enforces nonnegative inventory and restricts deletion of referenced products.

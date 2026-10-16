@@ -1,7 +1,6 @@
 # StockFlow GitOps
 
-AWS remains off. The production Application is prepared for later deployment;
-`application-local.yaml` targets only the separate local demo namespace.
+The production `stockflow` Application is deployed on EKS in Sydney and verified Synced/Healthy, with cloud image promotion, Git revert rollback, and retained inventory. See [cloud evidence](../docs/CLOUD_VERIFICATION.md). `application-local.yaml` targets the separate local demo namespace.
 
 ArgoCD renders Helm and owns the resulting resources. Do not run `helm upgrade`
 against its application. The earlier manual Helm smoke release is separate
