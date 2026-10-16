@@ -2,8 +2,11 @@
 
 - [slides.pdf](slides.pdf): 11-slide deck using actual verified cloud evidence.
 - [SLIDES.md](SLIDES.md): editable content and speaker guidance.
+- [Silent pipeline video](stockflow-pipeline-silent.mp4): actual push-to-main
+  CI run and successful publication; **CI/CD chapter only**, ready for your voice.
+  See the [narration guide](PIPELINE_NARRATION.md) and [video details](PIPELINE_VIDEO.md).
 - [RECORDING.md](RECORDING.md): walkthrough order, verified cloud evidence, and
-  evaluation/cleanup checklist. The mandatory video is not recorded yet.
+  evaluation/cleanup checklist. The full narrated walkthrough is still pending.
 
 The rubric accepts PDF slides. Before final submission, record the personal walkthrough using the verified cloud results.
 

@@ -1,0 +1,2 @@
+# Optional, local video authoring only; not an application/runtime dependency.
+imageio-ffmpeg==0.6.0

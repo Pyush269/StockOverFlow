@@ -1,7 +1,8 @@
 # Walkthrough recording
 
-The mandatory submission video is not recorded yet. Record after AWS checks
-pass so the walkthrough contains actual cloud evidence. Never show passwords,
+The [silent CI/CD chapter](stockflow-pipeline-silent.mp4) is recorded, with a
+[narration guide](PIPELINE_NARRATION.md). Add your voice and the other required
+sections to complete the submission walkthrough. Never show passwords,
 tokens, `.env`, kubeconfig, Terraform state, or Secret contents.
 
 ## Recording order
