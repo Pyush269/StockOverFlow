@@ -1,2 +1,0 @@
-ghcr.io/pyush269/stockflow-backend@sha256:b861d3f256115ef2ba543c446c98363d8d5d8bd1b80861fbeacefbaaefb145fa
-ghcr.io/pyush269/stockflow-frontend@sha256:eb3386e6d10cdb658ac857133c68191381e8712e6722d0aad92c4ea98186ea5e

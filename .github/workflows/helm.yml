@@ -56,7 +56,6 @@ jobs:
           python -m json.tool monitoring/stockflow.json > /dev/null
           python -m py_compile scripts/load-test.py scripts/verify-monitoring.py
           node --check scripts/capture-monitoring.mjs
-          node --check scripts/capture-gitops.mjs
       - name: Create isolated Kubernetes 1.36 cluster with a 29-pod worker
         run: >-
           kind create cluster --name stockflow-smoke --config k8s/local-kind.yaml

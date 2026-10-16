@@ -31,3 +31,5 @@ crash.log
 .vscode/
 Thumbs.db
 .DS_Store
+# Local coding-agent context is not part of the submission.
+/AGENTS.md

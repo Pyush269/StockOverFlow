@@ -1,73 +1,45 @@
-# StockFlow monitoring
+# Prometheus and Grafana
 
-The canonical Prometheus/Grafana chart settings are [values.yaml](values.yaml).
-Pinned versions remain in `k8s/bootstrap/versions.json`. The bootstrap script
-installs `kube-prometheus-stack`, then applies this directory's Kustomization to
-provision [stockflow.json](stockflow.json) as a Grafana dashboard ConfigMap.
+[values.yaml](values.yaml) configures `kube-prometheus-stack`.
+[kustomization.yaml](kustomization.yaml) provisions the Grafana dashboard from
+[stockflow.json](stockflow.json). The application chart creates a ServiceMonitor.
+Pinned chart versions are in [versions.json](../k8s/bootstrap/versions.json).
+
+After cluster bootstrap, from the repository root:
 
 ```powershell
-# Explicit local context; for EKS, use its verified context only after approval.
-$env:KUBECONFIG = Join-Path $PWD '.logs/kind.kubeconfig'
-kubectl --context kind-stockflow-smoke apply -k monitoring
-kubectl --context kind-stockflow-smoke -n monitoring port-forward svc/monitoring-grafana 3002:80
+kubectl --context stockflow-eks-sydney apply -k monitoring
+# Run these port-forwards in separate terminals:
+kubectl --context stockflow-eks-sydney -n monitoring port-forward svc/monitoring-kube-prometheus-prometheus 9090:9090
+kubectl --context stockflow-eks-sydney -n monitoring port-forward svc/monitoring-grafana 3002:80
+kubectl --context stockflow-eks-sydney -n stockflow port-forward svc/stockflow-stockflow-backend 8001:8000
 ```
 
-Open http://localhost:3002, sign in with the generated Grafana admin credentials,
-then open dashboard UID `stockflow-overview`. Select the app namespace. The
-Prometheus datasource UID is `prometheus`; its URL points at the in-cluster
-Prometheus Service. Credential values stay outside Git and evidence files.
+Open [Prometheus Targets](http://localhost:9090/targets) and
+[Grafana](http://localhost:3002/d/stockflow-overview). Sign in to Grafana with its
+generated admin credentials, select namespace `stockflow`, and use datasource
+`prometheus`. Credentials stay outside screenshots and Git.
 
-## Dashboard queries
-
-Six panels use metrics confirmed from the deployed instrumentation:
+```powershell
+curl.exe --fail http://localhost:8001/metrics
+```
 
 | Panel | Metric |
 |---|---|
-| API request rate | `http_requests_total`, `/api/` handlers |
-| API p95 latency | `http_request_duration_seconds_bucket`, histogram quantile |
-| API 5xx rate | `http_requests_total` grouped 5xx statuses; zero only when API series exist |
-| Backend CPU | `container_cpu_usage_seconds_total` from kubelet/cAdvisor |
-| Backend memory | `container_memory_working_set_bytes` from kubelet/cAdvisor |
-| Backend Ready replicas | `kube_deployment_status_replicas_available` |
+| Request rate | `http_requests_total` for `/api/` handlers |
+| p95 latency | `http_request_duration_seconds_bucket` |
+| 5xx rate | `http_requests_total` with 5xx status labels |
+| CPU | `container_cpu_usage_seconds_total` |
+| Memory | `container_memory_working_set_bytes` |
+| Ready replicas | `kube_deployment_status_replicas_available` |
 
-No-traffic latency can be absent/NaN. Generate real API traffic before presenting
-the dashboard. A zero error rate is expected when every request succeeds.
+Generate actual API traffic before checking latency; no-traffic latency can be
+absent. A zero error rate is expected for successful requests.
+[Recorded cloud observations](../docs/CLOUD_OBSERVABILITY_VERIFICATION.json)
+include finite queries, target health, and observed HPA scaling. The bounded
+verification helper is `scripts/verify-monitoring.py --cloud --context
+stockflow-eks-sydney --namespace stockflow`.
 
-## Bounded load and observations
-
-In a terminal with a frontend localhost port-forward (3001 -> 80):
-
-```powershell
-.\scripts\load-test.ps1 -BaseUrl http://127.0.0.1:3001 -DurationSeconds 120 -Concurrency 12 -RequestsPerSecond 80
-# In another terminal, observe metrics and current/desired replicas:
-kubectl --context kind-stockflow-smoke -n stockflow-gitops-smoke get hpa -w
-kubectl --context kind-stockflow-smoke -n stockflow-gitops-smoke top pods
-```
-
-Only GET `/api/products?limit=20` and GET `/api/dashboard` receive load. Duration,
-worker count, and aggregate RPS are capped; transport/non-200 failures are visible
-and fail the run. The verifier records observed replicas instead of assuming
-scaling happened. Its full experiment is restricted to the local disposable
-cluster:
-
-```powershell
-python scripts/verify-monitoring.py --context kind-stockflow-smoke
-```
-
-It owns and closes its localhost port-forwards, uses generated Grafana credentials
-in memory, authenticates the real dashboard in isolated Chromium, and records
-all six query results, target health, bounded traffic, HPA samples, and Grafana
-container stability. It does not write inventory or start AWS resources.
-
-## Memory correction and limits
-
-The earlier 64 MiB sidecar limit caused Grafana dashboard/datasource sidecars to
-be OOMKilled during a longer observation. Each now requests 96 MiB and can use
-256 MiB; the main Grafana container retains its 384 MiB limit. The replacement
-pod was checked through the full traffic experiment. Capacity must be rechecked
-on the real EKS worker; local scheduling is not proof of cloud capacity.
-
-Prometheus retains six hours in ephemeral storage. Grafana's provisioned JSON
-survives recreation from Git, while UI-only dashboard edits and monitoring history
-may be lost. PostgreSQL application data uses a separate persistent PVC. This
-demo does not configure alert routing, HA monitoring, or public Grafana access.
+Prometheus retains six hours in ephemeral storage. Git-provisioned dashboards
+survive recreation; historical metrics and UI-only edits may be lost. The demo
+has no alert routing or redundant monitoring replicas.

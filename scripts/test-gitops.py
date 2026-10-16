@@ -42,8 +42,10 @@ class GitOpsTests(unittest.TestCase):
         self.assertEqual(len(project['sourceRepos']), 1)
         workflow = yaml.safe_load((ROOT / '.github/workflows/ci.yml').read_text())
         triggers = workflow.get('on', workflow.get(True))
-        for event in ['push', 'pull_request']:
-            self.assertIn('helm/**', triggers[event]['paths-ignore'])
+        self.assertEqual(triggers['push']['branches'], ['main'])
+        self.assertNotIn('paths-ignore', triggers['push'])
+        self.assertNotIn('paths', triggers['push'])
+        self.assertIn('helm/**', triggers['pull_request']['paths-ignore'])
 
 
 if __name__ == '__main__':

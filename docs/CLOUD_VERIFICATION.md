@@ -1,35 +1,30 @@
 # Verified AWS deployment
 
-Verified 16 October 2026 in **Sydney (`ap-southeast-2`)**, using profile `stockflow`.
+Verified on 16 October 2026 in Sydney (`ap-southeast-2`), profile `stockflow`.
 
-Public application: [http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com](http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com)
+[Public StockFlow application](http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com)
 
-The URL is served by AWS and can be opened from another computer while the resources remain running. Local Docker is not required to open it. This short demo uses HTTP and demo inventory.
-
-| Check | Actual result | Evidence |
+| Component | Recorded result | Evidence |
 |---|---|---|
-| Infrastructure | EKS ACTIVE; one Ready private worker; no public worker IP; encrypted gp3 root; five ACTIVE add-ons | [AWS checks](AWS_VERIFICATION.json) |
-| Manual Helm | Install, upgrade/migration, stock validation, PostgreSQL replacement, same PVC and quantity 7; two Ready frontend/backend replicas | [Runtime](CLOUD_HELM_VERIFICATION.json), [helm list](CLOUD_HELM_LIST.txt), [resources](CLOUD_HELM_RESOURCES.txt) |
-| GitOps | Baseline, image promotion, Git revert rollback, backend replacement, database replacement; quantity 7 retained on the same PVC | [Cloud stages](CLOUD_RUNTIME_VERIFICATION.json) |
-| Storage and routing | Encrypted 10 GiB gp3 attached to worker; public ALB active with healthy frontend/API targets | [AWS API checks](AWS_VERIFICATION.json) |
-| Monitoring | Six finite live dashboard queries, 3 UP backend scrape targets, stable Grafana, observed HPA 2 -> 3 -> 2 | [Cloud monitoring](CLOUD_OBSERVABILITY_VERIFICATION.json) |
-| Bounded traffic | 4,601 read requests, 0 failures | Same cloud monitoring report |
-| Capacity | Full stack plus HPA/rollout/migration projection fits 1,930m CPU and 29 pod slots; limited pod headroom | [Capacity](CLOUD_KUBERNETES_CAPACITY.json) |
+| AWS | ACTIVE EKS, one Ready private worker, encrypted gp3 storage, active add-ons, healthy ALB targets | [AWS verification](AWS_VERIFICATION.json) |
+| Helm | Install and upgrade, two migration runs, two Ready replicas per application tier, same PVC and quantity 7 after database pod replacement | [Helm verification](CLOUD_HELM_VERIFICATION.json), [Helm list](CLOUD_HELM_LIST.txt) |
+| GitOps | Synced/Healthy baseline, promotion and Git revert rollback; inventory retained after backend/database pod replacement | [Runtime stages](CLOUD_RUNTIME_VERIFICATION.json) |
+| Monitoring | Six finite dashboard queries, healthy targets, stable Grafana, observed HPA scaling from 2 to 3 and back | [Observability verification](CLOUD_OBSERVABILITY_VERIFICATION.json) |
+| Application and pipeline | Live dashboard/catalog, completed push-triggered CI, real Terraform and Kubernetes command execution | [Full video verification](../demo/WALKTHROUGH_VERIFICATION.json) |
 
-The separate disposable Helm namespace and its test PVC were intentionally removed after proof was saved, before the final application was installed. The production inventory/PVC remain.
+The cloud monitoring experiment recorded 4,601 successful read requests and
+three backend targets during scaling. The final walkthrough captured the normal
+two-replica deployment with both Prometheus targets UP.
+The manual `warehouse` release was disposable and was removed after proof was
+saved. The production ArgoCD application and its inventory PVC remain deployed.
 
-At the final snapshot, one old backend target was deregistering after HPA scale-down; two active backend and two frontend targets were healthy. AWS describes this temporary state as [connection draining](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html).
+The original managed-project OIDC denial was resolved using supported EKS Pod
+Identity. The three remaining Terraform configuration scan findings and current
+operating limits are documented in [INFRASTRUCTURE.md](INFRASTRUCTURE.md).
 
-## Deployment corrections
-
-The managed AWS project SCP denied IAM OIDC provider creation. Terraform was changed to supported **EKS Pod Identity**, retaining exact cluster/namespace/service-account trust and separate CNI/EBS/controller permissions. Organization policies and the free plan were not changed. The storage policy ARN was corrected to the root-path `AmazonEBSCSIDriverPolicyV2`, with an IAM lookup during real planning. The provider lock was refreshed after removing TLS. The corrected Terraform workflow passed.
-
-The refreshed configuration scan still exits 1 with **AWS-0040, AWS-0041, AWS-0104 (three CRITICAL findings)**. They are documented in [INFRASTRUCTURE.md](INFRASTRUCTURE.md), and not suppressed. This is separate from the strict image HIGH/CRITICAL gate.
-
-## Recheck the running demo
+## Recheck
 
 ```powershell
-. ..\Enter-Project.ps1
 python scripts/configure-eks.py
 $env:KUBECONFIG = Join-Path $PWD '.logs/eks.kubeconfig'
 python scripts/verify-aws.py
@@ -37,12 +32,6 @@ kubectl --context stockflow-eks-sydney -n argocd get application stockflow
 kubectl --context stockflow-eks-sydney -n stockflow get pods,pvc,ingress,hpa
 ```
 
-For the bounded monitoring experiment, run `python scripts/verify-monitoring.py --cloud --context stockflow-eks-sydney --namespace stockflow`. It creates only read traffic and temporary localhost admin forwards. The recovery/storage stages intentionally replace the corresponding demo Pod; run them only when a brief demo interruption is acceptable.
-
-Latest application, Helm, and Terraform checks passed: [CI evidence](CLOUD_CI_VERIFICATION.json). The low-load public check also passed (1,754 requests with no failures); the final higher-concurrency check produced the scaling evidence.
-
-## Cost and remaining submission work
-
-The reviewed estimate remains **$0.2890/hour infrastructure**, or **$0.3335/hour full demo**, before variable usage and credits (about **$8/day**). AWS keeps running when this laptop or Docker stops. No scheduled shutdown was configured. Keep resources for the agreed evaluation window, then back up needed inventory and perform the documented cleanup. Destroying the ALB/EKS removes the public URL. Never delete Terraform state before cleanup verification.
-
-The [complete silent walkthrough](../demo/stockflow-walkthrough-silent.mp4) includes the required sections, actual AWS Console captures, and on-screen explanations. No narration is needed. See [chapters and verification](../demo/WALKTHROUGH.md). Post-evaluation destroy evidence must be collected when cleanup actually runs.
+The public URL works from other computers while AWS is running. Laptop shutdown
+or stopping local Docker does not stop AWS. After evaluation, collect the actual
+Terraform destroy evidence using [the cleanup procedure](INFRASTRUCTURE.md#cleanup-after-evaluation).

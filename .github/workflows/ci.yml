@@ -11,13 +11,11 @@ on:
       - 'docs/**'
       - 'demo/**'
       - 'README.md'
-      - 'AGENTS.md'
       - 'scripts/*gitops*'
       - 'scripts/*monitoring*'
       - 'scripts/load-test*'
       - '.github/workflows/helm.yml'
       - '.github/workflows/terraform.yml'
-      - '.github/workflows/gitops.yml'
   push:
     branches: [main]
   workflow_dispatch:
