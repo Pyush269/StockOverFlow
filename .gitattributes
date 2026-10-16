@@ -3,3 +3,4 @@
 Dockerfile text eol=lf
 # Preserve PDF byte offsets and compressed streams on Windows checkouts.
 *.pdf binary
+*.mp4 binary

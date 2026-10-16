@@ -20,22 +20,6 @@ on:
       - '.github/workflows/gitops.yml'
   push:
     branches: [main]
-    paths-ignore:
-      - 'helm/**'
-      - 'argocd/**'
-      - 'monitoring/**'
-      - 'k8s/**'
-      - 'terraform/**'
-      - 'docs/**'
-      - 'demo/**'
-      - 'README.md'
-      - 'AGENTS.md'
-      - 'scripts/*gitops*'
-      - 'scripts/*monitoring*'
-      - 'scripts/load-test*'
-      - '.github/workflows/helm.yml'
-      - '.github/workflows/terraform.yml'
-      - '.github/workflows/gitops.yml'
   workflow_dispatch:
 
 # PR code never receives package write access or persisted Git credentials.
