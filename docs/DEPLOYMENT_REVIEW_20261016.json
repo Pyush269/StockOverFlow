@@ -80,7 +80,7 @@
     "AWS-0041",
     "AWS-0104"
   ],
-  "deployment_status": "Applying final storage policy and three managed add-ons",
+  "deployment_status": "Terraform infrastructure applied successfully; cloud bootstrap and application verification in progress",
   "initial_plan_sha256": "e370d3d318e86faddaba3a86504373818b39f3077a803654eb7371836755cda6",
   "initial_actions": {
     "read": 1,
@@ -109,5 +109,14 @@
     "worker_allocatable_cpu": "1930m",
     "worker_allocatable_memory": "7276372Ki",
     "worker_pod_limit": 29
+  },
+  "apply_result": {
+    "added": 4,
+    "changed": 0,
+    "destroyed": 0,
+    "log": ".logs/terraform-apply-storage-20261016.txt",
+    "cluster": "ACTIVE",
+    "worker": "Ready",
+    "private_worker": true
   }
 }
