@@ -12,9 +12,9 @@ Stack: Python 3.12, FastAPI, SQLAlchemy/Alembic, PostgreSQL 16, React 19, Vite 8
 
 ## Current stage
 
-**StockFlow is deployed and verified on AWS EKS in Sydney (16 October 2026).** Open the [live application](http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com). Cloud checks passed for manual Helm install/upgrade/PVC recovery, ArgoCD image promotion and Git rollback, retained inventory, backend/database Pod recovery, encrypted EBS, healthy ALB targets, live monitoring, and HPA scaling. See [cloud verification](docs/CLOUD_VERIFICATION.md). The one-worker full-demo estimate remains about **$0.33/hour plus usage**; AWS is running and consumes credits. The silent pipeline chapter is available below; the full narrated walkthrough and post-evaluation cleanup remain. Three Terraform configuration findings remain documented in [the infrastructure review](docs/INFRASTRUCTURE.md).
+**StockFlow is deployed and verified on AWS EKS in Sydney (16 October 2026).** Open the [live application](http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com). Cloud checks passed for manual Helm install/upgrade/PVC recovery, ArgoCD image promotion and Git rollback, retained inventory, backend/database Pod recovery, encrypted EBS, healthy ALB targets, live monitoring, and HPA scaling. See [cloud verification](docs/CLOUD_VERIFICATION.md). The one-worker full-demo estimate remains about **$0.33/hour plus usage**; AWS is running and consumes credits. The complete silent walkthrough is available below; post-evaluation cleanup remains. Three Terraform configuration findings remain documented in [the infrastructure review](docs/INFRASTRUCTURE.md).
 
-**Pipeline video:** [Watch/download the silent MP4](demo/stockflow-pipeline-silent.mp4) (6 minutes 18 seconds). It shows an actual successful push, tests, security scans, and image publication. Use the [narration guide](demo/PIPELINE_NARRATION.md) to add your voice. See all [submission artifacts](demo/README.md), including the slides and full walkthrough checklist.
+**Submission video:** [Watch/download the complete silent walkthrough](demo/stockflow-walkthrough-silent.mp4). It includes the required sections in order, with on-screen explanations and captions. **No narration is needed.** See [chapter times and sources](demo/WALKTHROUGH.md), the [PDF slides](demo/slides.pdf), and all [submission artifacts](demo/README.md).
 
 - Product CRUD with normalized unique SKUs, search/category filters, and pagination.
 - Transactional stock-in/stock-out with PostgreSQL row locks.
@@ -157,7 +157,7 @@ This starts the same images in an isolated Compose project on 3001/8002/5434, ve
 
 ## CI, security, and release images
 
-The image workflow is [.github/workflows/ci.yml](.github/workflows/ci.yml). Application changes trigger tests/builds/scans; pull requests have no publication credentials. A separate publish job runs only for successful source pushes to `main`, using the job's `GITHUB_TOKEN` with `packages: write`; no personal token is committed or required for CI publishing. Manual dispatch validates without publishing. Helm/GitOps/monitoring-only changes use the separate chart workflow and do not build another image release. Both Applications use `helm/stockflow/values-release.yaml` to promote an already successful source SHA; a values commit and the source commit are different commits.
+The image workflow is [.github/workflows/ci.yml](.github/workflows/ci.yml). Every push to `main` triggers tests, builds, scans, and publication after the gates pass, including documentation-only pushes. Pull requests have no publication credentials. The separate publish job uses the job's `GITHUB_TOKEN` with `packages: write`; no personal token is committed or required for CI publishing. Manual dispatch validates without publishing. Helm/GitOps/monitoring changes also use the separate chart workflow. Both Applications use `helm/stockflow/values-release.yaml` to promote an already successful source SHA; publishing a new image does not automatically promote it.
 
 Both images must pass `trivy image --severity HIGH,CRITICAL --exit-code 1`. Unfixed findings are included and there are no CVE suppressions. Test results, JSON scan reports, and publication receipts are saved as workflow artifacts. The publish job verifies a saved archive checksum and scanned image IDs before tagging/pushing; it never rebuilds or runs the downloaded images.
 
@@ -183,7 +183,7 @@ The [ArgoCD runbook](argocd/README.md) describes the restricted AppProject, manu
 
 The [monitoring runbook](monitoring/README.md) contains canonical chart values, the provisioned six-panel Grafana dashboard, and bounded read traffic commands. [Local monitoring evidence](docs/OBSERVABILITY.md) records 8,780 requests without failures, populated queries, and HPA scaling 2 -> 3 -> 2. The longer check found and corrected Grafana sidecar OOMs; the replacement pod stayed healthy throughout the successful experiment. Local performance is not a cloud benchmark.
 
-The [PDF slides](demo/slides.pdf) cover the implemented architecture and verified AWS deployment. The [silent pipeline video](demo/stockflow-pipeline-silent.mp4) records a successful push-to-main CI run; its [verification record](demo/PIPELINE_VIDEO_VERIFICATION.json) links the actual run. [Recording guidance](demo/RECORDING.md) describes the remaining full narrated walkthrough.
+The [PDF slides](demo/slides.pdf) cover the implemented architecture and verified AWS deployment. The [silent pipeline video](demo/stockflow-pipeline-silent.mp4) records a successful push-to-main CI run; its [verification record](demo/PIPELINE_VIDEO_VERIFICATION.json) links the actual run. The [complete silent walkthrough](demo/stockflow-walkthrough-silent.mp4) includes the other required sections; [the recording guide](demo/RECORDING.md) records its coverage and cleanup checklist.
 
 ## API contract
 
@@ -266,7 +266,7 @@ helm/stockflow/              App chart, migrations, storage, HPA, Ingress, Servi
 k8s/bootstrap/              Pinned controllers, monitoring, ArgoCD, and bootstrap runbook
 argocd/                     Restricted project and local/production Applications
 monitoring/                 Canonical chart values and provisioned dashboard JSON
-demo/                       Pipeline video, narration guide, PDF slides, recording checklist
+demo/                       Complete silent video, pipeline chapter, PDF slides, evidence checklist
 docs/WORKFLOW.md            Full staged implementation plan
 docs/VERIFICATION.md        Completed checks and remaining work
 docs/CONTAINERS.md          Prompt 3 checks, local operation, troubleshooting
@@ -277,4 +277,4 @@ docs/GITOPS_VERIFICATION.json  Actual local release, rollback, and recovery resu
 docs/OBSERVABILITY.md       Load, live metrics, scaling, and Grafana memory correction
 ```
 
-Cloud deployment and verification are complete, and the silent pipeline chapter is recorded. Complete the full narrated walkthrough using [the recording checklist](demo/RECORDING.md), confirm evaluator access, and clean up AWS after the agreed evaluation window using [the deployment checklist](docs/DEPLOYMENT_CHECKLIST.md).
+Cloud deployment, verification, and the complete silent walkthrough are prepared. Submit the repository link, confirm the evaluation window, and clean up AWS afterward using [the deployment checklist](docs/DEPLOYMENT_CHECKLIST.md). Preserve actual destroy evidence after cleanup.

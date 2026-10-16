@@ -1,31 +1,27 @@
 # Walkthrough recording
 
-The [silent CI/CD chapter](stockflow-pipeline-silent.mp4) is recorded, with a
-[narration guide](PIPELINE_NARRATION.md). Add your voice and the other required
-sections to complete the submission walkthrough. Never show passwords,
-tokens, `.env`, kubeconfig, Terraform state, or Secret contents.
+The [complete silent walkthrough](stockflow-walkthrough-silent.mp4) uses clear
+on-screen explanations and captions. **No narration is needed.** See its
+[chapters and sources](WALKTHROUGH.md). The [separate CI/CD chapter](stockflow-pipeline-silent.mp4)
+is also available. Never show passwords, tokens, `.env`, kubeconfig, Terraform
+state, or Secret contents.
 
 ## Recording order
 
-1. **Slides and working application** — problem, architecture, StockFlow screens.
-   Create a product, receive 10, issue 3, reject 8, show quantity 7 and history.
-2. **Codebase and tests** — transactional service, Alembic, tests, Dockerfiles,
-   Compose. Show the existing passing test output.
+1. **Slides** — problem, architecture, stack, infrastructure, and observability.
+2. **Codebase** — folder structure, key files, transactional service, test output,
+   Dockerfile, and a brief view of the working application.
 3. **CI/security and registry** — successful main run, strict image scan gate,
    reports and both SHA image tags. Explain the separate Terraform findings.
-4. **Terraform and AWS** — show the reviewed plan, real VPC/EKS/node group,
-   private worker placement, IAM role boundaries, and current usage estimate.
+4. **Terraform and AWS** — real plan output and actual AWS Console VPC/EKS views.
 5. **ArgoCD** — repository/path/values, Synced/Healthy, matching image SHA,
    promotion commit and compatible rollback.
-6. **Kubernetes** — manual Helm smoke evidence, two frontend/backend replicas,
-   migrations, PVC, Services, Ingress hostname, and live application/API.
-7. **Prometheus** — `/metrics`, UP targets, and real query results.
-8. **Grafana and recovery** — live panels, bounded load, observed HPA changes,
-   replacement backend pod, and inventory retained through recovery.
+6. **Kubernetes** — healthy pods, Services, and Ingress output.
+7. **Prometheus** — `/metrics` and the Targets page showing the app as UP.
+8. **Grafana** — the live dashboard with populated application metrics.
 
-Suggested length: 8–12 minutes unless the instructor specifies otherwise. Rehearse
-once and keep browser tabs/terminal commands ready. Pause recording when handling
-credentials. Avoid recording installation wait time.
+The final edit includes the required sections only. It omits optional installation,
+load, and recovery demonstrations. Credentials are handled outside recorded pages.
 
 ## Actual cloud evidence and recording checklist
 
@@ -37,7 +33,7 @@ credentials. Avoid recording installation wait time.
 - [x] Cloud ArgoCD sync, image promotion/rollback, and recovery captured.
 - [x] Cloud Prometheus/Grafana and HPA metrics verified.
 - [x] PDF deck updated from `SLIDES.md` with verified cloud results and real screenshots.
-- [ ] Walkthrough video saved or uploaded with an accessible submission link.
+- [x] Complete silent walkthrough saved, with chapters, captions, and verification.
 - [ ] Repository and video access checked from another browser/device.
 - [ ] Cleanup timing agreed with instructor; destroy evidence saved afterward.
 
@@ -57,4 +53,4 @@ Source: https://github.com/Nency-Ravaliya/devsecops-python/blob/main/SUBMISSION.
 
 Actual cloud URL: http://k8s-stockflo-stockflo-96a126ddd5-1324338338.ap-southeast-2.elb.amazonaws.com
 
-Technical reports and screenshots: [cloud verification](../docs/CLOUD_VERIFICATION.md). These reports are ready to show; the AWS Console views and personal narrated walkthrough still need recording. Use only the project resources in Sydney and avoid showing credentials.
+Technical reports and screenshots: [cloud verification](../docs/CLOUD_VERIFICATION.md). The walkthrough includes actual AWS Console captures, real command output, live admin screens, and the successful pipeline recording. Use only the project resources in Sydney and avoid showing credentials.

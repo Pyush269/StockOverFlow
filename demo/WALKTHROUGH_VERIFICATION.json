@@ -1,0 +1,153 @@
+{
+  "created_at_utc": "2026-10-16T09:04:41.048041+00:00",
+  "file": "demo/stockflow-walkthrough-silent.mp4",
+  "silent": true,
+  "audio_tracks": 0,
+  "duration_seconds": 672.68,
+  "resolution": [
+    1600,
+    900
+  ],
+  "bytes": 6311989,
+  "sha256": "6de40d17ed067f2982267f687858ea9525ba45213b54892feafa5f73c4c8de97",
+  "full_video_decode": "passed",
+  "scope": "Required capstone walkthrough: slides, code, actual push/CI, Terraform/AWS Console, ArgoCD, Kubernetes, Prometheus Targets, Grafana",
+  "ci_run_url": "https://github.com/Pyush269/StockOverFlow/actions/runs/38867618119",
+  "ci_source_sha": "e207e786c6df07b2f270b1d5120a5fc78b8edfc1",
+  "ci_excerpt_seconds": [
+    50,
+    354
+  ],
+  "cloud_recorded_at_utc": "2026-10-16T08:58:52.926Z",
+  "checks": [
+    {
+      "application": "live dashboard and catalog rendered"
+    },
+    {
+      "prometheus_targets_up": 2
+    }
+  ],
+  "chapters": [
+    {
+      "seconds": 0,
+      "title": "Slides: project and architecture",
+      "caption": "11 project slides, including stack, architecture, CI, AWS, Kubernetes, and observability."
+    },
+    {
+      "seconds": 111.0,
+      "title": "Live application",
+      "caption": "Real AWS ALB; no mocked API responses"
+    },
+    {
+      "seconds": 129.0,
+      "title": "Codebase structure",
+      "caption": "Each layer has a separate responsibility"
+    },
+    {
+      "seconds": 143.0,
+      "title": "Transactional inventory service",
+      "caption": "Source excerpt: backend/app/services/inventory.py"
+    },
+    {
+      "seconds": 167.0,
+      "title": "Tests and containers",
+      "caption": "Actual test output from the recorded successful pipeline"
+    },
+    {
+      "seconds": 180.0,
+      "title": "Actual git push",
+      "caption": "Source SHA e207e786c6df07b2f270b1d5120a5fc78b8edfc1"
+    },
+    {
+      "seconds": 192.0,
+      "title": "Live GitHub Actions run",
+      "caption": "https://github.com/Pyush269/StockOverFlow/actions/runs/38867618119"
+    },
+    {
+      "seconds": 194.0,
+      "title": "Pipeline progress",
+      "caption": "PostgreSQL tests and frontend build: in_progress"
+    },
+    {
+      "seconds": 256.0,
+      "title": "Pipeline progress",
+      "caption": "PostgreSQL tests and frontend build: success | Build once and scan release images: in_progress"
+    },
+    {
+      "seconds": 402.0,
+      "title": "Pipeline progress",
+      "caption": "PostgreSQL tests and frontend build: success | Build once and scan release images: success | Publish scanned images to GHCR: success"
+    },
+    {
+      "seconds": 407.0,
+      "title": "Final GitHub result",
+      "caption": "Conclusion: success"
+    },
+    {
+      "seconds": 430.0,
+      "title": "PostgreSQL tests and frontend build",
+      "caption": "Actual GitHub Actions job output"
+    },
+    {
+      "seconds": 448.0,
+      "title": "Build once and scan release images",
+      "caption": "Actual GitHub Actions job output"
+    },
+    {
+      "seconds": 466.0,
+      "title": "Publish scanned images to GHCR",
+      "caption": "Actual GitHub Actions job output"
+    },
+    {
+      "seconds": 484.0,
+      "title": "Terraform plan",
+      "caption": "Actual read-only plan output; infrastructure already deployed"
+    },
+    {
+      "seconds": 498.0,
+      "title": "AWS Console: EKS",
+      "caption": "Actual AWS Console capture"
+    },
+    {
+      "seconds": 512.0,
+      "title": "AWS Console: VPC",
+      "caption": "Actual AWS Console capture"
+    },
+    {
+      "seconds": 529.0,
+      "title": "ArgoCD live application",
+      "caption": "Synced and Healthy; Git controls the deployed image values"
+    },
+    {
+      "seconds": 556.0,
+      "title": "GitOps delivery",
+      "caption": "The repository values select the deployed image; ArgoCD reconciles Git with EKS."
+    },
+    {
+      "seconds": 568.0,
+      "title": "Kubernetes pods",
+      "caption": "Actual output captured 2026-10-16T08:58:08.442288+00:00"
+    },
+    {
+      "seconds": 580.0,
+      "title": "Services and Ingress",
+      "caption": "Actual output captured 2026-10-16T08:58:08.442288+00:00"
+    },
+    {
+      "seconds": 593.0,
+      "title": "Application metrics",
+      "caption": "Actual backend /metrics response through a localhost port-forward"
+    },
+    {
+      "seconds": 607.0,
+      "title": "Prometheus live Targets",
+      "caption": "Actual scrape targets are UP"
+    },
+    {
+      "seconds": 634.0,
+      "title": "Grafana live dashboard",
+      "caption": "Live application request, latency, and availability panels"
+    }
+  ],
+  "visual_review": "All 11 slides and representative final chapter frames reviewed; text and required evidence are readable."
+}

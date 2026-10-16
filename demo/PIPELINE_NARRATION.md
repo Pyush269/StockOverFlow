@@ -1,8 +1,8 @@
-# Pipeline narration guide
+# Optional pipeline explanation notes
 
-The MP4 is deliberately silent. Read these suggestions in your own voice and
-adjust the pacing while editing. Shorten waiting time if helpful, while keeping
-the start, progress, and final result of the actual run visible.
+The submitted walkthrough is deliberately silent and needs no narration. These
+optional notes explain the pipeline for questions or rehearsal. Its on-screen
+explanations and captions carry the walkthrough.
 
 ## Suggested narration
 

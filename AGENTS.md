@@ -4,6 +4,7 @@
 - Selected AWS Region: `ap-southeast-2` (Sydney). Use it for StockFlow resources.
 - AWS experience: new; verified active FREE plan on 15 October 2026.
 - User guidance preference: `help_level: HIGH` (explain steps and useful choices).
+- Submission video preference: silent, with clear on-screen explanations; no narration. Include only the required presentation/walkthrough sections.
 - Keep the existing StockFlow architecture and staged DevSecOps workflow.
 - Prepare a real Terraform plan and resource/cost summary for review before applying infrastructure.
 - On 15 October 2026 the user explicitly chose to keep AWS off while code, local checks, and CI are finished. Do not apply infrastructure until the user authorizes deployment.

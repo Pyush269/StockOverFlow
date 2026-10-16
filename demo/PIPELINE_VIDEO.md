@@ -21,12 +21,11 @@ The public run page and its changing status are recorded live. Source excerpts
 and captured command/job output are labelled separately. No success state is
 invented; the recorder stops with an error if the selected run fails.
 
-This is the CI/CD chapter of the submission. The full walkthrough also needs the
-slides, application/code, AWS Console, ArgoCD, Kubernetes, and monitoring.
+This is the separate CI/CD chapter. The [complete silent walkthrough](stockflow-walkthrough-silent.mp4) includes the required slides, application/code, AWS Console, ArgoCD, Kubernetes, and monitoring.
 
 Recording helper: `scripts/record-pipeline.mjs`. Intermediate metadata, raw video,
 and API logs belong under ignored `.logs/pipeline-video/`. The MP4 has no audio so
-the presenter can record their own narration.
+the walkthrough can use on-screen explanations without narration.
 
 The MP4 was decoded end to end and representative frames were visually checked.
 To encode the preserved raw recording again, install the optional

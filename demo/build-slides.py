@@ -119,7 +119,7 @@ def main():
     pdf.showPage()
 
     slide('Evaluation and cleanup', 'Source: docs/CLOUD_VERIFICATION.md and demo/RECORDING.md')
-    bullets(['Record the mandatory personal walkthrough.', 'Keep the live demo for the agreed evaluation window.', 'AWS continues using credits: about $8/day plus usage.', 'Back up data, remove the ALB/workloads, then destroy Terraform.'], top=135, size=24)
+    bullets(['Silent walkthrough explains the project with captions.', 'Keep the live demo for the agreed evaluation window.', 'AWS continues using credits: about $8/day plus usage.', 'Back up data, remove the ALB/workloads, then destroy Terraform.'], top=135, size=24)
     text('Open live StockFlow | Destroy removes this public URL.', 62, 435, 820, 18, color=TEAL)
     pdf.linkURL(gitops['origin'], (62, 76, 520, 108), relative=0)
     pdf.showPage()

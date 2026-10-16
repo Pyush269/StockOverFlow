@@ -1,6 +1,6 @@
 # StockFlow presentation content
 
-Updated 16 October 2026. Editable content and speaker guidance for the PDF deck. Cloud results and screenshots come from the verified EKS deployment; see `docs/CLOUD_VERIFICATION.md`. The personal walkthrough is still to be recorded.
+Updated 16 October 2026. Editable content and speaker guidance for the PDF deck. Cloud results and screenshots come from the verified EKS deployment; see `docs/CLOUD_VERIFICATION.md`. The complete silent walkthrough uses on-screen explanations and captions.
 
 ## 1. StockFlow
 
@@ -126,7 +126,7 @@ distinguish Pod recovery from a single worker failure that interrupts the demo.
 ## 11. Evaluation and cleanup
 
 - Cloud checks passed: EKS, EBS, ALB, ArgoCD, dashboard, and recovery evidence.
-- Record the mandatory personal walkthrough with the actual AWS Console views.
+- The silent walkthrough includes actual AWS Console views.
 - The public URL works on other devices while AWS resources remain running.
 - Keep resources for evaluation unless the instructor permits recording only.
 - Back up required data, remove the ALB/workloads, then destroy Terraform.

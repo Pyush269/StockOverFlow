@@ -45,4 +45,4 @@ Latest application, Helm, and Terraform checks passed: [CI evidence](CLOUD_CI_VE
 
 The reviewed estimate remains **$0.2890/hour infrastructure**, or **$0.3335/hour full demo**, before variable usage and credits (about **$8/day**). AWS keeps running when this laptop or Docker stops. No scheduled shutdown was configured. Keep resources for the agreed evaluation window, then back up needed inventory and perform the documented cleanup. Destroying the ALB/EKS removes the public URL. Never delete Terraform state before cleanup verification.
 
-The mandatory personal walkthrough video and AWS Console portion still need recording using [the recording guide](../demo/RECORDING.md). A narrated video has not been generated or uploaded. Post-evaluation destroy evidence must be collected when cleanup actually runs.
+The [complete silent walkthrough](../demo/stockflow-walkthrough-silent.mp4) includes the required sections, actual AWS Console captures, and on-screen explanations. No narration is needed. See [chapters and verification](../demo/WALKTHROUGH.md). Post-evaluation destroy evidence must be collected when cleanup actually runs.
