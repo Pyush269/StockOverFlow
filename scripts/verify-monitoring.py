@@ -20,8 +20,11 @@ def main():
     parser.add_argument('--context', required=True)
     parser.add_argument('--namespace', default='stockflow-gitops-smoke')
     parser.add_argument('--duration', type=int, default=120)
+    parser.add_argument('--cloud', action='store_true', help='Verify only the applied Sydney EKS demo')
     args = parser.parse_args()
-    if args.context != 'kind-stockflow-smoke' or not args.namespace.endswith('-smoke'):
+    if args.cloud and (args.context != 'stockflow-eks-sydney' or args.namespace != 'stockflow'):
+        parser.error('Cloud mode requires the explicit Sydney context and --namespace stockflow')
+    if not args.cloud and (args.context != 'kind-stockflow-smoke' or not args.namespace.endswith('-smoke')):
         parser.error('This automated experiment is restricted to the disposable local cluster')
     if not 30 <= args.duration <= 180:
         parser.error('Use 30..180 seconds of bounded traffic')
@@ -33,6 +36,18 @@ def main():
 
     def get(namespace, kind):
         return json.loads(run(['-n', namespace, 'get', kind, '-o', 'json']))
+
+    load_origin = 'http://127.0.0.1:3001'
+    if args.cloud:
+        outputs = json.loads(subprocess.check_output(['terraform', '-chdir=' + str(ROOT / 'terraform'), 'output', '-json'], text=True))
+        kubeconfig = json.loads(run(['config', 'view', '--minify', '-o', 'json']))
+        if outputs['region']['value'] != 'ap-southeast-2' or kubeconfig['clusters'][0]['cluster']['server'] != outputs['cluster_endpoint']['value']:
+            raise RuntimeError('Cloud context must match the applied Sydney cluster')
+        hostname = get(args.namespace, 'ingress')['items'][0]['status']['loadBalancer']['ingress'][0]['hostname']
+        if not hostname.endswith('.ap-southeast-2.elb.amazonaws.com'):
+            raise RuntimeError('Unexpected public ALB hostname')
+        load_origin = 'http://' + hostname
+    report_prefix = 'cloud-' if args.cloud else ''
 
     @contextmanager
     def forward(namespace, service, port, target):
@@ -80,14 +95,14 @@ def main():
             deployment = get(args.namespace, 'deployment/stockflow-stockflow-backend')['status']
             record = {'elapsed_seconds': round(time.monotonic() - began, 1), 'current_replicas': hpa.get('currentReplicas'), 'desired_replicas': hpa.get('desiredReplicas'), 'ready_replicas': deployment.get('readyReplicas', 0), 'cpu_utilization_percent': next((m.get('resource', {}).get('current', {}).get('averageUtilization') for m in hpa.get('currentMetrics', []) if m.get('resource', {}).get('name') == 'cpu'), None)}
             hpa_samples.append(record)
-            (ROOT / '.logs/hpa-samples.json').write_text(json.dumps(hpa_samples, indent=2) + '\n')
+            (ROOT / '.logs' / (report_prefix + 'hpa-samples.json')).write_text(json.dumps(hpa_samples, indent=2) + '\n')
             if len(hpa_samples) == 1 or record['current_replicas'] != hpa_samples[-2]['current_replicas']:
                 print('HPA observation: ' + json.dumps(record), flush=True)
             return record
 
         sample()
-        with (ROOT / '.logs/load-test-output.txt').open('w') as output:
-            load = subprocess.Popen([sys.executable, str(ROOT / 'scripts/load-test.py'), '--base-url', 'http://127.0.0.1:3001', '--duration', str(args.duration), '--concurrency', '12', '--rps', '80', '--output', str(ROOT / '.logs/load-test.json')], stdout=output, stderr=output)
+        with (ROOT / '.logs' / (report_prefix + 'load-test-output.txt')).open('w') as output:
+            load = subprocess.Popen([sys.executable, str(ROOT / 'scripts/load-test.py'), '--base-url', load_origin, '--duration', str(args.duration), '--concurrency', '12', '--rps', '80', '--output', str(ROOT / '.logs' / (report_prefix + 'load-test.json'))], stdout=output, stderr=output)
             try:
                 while load.poll() is None:
                     sample()
@@ -98,7 +113,7 @@ def main():
                 if load.poll() is None:
                     load.terminate()
                     load.wait(timeout=10)
-        load_result = json.loads((ROOT / '.logs/load-test.json').read_text())
+        load_result = json.loads((ROOT / '.logs' / (report_prefix + 'load-test.json')).read_text())
         dashboard = json.loads((ROOT / 'monitoring/stockflow.json').read_text())
         queries = []
         for panel in dashboard['panels']:
@@ -119,7 +134,7 @@ def main():
         assert len(grafana['dashboard']['panels']) == 6
         assert request('http://127.0.0.1:3002/api/datasources/uid/prometheus', headers)['type'] == 'prometheus'
         # Browser credentials travel through stdin and are never written to reports.
-        browser = subprocess.run(['node', str(ROOT / 'scripts/capture-monitoring.mjs')], input=json.dumps({'username': username, 'password': password, 'namespace': args.namespace}), text=True, encoding='utf-8', errors='replace', capture_output=True)
+        browser = subprocess.run(['node', str(ROOT / 'scripts/capture-monitoring.mjs')], input=json.dumps({'username': username, 'password': password, 'namespace': args.namespace, 'cloud': args.cloud}), text=True, encoding='utf-8', errors='replace', capture_output=True)
         if browser.returncode:
             (ROOT / '.logs/grafana-browser-error.txt').write_text(browser.stderr.replace(password, '[redacted]'), encoding='utf-8')
             raise RuntimeError('Grafana browser capture failed; repeat capture after checking the UI')
@@ -131,8 +146,8 @@ def main():
             time.sleep(5)
         after = grafana_status()
         assert before['pod'] == after['pod'] and before['containers'] == after['containers'] and all(c['ready'] for c in after['containers']), 'Grafana restarted during the experiment'
-        result = {'verified_on': datetime.now(timezone(timedelta(hours=5, minutes=30))).date().isoformat(), 'environment': 'Local kind, not EKS', 'aws_deployed': False, 'namespace': args.namespace, 'load': load_result, 'prometheus_backend_targets_up': len(targets), 'dashboard_uid': 'stockflow-overview', 'dashboard_live_queries': queries, 'hpa_samples': hpa_samples, 'hpa_max_ready_replicas': max(item['ready_replicas'] for item in hpa_samples), 'hpa_scaled_above_two': any(item['ready_replicas'] > 2 for item in hpa_samples), 'grafana_containers_stable': after, 'screenshot': 'docs/screenshots/stockflow-grafana-local.png'}
-        (ROOT / '.logs/observability-verification.json').write_text(json.dumps(result, indent=2) + '\n')
+        result = {'verified_on': datetime.now(timezone(timedelta(hours=5, minutes=30))).date().isoformat(), 'environment': 'AWS EKS Sydney' if args.cloud else 'Local kind, not EKS', 'aws_deployed': args.cloud, 'namespace': args.namespace, 'load': load_result, 'prometheus_backend_targets_up': len(targets), 'dashboard_uid': 'stockflow-overview', 'dashboard_live_queries': queries, 'hpa_samples': hpa_samples, 'hpa_max_ready_replicas': max(item['ready_replicas'] for item in hpa_samples), 'hpa_scaled_above_two': any(item['ready_replicas'] > 2 for item in hpa_samples), 'grafana_containers_stable': after, 'screenshot': 'docs/screenshots/stockflow-grafana-' + ('cloud' if args.cloud else 'local') + '.png'}
+        (ROOT / '.logs' / (report_prefix + 'observability-verification.json')).write_text(json.dumps(result, indent=2) + '\n')
         print(f'PASS: six dashboard queries populated; {len(targets)} UP targets; HPA peak Ready replicas {result["hpa_max_ready_replicas"]}', flush=True)
 
 

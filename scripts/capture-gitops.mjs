@@ -16,12 +16,12 @@ try {
   const { token } = await response.json();
   await context.addCookies([{ name: 'argocd.token', value: token, domain: '127.0.0.1', path: '/', secure: true, httpOnly: false, sameSite: 'Lax' }]);
   const page = await context.newPage();
-  await page.goto('https://127.0.0.1:8443/applications/argocd/stockflow-local');
+  await page.goto(`https://127.0.0.1:8443/applications/argocd/${encodeURIComponent(settings.application || 'stockflow-local')}`);
   await page.getByText('Healthy', { exact: true }).first().waitFor({ timeout: 30000 });
   await page.getByText('Synced', { exact: true }).first().waitFor({ timeout: 30000 });
   await page.waitForTimeout(3000);
-  await page.screenshot({ path: path.join(root, 'docs/screenshots/stockflow-argocd-local.png'), fullPage: true });
-  console.log('PASS: local ArgoCD UI shows Healthy and Synced');
+  await page.screenshot({ path: path.join(root, `docs/screenshots/stockflow-argocd-${settings.cloud ? 'cloud' : 'local'}.png`), fullPage: true });
+  console.log('PASS: ArgoCD UI shows Healthy and Synced');
   await context.close();
 } finally {
   await browser.close();

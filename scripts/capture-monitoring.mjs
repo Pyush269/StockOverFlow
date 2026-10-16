@@ -24,7 +24,7 @@ try {
   await page.waitForTimeout(10000);
   if (await page.getByText('No data', { exact: true }).count()) throw new Error('A Grafana panel has no data');
   await mkdir(path.join(root, 'docs/screenshots'), { recursive: true });
-  await page.screenshot({ path: path.join(root, 'docs/screenshots/stockflow-grafana-local.png'), fullPage: true });
+  await page.screenshot({ path: path.join(root, `docs/screenshots/stockflow-grafana-${settings.cloud ? 'cloud' : 'local'}.png`), fullPage: true });
   console.log('PASS: authenticated Grafana dashboard rendered with live panels');
   await context.close();
 } finally {

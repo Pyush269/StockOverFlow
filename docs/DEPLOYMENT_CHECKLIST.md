@@ -1,7 +1,7 @@
 # Deployment and evaluation checklist
 
-AWS is off by user choice. Completing this checklist requires later deployment
-authorization; no public StockFlow URL exists yet. Local Docker/Compose remains
+AWS deployment was authorized on 16 October 2026 after refreshing the plan and
+costs. Terraform provisioning is in progress; no verified public URL exists yet. Local Docker/Compose remains
 usable on another computer with the documented prerequisites and a fresh `.env`.
 
 ## Before starting the paid-resource clock

@@ -1,6 +1,6 @@
 # StockFlow infrastructure review
 
-Prepared 15 October 2026; revised for the one-worker demo after Prompt 6 local capacity checks. **Prompt 5 is implemented and planned; deployment is pending review.** No Terraform apply has run and no StockFlow AWS infrastructure has been created. The existing default VPC remains outside this Terraform configuration.
+Prepared 15 October 2026; refreshed on 16 October 2026. **The user authorized deployment after the refreshed plan/cost review, and Terraform apply has started.** The current pre-apply [review](DEPLOYMENT_REVIEW_20261016.json) confirms 59 additions, unchanged prices, and USD 100 credits before deployment. Provisioning and actual cloud verification are in progress; earlier local results are not cloud completion evidence. The existing default VPC remains outside this Terraform configuration.
 
 ## Actual plan and verification
 
@@ -15,7 +15,7 @@ Local files, deliberately excluded from Git:
 - Configuration scan: `.logs/terraform-security.json` and `.logs/terraform-security.log`.
 - Price lookup evidence: `.logs/terraform-research/sydney-review.json`; revised one-worker calculation: `.logs/terraform-research/one-worker-costs.json`.
 
-Saved-plan SHA-256: `4b6fae9ecf7b4196b994a6272b0619327484addff73fffd073b5a163d7a9dc4c`.
+16 October saved-plan SHA-256: `e370d3d318e86faddaba3a86504373818b39f3077a803654eb7371836755cda6`. The earlier 15 October plan hash `4b6fae9ecf7b4196b994a6272b0619327484addff73fffd073b5a163d7a9dc4c` is historical and must not be applied.
 
 The committed [review data](INFRASTRUCTURE_REVIEW.json) contains a summary without the operator's IP or project identity. Local plan files are needed to review exact values; the summary cannot be applied. Regenerating the plan changes its checksum and requires a fresh review.
 

@@ -1,0 +1,3 @@
+# Operator tools only; these do not enter the application runtime images.
+boto3[crt]==1.43.114
+PyYAML==6.0.3
