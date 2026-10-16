@@ -29,9 +29,14 @@ resource "aws_iam_role_policy_attachment" "cni" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
 
+data "aws_iam_policy" "ebs" {
+  # V2 is at the policy root; the older V1 used the service-role/ path.
+  arn = "arn:aws:iam::aws:policy/AmazonEBSCSIDriverPolicyV2"
+}
+
 resource "aws_iam_role_policy_attachment" "ebs" {
   role       = aws_iam_role.pod["ebs"].name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicyV2"
+  policy_arn = data.aws_iam_policy.ebs.arn
 }
 
 resource "aws_iam_policy" "load_balancer" {

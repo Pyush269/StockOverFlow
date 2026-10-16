@@ -80,18 +80,17 @@
     "AWS-0041",
     "AWS-0104"
   ],
-  "deployment_status": "Applying reviewed Pod Identity continuation plan after partial initial apply",
+  "deployment_status": "Applying final storage policy and three managed add-ons",
   "initial_plan_sha256": "e370d3d318e86faddaba3a86504373818b39f3077a803654eb7371836755cda6",
   "initial_actions": {
     "read": 1,
     "create": 59
   },
-  "plan_sha256": "64c7e5db5623ad4f765f7abde6f6d68e573a218531276340d9b5524fd0b27314",
+  "plan_sha256": "429e6de8a1e45aaefc14d84ae7eca9fd54fcadc89c3c74ff39d1df4d38b34480",
   "actions": {
-    "create": 13,
+    "create": 4,
     "update": 0,
-    "delete": 0,
-    "unchanged": 47
+    "delete": 0
   },
   "pod_identity_review": {
     "reason": "Managed AWS project SCP denied iam:CreateOpenIDConnectProvider; use the supported EKS Pod Identity service instead. No organization policy was changed.",
@@ -100,5 +99,15 @@
     "network": "Existing NAT HTTPS egress reaches EKS Auth; no additional interface endpoint or worker added.",
     "cost_change_usd_hour": "0",
     "tests": "terraform validate and all 11 mocked tests passed"
+  },
+  "pod_identity_plan_sha256": "64c7e5db5623ad4f765f7abde6f6d68e573a218531276340d9b5524fd0b27314",
+  "storage_review": {
+    "corrected_policy": "arn:aws:iam::aws:policy/AmazonEBSCSIDriverPolicyV2",
+    "verified_during_real_plan": true,
+    "cost_change_usd_hour": "0",
+    "worker_ready": true,
+    "worker_allocatable_cpu": "1930m",
+    "worker_allocatable_memory": "7276372Ki",
+    "worker_pod_limit": 29
   }
 }
